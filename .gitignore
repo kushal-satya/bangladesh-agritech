@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Raw BIHS microdata (IFPRI restricted — never commit)
+*.dta
+BIHS*/
+SPIA*/
+BGD_adm*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build logs
+pipeline_log.txt
