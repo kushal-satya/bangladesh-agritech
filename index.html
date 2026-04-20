@@ -92,6 +92,32 @@
   .controls button.pill.on{background:var(--slate);color:#fff;border-color:var(--slate)}
   .legend{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--slate)}
   .legend .sw{width:14px;height:10px;display:inline-block;border-radius:2px;margin-right:4px}
+  .fulltbl-wrap{background:#fff;border:1px solid var(--line);border-radius:6px;padding:10px 12px 12px}
+  .fulltbl-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 10px}
+  .fulltbl-toolbar input.search{font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--line);
+      border-radius:4px;color:var(--slate);min-width:220px}
+  .fulltbl-toolbar .dl{font-family:inherit;font-size:12.5px;padding:6px 12px;border:1px solid var(--slate);
+      background:var(--slate);color:#fff;border-radius:4px;cursor:pointer;font-weight:600}
+  .fulltbl-toolbar .dl:hover{background:#1f2f33}
+  .fulltbl-toolbar .meta{color:var(--mute);font-size:12px;margin-left:auto}
+  .fulltbl-scroll{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:4px}
+  table.full{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;font-family:"SF Mono",Menlo,Consolas,monospace}
+  table.full thead th{position:sticky;top:0;background:var(--slate);color:#fff;padding:8px 10px;text-align:right;
+      font-weight:600;border-right:1px solid #3e535a;font-size:11.5px;letter-spacing:.03em;white-space:nowrap;cursor:pointer;user-select:none}
+  table.full thead th:first-child, table.full thead th:nth-child(2){text-align:left}
+  table.full thead th .arr{opacity:.4;margin-left:3px;font-size:10px}
+  table.full thead th.sort-asc .arr, table.full thead th.sort-desc .arr{opacity:1}
+  table.full tbody td{padding:6px 10px;border-bottom:1px solid #eee6d2;text-align:right;white-space:nowrap}
+  table.full tbody td:first-child, table.full tbody td:nth-child(2){text-align:left;color:var(--slate)}
+  table.full tbody tr:hover{background:#faf4e2}
+  table.full tbody tr.natrow{background:#eef1e4;font-weight:700}
+  table.full tbody tr.natrow:hover{background:#e7ebd9}
+  table.full tbody tr.natrow td:first-child{color:var(--slate);letter-spacing:.04em;text-transform:uppercase;font-size:11px}
+  .wave-pills{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#fff}
+  .wave-pills button{font-family:inherit;font-size:12.5px;padding:6px 12px;border:0;
+      background:#fff;color:var(--slate);cursor:pointer;border-right:1px solid var(--line);font-weight:600}
+  .wave-pills button:last-child{border-right:0}
+  .wave-pills button.on{background:var(--slate);color:#fff}
   .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--mute)}
   .footer .contact{color:var(--slate);font-size:14px;margin-bottom:6px}
   .footer .contact a{color:var(--teal);text-decoration:none;border-bottom:1px solid var(--teal2)}
@@ -206,6 +232,13 @@ MIXTAPE is a country-level study of the dynamics of agricultural innovation in B
   <h3 class="sub">Top districts &mdash; BRRI core (BR-28 / BR-29) and new BRRI lines (BR-70+), 2024</h3>
   <div id="riceTopTables" class="row row-2"></div>
 
+  <h3 class="sub">Full district-level table &mdash; every variety family, all 64 districts, all rounds</h3>
+  <p class="lede">Pick a round below. Every cell is a weighted share (%) of households in that district who grew a variety
+  in the family; <span class="src">n (households)</span> is the unweighted sample size; <span class="src">Σ weight</span> is
+  the sum of household sampling weights (the denominator used to compute each percentage). Use the search box to filter,
+  click any header to sort, and the CSV button to export the full table for that round.</p>
+  <div class="fulltbl-wrap" id="riceFullTbl"></div>
+
   <p class="note">Source: BIHS 011_mod_h1_male.dta, 015_r2_mod_h1_male.dta, 021_bihs_r3_male_mod_h1.dta,
   SPIA_BIHS_2024_module_c2_4.dta + module_b6.dta. Weights: BIHS_FTF baseline sampling weights, BIHS FTF 2015 survey sampling weights,
   158_BIHS sampling weights_r3.dta, SPIA 2024 hhweight_24.</p>
@@ -234,6 +267,12 @@ MIXTAPE is a country-level study of the dynamics of agricultural innovation in B
 
   <h3 class="sub">Top pond-intensive and tilapia-intensive districts, 2024</h3>
   <div id="aquaTopTables" class="row row-2"></div>
+
+  <h3 class="sub">Full district-level table &mdash; every aquaculture indicator, all 64 districts, all rounds</h3>
+  <p class="lede">Weighted share (%) of households in each district showing the indicator (filtered to ponds with positive
+  cultivated area). The 2024 round additionally records intensification practices (supplementary feed, hormone, disease
+  control). Sort on any column, filter by district, or export a CSV for the round on display.</p>
+  <div class="fulltbl-wrap" id="aquaFullTbl"></div>
 
   <p class="note">Source: BIHS 026_mod_l1_male.dta, 037_r2_mod_l1_male.dta, 051_bihs_r3_male_mod_l1.dta,
   SPIA_BIHS_2024_module_e5.dta + module_e10.dta. Species codes from value labels in-file.</p>
@@ -265,6 +304,25 @@ MIXTAPE is a country-level study of the dynamics of agricultural innovation in B
   <h3 class="sub">Equipment-ownership roster (Module a5_6)</h3>
   <div class="chart-wrap"><canvas id="spiaEquip"></canvas></div>
 
+  <h3 class="sub">Full 2024 district-level table &mdash; every rice, aquaculture and mechanisation indicator</h3>
+  <p class="lede">All indicators measured in the 2024 SPIA round, pooled into a single wide table at the district level.
+  Rows sort and filter, and the CSV download exports every column.</p>
+  <div class="fulltbl-wrap" id="spiaFullTbl"></div>
+
+  <div class="row row-2" style="margin-top:16px">
+    <div>
+      <h3 class="sub">DNA-fingerprint variety counts (n = 370 samples)</h3>
+      <p class="lede">Raw count of samples matched to each reference variety, descending.</p>
+      <div class="fulltbl-wrap" id="spiaDnaVariety"></div>
+    </div>
+    <div>
+      <h3 class="sub">Genetic clusters (10 clusters)</h3>
+      <p class="lede">Each sample was assigned to a cluster by its genotype. Here: sample counts per cluster, number of
+      distinct varieties observed in the cluster, and the cluster's most frequent variety.</p>
+      <div class="fulltbl-wrap" id="spiaDnaCluster"></div>
+    </div>
+  </div>
+
   <p class="note">Source: SPIA_BIHS_2024_module_a1.dta, a5_6.dta, c2_4.dta, b6.dta, e5.dta, e10.dta, d2.dta,
   and ref_clusters_no_hybrids_with_HH_Ids.csv (DNA fingerprints).</p>
 </section>
@@ -289,6 +347,12 @@ MIXTAPE is a country-level study of the dynamics of agricultural innovation in B
     <select id="mechDistInd"></select>
   </div>
   <div class="chart-wrap tall"><canvas id="mechDistChart"></canvas></div>
+
+  <h3 class="sub">Full district-level table &mdash; every piece of equipment, all rounds with data</h3>
+  <p class="lede">Weighted share (%) of households owning each piece of equipment (and, for 2024, actually
+  <em>using</em> motorised harvest / thresh). The 2011 and 2015 rounds only carry a tractor flag in the harmonised
+  file, so those columns are filled only where microdata exist.</p>
+  <div class="fulltbl-wrap" id="mechFullTbl"></div>
 
   <p class="note">Sources: 016_bihs_r3_male_mod_d2.dta (R3 asset roster, codes 12=tractor, 13=power tiller, 15=thresher,
   22=LLP pump, 25=electric motor pump, 26=diesel pump, 27=sprayer, 28=reaper, 36=axial-flow pump, 37=seeder drill,
@@ -534,6 +598,141 @@ function drawMap(){
   lg.innerHTML = html;
 }
 
+/* ==============================  FULL TABLE HELPERS  ============================== */
+/* Render a full district-level table for a (source, wave).  Columns:
+   District | Division | n_hh | weight_sum | [every indicator, % weighted].
+   Adds: live text filter, sortable headers, CSV download, sticky header.
+   The `__NATIONAL__` row is rendered first and styled. */
+function _fmt(v){
+  if(v==null || v==="" || (typeof v==="number" && isNaN(v))) return "";
+  if(typeof v === "number") return v.toFixed(2);
+  return String(v);
+}
+function buildFullRows(src, wave, indicators){
+  const data = src.by_wave[wave] || {};
+  const rows = [];
+  const nat = data["__NATIONAL__"];
+  if(nat){
+    const r = {district:"NATIONAL (weighted)", division:"—", n_hh:nat.n_hh, weight_sum:nat.weight_sum};
+    indicators.forEach(k => r[k] = nat[k] ?? null);
+    r._is_nat = true;
+    rows.push(r);
+  }
+  Object.entries(data).forEach(([dist, row]) => {
+    if(dist === "__NATIONAL__") return;
+    const r = {district:dist, division:(GEO.districts[dist]||{}).division||"", n_hh:row.n_hh, weight_sum:row.weight_sum};
+    indicators.forEach(k => r[k] = row[k] ?? null);
+    rows.push(r);
+  });
+  return rows;
+}
+function csvDownload(filename, rows, colKeys, colLabels){
+  const esc = v => {
+    if(v==null) return "";
+    const s = String(v);
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  };
+  const lines = [colLabels.map(esc).join(",")];
+  rows.forEach(r => lines.push(colKeys.map(k => esc(r[k])).join(",")));
+  const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8"});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url); a.remove();}, 300);
+}
+function renderFullTable(container, src, indicators, indicatorLabels, csvBase, opts){
+  /* container: DOM element
+     src: RICE | AQUA | MECH (or any {by_wave:{...}})
+     indicators: ordered list of indicator keys
+     indicatorLabels: map key->label
+     csvBase: filename prefix
+     opts: {waves:[strings], defaultWave:string, showWavePills:bool} */
+  opts = Object.assign({waves:["2011","2015","2019","2024"], defaultWave:"2024", showWavePills:true}, opts||{});
+  const pillsHtml = opts.showWavePills
+    ? `<div class="wave-pills">${opts.waves.map(w=>`<button data-w="${w}" class="${w===opts.defaultWave?"on":""}">${WAVE_LBL[w]}</button>`).join("")}</div>`
+    : "";
+  container.innerHTML = `
+    <div class="fulltbl-toolbar">
+      ${pillsHtml}
+      <input type="search" class="search" placeholder="Filter districts…"/>
+      <button class="dl">Download CSV</button>
+      <span class="meta"></span>
+    </div>
+    <div class="fulltbl-scroll"><table class="full"></table></div>`;
+  let currentWave = opts.defaultWave;
+  const waveGetter = ()=>currentWave;
+
+  const colKeys   = ["district","division","n_hh","weight_sum", ...indicators];
+  const colLabels = ["District","Division","n (households)","Σ weight", ...indicators.map(k=>indicatorLabels[k]||k)];
+  let sortKey = "weight_sum", sortDir = -1;
+
+  function render(){
+    const wave = waveGetter();
+    let rows = buildFullRows(src, wave, indicators);
+    const q = container.querySelector("input.search").value.trim().toLowerCase();
+    if(q) rows = rows.filter(r => r._is_nat || (r.district.toLowerCase().includes(q) || (r.division||"").toLowerCase().includes(q)));
+    // sort non-national rows; keep NATIONAL pinned at top
+    const nat = rows.filter(r => r._is_nat);
+    const rest= rows.filter(r => !r._is_nat).sort((a,b)=>{
+      const av=a[sortKey], bv=b[sortKey];
+      if(av==null && bv==null) return 0;
+      if(av==null) return 1;
+      if(bv==null) return -1;
+      if(typeof av === "number" && typeof bv === "number") return (av-bv)*sortDir;
+      return (String(av).localeCompare(String(bv)))*sortDir;
+    });
+    rows = nat.concat(rest);
+
+    const tbl = container.querySelector("table");
+    tbl.innerHTML = "";
+    const thead = document.createElement("thead");
+    const trh = document.createElement("tr");
+    colKeys.forEach((k,i)=>{
+      const th = document.createElement("th");
+      th.innerHTML = `${colLabels[i]}<span class="arr">${sortKey===k?(sortDir===1?"▲":"▼"):"↕"}</span>`;
+      th.dataset.k = k;
+      if(sortKey===k) th.classList.add(sortDir===1?"sort-asc":"sort-desc");
+      th.onclick = ()=>{ if(sortKey===k) sortDir*=-1; else {sortKey=k; sortDir=(k==="district"||k==="division")?1:-1;} render(); };
+      trh.appendChild(th);
+    });
+    thead.appendChild(trh);
+    tbl.appendChild(thead);
+    const tbody = document.createElement("tbody");
+    rows.forEach(r=>{
+      const tr = document.createElement("tr");
+      if(r._is_nat) tr.className = "natrow";
+      colKeys.forEach(k=>{
+        const td = document.createElement("td");
+        td.textContent = (k==="n_hh" ? (r[k]??"") : _fmt(r[k]));
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+    const meta = container.querySelector(".meta");
+    const total = rows.filter(r=>!r._is_nat).length;
+    meta.textContent = `${total} districts · ${WAVE_LBL[wave]}`;
+  }
+
+  const pillsEl = container.querySelector(".wave-pills");
+  if(pillsEl){
+    pillsEl.addEventListener("click", e=>{
+      if(e.target.tagName!=="BUTTON") return;
+      currentWave = e.target.dataset.w;
+      pillsEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on", b===e.target));
+      render();
+    });
+  }
+  container.querySelector("input.search").addEventListener("input", render);
+  container.querySelector("button.dl").addEventListener("click", ()=>{
+    const wave = waveGetter();
+    const rows = buildFullRows(src, wave, indicators);
+    csvDownload(`${csvBase}_${wave}.csv`, rows, colKeys, colLabels);
+  });
+  render();
+}
+
 /* ==============================  CHART HELPERS  ============================== */
 function lineChart(canvas, labels, datasets, opts){
   if(chartRefs[canvas]) chartRefs[canvas].destroy();
@@ -629,6 +828,10 @@ INITS["t-rice"] = function(){
   document.getElementById("riceTopTables").innerHTML =
     topTbl("BRRI_CORE28_29","Top 10 districts &mdash; BR-28 / BR-29 (2024)")
   + topTbl("BRRI_NEW_POST2012","Top 10 districts &mdash; new BRRI lines BR-70+ (2024)");
+
+  // Full district-level table (all 4 rounds, all variety families)
+  const RICE_TBL_KEYS = ["RICE_GROWER","BRRI_CORE28_29","BRRI_OLDER_HYV","BRRI_NEW_POST2012","BRRI_STRESS","BINA","HYBRID","LOCAL"];
+  renderFullTable(document.getElementById("riceFullTbl"), RICE, RICE_TBL_KEYS, RICE_FAM_LBL, "mixtape_rice_district");
 };
 
 /* ==============================  TAB 3 INIT (AQUA)  ============================== */
@@ -680,6 +883,11 @@ INITS["t-aqua"] = function(){
   document.getElementById("aquaTopTables").innerHTML =
     topTbl("ANY_POND","Top 10 pond-intensive districts (2024)")
   + topTbl("TILAPIA","Top 10 tilapia districts (2024)");
+
+  // Full district-level table. 2011/2015/2019 do not have SUPP_FEED/HORMONE/DISEASE_CTL,
+  // but the table helper simply shows blanks for missing columns.
+  const AQUA_TBL_KEYS = ["ANY_POND","TILAPIA","CARP_ANY","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA","SUPP_FEED","HORMONE","DISEASE_CTL"];
+  renderFullTable(document.getElementById("aquaFullTbl"), AQUA, AQUA_TBL_KEYS, AQUA_IND_LBL, "mixtape_aqua_district");
 };
 
 /* ==============================  TAB 4 INIT (SPIA)  ============================== */
@@ -726,6 +934,53 @@ INITS["t-spia"] = function(){
   barChart("spiaEquip", eq[0].map(x=>x[0]),
     [{label:"HH ownership %",data:eq[0].map(x=>x[1]),backgroundColor:COL.slate,borderColor:COL.slate}],
     {plugins:{title:{display:true,text:"Equipment ownership (2024, SPIA module a5_6)"},legend:{display:false}}});
+
+  // ---- Pooled 2024 district-level full table (rice + aqua + mech) ----
+  const POOLED_2024 = { by_wave: { "2024": {} } };
+  const dists = new Set();
+  [RICE, AQUA, MECH].forEach(src=>Object.keys(src.by_wave["2024"]||{}).forEach(d=>dists.add(d)));
+  dists.forEach(d=>{
+    const r = RICE.by_wave["2024"][d]  || {};
+    const a = AQUA.by_wave["2024"][d]  || {};
+    const m = MECH.by_wave["2024"][d]  || {};
+    POOLED_2024.by_wave["2024"][d] = Object.assign({n_hh: r.n_hh||a.n_hh||m.n_hh, weight_sum: r.weight_sum||a.weight_sum||m.weight_sum}, r, a, m);
+  });
+  const SPIA_TBL_KEYS = [
+    "RICE_GROWER","BRRI_CORE28_29","BRRI_OLDER_HYV","BRRI_NEW_POST2012","BRRI_STRESS","BINA","HYBRID","LOCAL",
+    "ANY_POND","TILAPIA","CARP_ANY","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA","SUPP_FEED","HORMONE","DISEASE_CTL",
+    "POWER_TILLER","TRACTOR","POWER_THRESHER","SPRAYER","REAPER","COMBINED_HARVEST","LLP_IRRIG","AXIAL_FLOW_PUMP",
+    "ELEC_MOTOR_PUMP","DIESEL_MOTOR_PUMP","USE_MOTOR_HARVEST","USE_MOTOR_THRESH"
+  ];
+  const SPIA_LBL = Object.assign({}, RICE_FAM_LBL, AQUA_IND_LBL, MECH_IND_LBL);
+  renderFullTable(document.getElementById("spiaFullTbl"), POOLED_2024, SPIA_TBL_KEYS, SPIA_LBL, "mixtape_spia2024_district",
+    {waves:["2024"], defaultWave:"2024", showWavePills:false});
+
+  // ---- DNA raw tables ----
+  const vTbl = document.getElementById("spiaDnaVariety");
+  const vRows = Object.entries(DNA.by_variety).map(([v,n])=>({variety:v,n,share:100*n/DNA.n_samples}))
+                  .sort((a,b)=>b.n-a.n);
+  vTbl.innerHTML = `
+    <div class="fulltbl-toolbar">
+      <span class="meta">n = ${DNA.n_samples} DNA samples · ${DNA.n_varieties} varieties</span>
+      <button class="dl">Download CSV</button>
+    </div>
+    <div class="fulltbl-scroll"><table class="full"><thead><tr>
+      <th>Variety</th><th>Samples</th><th>% of sample</th>
+    </tr></thead><tbody>${vRows.map(r=>`<tr><td>${r.variety}</td><td>${r.n}</td><td>${r.share.toFixed(2)}</td></tr>`).join("")}</tbody></table></div>`;
+  vTbl.querySelector("button.dl").onclick = ()=>csvDownload("mixtape_dna_by_variety.csv", vRows, ["variety","n","share"], ["Variety","Samples","% of sample"]);
+
+  const cTbl = document.getElementById("spiaDnaCluster");
+  const cRows = DNA.by_cluster.slice().sort((a,b)=>b.n_samples-a.n_samples);
+  cTbl.innerHTML = `
+    <div class="fulltbl-toolbar">
+      <span class="meta">${DNA.n_clusters} genetic clusters</span>
+      <button class="dl">Download CSV</button>
+    </div>
+    <div class="fulltbl-scroll"><table class="full"><thead><tr>
+      <th>Cluster</th><th>Samples</th><th>Distinct varieties</th><th>Top variety</th>
+    </tr></thead><tbody>${cRows.map(r=>`<tr><td>${r.cluster_id}</td><td>${r.n_samples}</td><td>${r.n_varieties}</td><td>${r.top_variety}</td></tr>`).join("")}</tbody></table></div>`;
+  cTbl.querySelector("button.dl").onclick = ()=>csvDownload("mixtape_dna_by_cluster.csv", cRows,
+    ["cluster_id","n_samples","n_varieties","top_variety"], ["Cluster","Samples","Distinct varieties","Top variety"]);
 };
 
 /* ==============================  TAB 5 INIT (MECH)  ============================== */
@@ -768,6 +1023,13 @@ INITS["t-mech"] = function(){
       {plugins:{title:{display:true,text:"Top 30 districts for "+MECH_IND_LBL[k].toLowerCase()+" (2024)"}}});
   }
   sel.onchange = redrawMechDist; redrawMechDist();
+
+  // Full district-level table — one column per equipment indicator, all rounds we have.
+  const MECH_TBL_KEYS = ["TRACTOR","POWER_TILLER","POWER_THRESHER","PADDLE_THRESHER","TREADLE_PUMP","ROWER_PUMP",
+                         "AXIAL_FLOW_PUMP","LLP_IRRIG","DIESEL_MOTOR_PUMP","ELEC_MOTOR_PUMP","SPRAYER","REAPER",
+                         "SEEDER_DRILL","COMBINED_HARVEST","TRANSPLANTER","FISHING_NET",
+                         "USE_MOTOR_HARVEST","USE_MOTOR_THRESH","USE_TREADLE_THRESH"];
+  renderFullTable(document.getElementById("mechFullTbl"), MECH, MECH_TBL_KEYS, MECH_IND_LBL, "mixtape_mech_district");
 };
 
 // kick off first tab
