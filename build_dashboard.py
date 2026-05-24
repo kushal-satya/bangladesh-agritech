@@ -27,8 +27,7 @@ with open(os.path.join(OUT, "MIXTAPE-logo-800x800.png"), "rb") as fh:
 def j(obj):
     return json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
 
-PROJECT_BRIEF = """Monitoring Impacts for Technology Adoption and Program Engagement in Bangladesh (MIXTAPE) \u2014 Years 2024\u2013present.
-MIXTAPE is a country-level study of the dynamics of agricultural innovation in Bangladesh: the outreach of improved agricultural innovations, how adoption varies over time, and the impacts on individuals, households, markets, the agri-food system, and the environment. Focused on CGIAR-related innovations in rice and aquaculture, the project frames impact assessment as a dynamic household- and system-level analysis. The team is jointly led by Cornell and Bangladesh Agricultural University, combining agricultural economics, remote sensing, natural resource management (crop breeding and aquaculture), cropping-system ecology, behavioural sciences and gender in agriculture across five research institutions."""
+PROJECT_BRIEF = """MIXTAPE is a country level study of the dynamics of agricultural innovation in Bangladesh: the outreach of improved agricultural innovations, how adoption varies over time, and the impacts on individuals, households, markets, the agri food system, and the environment. The project frames impact assessment as a dynamic household and system level analysis, focused on CGIAR linked innovations in rice and aquaculture. It is jointly implemented by Cornell University and Bangladesh Agricultural University in partnership with national research institutions, and supported by the CGIAR Standing Panel on Impact Assessment (SPIA) over 2024 to 2027."""
 
 HTML_TMPL = r"""<!doctype html>
 <html lang="en">
@@ -42,166 +41,359 @@ HTML_TMPL = r"""<!doctype html>
 <link rel="icon" type="image/png" href="__LOGO__"/>
 <style>
   :root{
-    --slate:#2d3e43;
-    --slate2:#3e535a;
-    --leaf:#6e9b5c;
-    --leaf2:#8fb37a;
-    --teal:#3d8aa0;
-    --teal2:#5aa8bc;
-    --cream:#f6f1e4;
-    --paper:#faf6ec;
-    --ink:#1f2a2d;
-    --mute:#6b7778;
-    --line:#d8d2c2;
-    --accent:#c47a4a;
+    /* Editorial minimal. Neutral surfaces. Two category accents: rice green, aquaculture blue. */
+    --ink:#1a1f1c;
+    --text:#2b332e;
+    --mute:#6c7570;
+    --line:#e3e6e1;
+    --line2:#cfd4cd;
+    --bg:#fafaf7;
+    --panel:#ffffff;
+    --tint:#f3f5f0;
+    --rice:#2d6a4f;
+    --rice-dark:#1c4a36;
+    --rice-soft:#e5ede7;
+    --aqua:#1f5e8a;
+    --aqua-dark:#163f5d;
+    --aqua-soft:#dfe9f1;
+    --mech:#7a6147;
+    --mech-dark:#52402b;
+    --mech-soft:#ece4d6;
+    --accent:var(--rice);
+    --accent-dark:var(--rice-dark);
+    --accent-soft:var(--rice-soft);
   }
+  body.cat-rice{--accent:var(--rice);--accent-dark:var(--rice-dark);--accent-soft:var(--rice-soft)}
+  body.cat-aqua{--accent:var(--aqua);--accent-dark:var(--aqua-dark);--accent-soft:var(--aqua-soft)}
+  body.cat-mech{--accent:var(--mech);--accent-dark:var(--mech-dark);--accent-soft:var(--mech-soft)}
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);
-      font-family:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;
-      line-height:1.55;-webkit-font-smoothing:antialiased;font-size:15px}
-  .wrap{max-width:1240px;margin:0 auto;padding:28px 28px 80px}
-  header.brand{display:flex;align-items:center;gap:22px;border-bottom:1px solid var(--line);
-      padding-bottom:22px;margin-bottom:10px}
-  header.brand img{width:104px;height:104px;border-radius:14px;background:var(--cream);padding:6px;flex-shrink:0}
-  header.brand .titles{display:flex;flex-direction:column;gap:2px}
-  header.brand .titles .kicker{color:var(--mute);font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;
-      font-family:"Helvetica Neue",Arial,sans-serif;font-weight:600}
-  header.brand .titles h1{margin:0;font-size:56px;line-height:1;letter-spacing:-0.02em;color:var(--slate);
-      font-weight:800;font-family:"Helvetica Neue",Arial,sans-serif}
-  header.brand .titles h1 .amp{color:var(--teal);font-style:italic;font-weight:400;margin:0 4px}
-  header.brand .titles .sub{color:var(--slate2);font-size:14px;font-style:italic;margin-top:6px;max-width:740px}
-  .brief{background:var(--cream);border-left:3px solid var(--leaf);padding:14px 18px;margin:14px 0 22px;
-      font-size:14px;color:#2b3638;border-radius:2px}
-  .brief b{color:var(--slate)}
-  nav.tabs{display:flex;gap:0;border-bottom:2px solid var(--slate);margin:10px 0 20px;flex-wrap:wrap}
-  nav.tabs button{font-family:inherit;background:transparent;border:0;padding:10px 18px;font-size:14px;
-      color:var(--mute);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;letter-spacing:.02em}
-  nav.tabs button:hover{color:var(--slate)}
-  nav.tabs button.on{color:var(--slate);border-bottom-color:var(--teal);font-weight:600}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Helvetica,Arial,system-ui,sans-serif;
+      line-height:1.55;-webkit-font-smoothing:antialiased;font-size:14.5px}
+
+  /* Two column layout: sticky side rail, main column */
+  .layout{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh;
+      max-width:1500px;margin:0 auto}
+  @media (max-width:980px){.layout{grid-template-columns:1fr}}
+
+  /* Side rail */
+  aside.rail{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+      padding:30px 22px 24px;border-right:1px solid var(--line);background:#fbfbf8}
+  aside.rail::-webkit-scrollbar{width:6px}
+  aside.rail::-webkit-scrollbar-thumb{background:#d8dad4;border-radius:3px}
+  @media (max-width:980px){
+    aside.rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);
+        padding:16px 18px}
+  }
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+  .brand img{width:40px;height:40px;background:transparent;flex-shrink:0;object-fit:contain;
+      mix-blend-mode:multiply}
+  .brand .name{display:flex;flex-direction:column;gap:1px;min-width:0}
+  .brand .name .acro{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:.02em;line-height:1}
+  .brand .name .full{font-size:10.5px;color:var(--mute);line-height:1.35;margin-top:3px}
+
+  /* Side nav */
+  nav.tabs{display:flex;flex-direction:column;gap:1px;margin:0 0 22px;border:0}
+  nav.tabs button{font-family:inherit;background:transparent;border:0;padding:9px 12px;font-size:13px;
+      color:var(--text);cursor:pointer;font-weight:500;text-align:left;letter-spacing:-0.003em;
+      border-left:2px solid transparent;border-radius:0;
+      transition:background .12s ease,color .12s ease;
+      display:flex;align-items:center;gap:10px}
+  nav.tabs button:hover{background:var(--tint);color:var(--ink)}
+  nav.tabs button.on{color:var(--accent);background:var(--accent-soft);border-left-color:var(--accent);
+      font-weight:600}
+  nav.tabs button .num{font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums;
+      min-width:14px;text-align:right;flex-shrink:0}
+  nav.tabs button.on .num{color:var(--accent)}
+  @media (max-width:980px){
+    aside.rail{padding:14px 16px 0;position:relative}
+    nav.tabs{flex-direction:row;overflow-x:auto;gap:0;margin:6px -16px 0;padding:0 16px 0 16px;
+        scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    nav.tabs::-webkit-scrollbar{display:none}
+    nav.tabs button{border-left:0;border-bottom:2px solid transparent;border-radius:0;white-space:nowrap;
+        padding:9px 14px;background:transparent;flex-shrink:0}
+    nav.tabs button.on{background:transparent;border-bottom-color:var(--accent)}
+    /* Right-edge fade hints at more tabs to scroll */
+    aside.rail::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:42px;pointer-events:none;
+        background:linear-gradient(to right,transparent,#fbfbf8)}
+  }
+
+  /* Rail meta and footer */
+  .rail-meta{font-size:11.5px;color:var(--mute);margin-top:6px;padding-top:18px;border-top:1px solid var(--line)}
+  .rail-meta .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:600;
+      color:var(--mute);margin-bottom:8px}
+  .rail-meta .row{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;
+      font-variant-numeric:tabular-nums}
+  .rail-meta .row span:first-child{color:var(--text);font-weight:500}
+  .rail-meta .row span:last-child{color:var(--ink);font-weight:600}
+  .rail-foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:11.5px;
+      color:var(--mute);line-height:1.55}
+  .rail-foot a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line2)}
+  .rail-foot a:hover{border-bottom-color:var(--accent)}
+  @media (max-width:980px){.rail-meta,.rail-foot{display:none}}
+
+  /* Main column */
+  main.wrap{padding:36px 38px 80px;max-width:1180px;width:100%;min-width:0}
+  @media (max-width:980px){main.wrap{padding:18px 16px 48px}}
+
+  /* Title block */
+  header.title{padding-bottom:18px;margin-bottom:22px;border-bottom:1px solid var(--line)}
+  header.title .eyebrow{font-size:10.5px;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;
+      font-weight:600;margin-bottom:8px}
+  header.title h1{margin:0;font-size:22px;line-height:1.3;letter-spacing:-0.015em;color:var(--ink);
+      font-weight:600;max-width:820px}
+  header.title .meta{margin-top:12px;font-size:12px;color:var(--mute);
+      display:flex;flex-wrap:wrap;gap:4px 18px;font-variant-numeric:tabular-nums}
+  header.title .meta b{font-weight:600;color:var(--ink)}
+  @media (max-width:680px){
+    header.title{padding-bottom:14px;margin-bottom:16px}
+    header.title .eyebrow{font-size:9.5px;letter-spacing:.12em;margin-bottom:6px}
+    header.title h1{font-size:17px;line-height:1.28}
+    header.title .meta{margin-top:8px;font-size:11.5px;gap:2px 14px}
+  }
+
+  /* Brief: full text on desktop, collapsible on mobile */
+  .brief{padding:0;margin:0 0 24px;font-size:13.5px;color:var(--text);max-width:920px;line-height:1.65}
+  .brief b{color:var(--ink);font-weight:600}
+  @media (max-width:680px){
+    .brief{font-size:12.5px;line-height:1.55;margin-bottom:18px;
+        max-height:5.5em;overflow:hidden;position:relative;cursor:pointer}
+    .brief::after{content:"Read more";position:absolute;bottom:0;right:0;
+        background:linear-gradient(to right,transparent 0,var(--bg) 36%);padding:0 0 0 28px;
+        color:var(--accent);font-weight:600;font-size:11.5px}
+    .brief.open{max-height:none;cursor:default}
+    .brief.open::after{display:none}
+  }
+
   .tab{display:none}
   .tab.on{display:block}
-  h2.section{font-size:22px;color:var(--slate);margin:30px 0 8px;letter-spacing:-0.01em;font-weight:700}
-  h3.sub{font-size:16px;color:var(--slate2);margin:18px 0 6px;font-weight:600}
-  p.lede{color:#384446;font-size:15px;margin:6px 0 14px;max-width:900px}
-  p.note{font-size:12.5px;color:var(--mute);margin:4px 0 16px;font-style:italic}
+
+  /* Section headings */
+  h2.section{font-size:22px;color:var(--ink);margin:32px 0 6px;letter-spacing:-0.015em;font-weight:600}
+  h3.sub{font-size:14.5px;color:var(--ink);margin:22px 0 6px;font-weight:600;letter-spacing:-0.005em}
+  p.lede{color:var(--text);font-size:13.5px;margin:4px 0 14px;max-width:880px;line-height:1.6}
+  p.note{font-size:12px;color:var(--mute);margin:6px 0 18px}
+  @media (max-width:680px){
+    h2.section{font-size:17px;margin:24px 0 6px}
+    h3.sub{font-size:13.5px;margin:18px 0 6px}
+    p.lede{font-size:12.5px}
+  }
+
+  /* ------- Layout ------- */
   .row{display:grid;gap:18px}
   .row-2{grid-template-columns:1fr 1fr}
   .row-3{grid-template-columns:1fr 1fr 1fr}
   @media (max-width:920px){.row-2,.row-3{grid-template-columns:1fr}}
-  .card{background:#fff;border:1px solid var(--line);border-radius:6px;padding:16px 18px}
-  .card h4{margin:0 0 6px 0;font-size:14px;color:var(--slate);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:10px 0 18px}
+
+  /* ------- Cards & KPIs ------- */
+  .card{background:var(--panel);border:1px solid var(--line);padding:14px 16px}
+  .card h4{margin:0 0 6px 0;font-size:11px;color:var(--mute);font-weight:600;letter-spacing:.06em;
+      text-transform:uppercase}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:14px 0 24px;
+      border-top:1px solid var(--line);border-left:1px solid var(--line);background:var(--panel)}
   @media (max-width:820px){.kpi{grid-template-columns:repeat(2,1fr)}}
-  .kpi .box{background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px 14px}
-  .kpi .big{font-size:26px;color:var(--slate);font-weight:700;letter-spacing:-.02em;margin:2px 0 0}
-  .kpi .lbl{font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
-  table.tbl{width:100%;border-collapse:collapse;font-size:13.5px;background:#fff;
-      border:1px solid var(--line);border-radius:4px;overflow:hidden}
-  table.tbl th,table.tbl td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right}
-  table.tbl th{background:var(--cream);color:var(--slate);text-align:right;font-weight:600;font-size:12px;
-      text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--slate)}
-  table.tbl td:first-child,table.tbl th:first-child{text-align:left}
+  .kpi .box{padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .kpi .big{font-size:24px;color:var(--ink);font-weight:600;letter-spacing:-.02em;margin:2px 0 0;
+      font-variant-numeric:tabular-nums}
+  .kpi .lbl{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;font-weight:500}
+
+  /* ------- Compact tables ------- */
+  table.tbl{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);
+      border:1px solid var(--line)}
+  table.tbl th,table.tbl td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:right;
+      font-variant-numeric:tabular-nums}
+  table.tbl th{background:var(--tint);color:var(--ink);text-align:right;font-weight:600;font-size:11px;
+      text-transform:uppercase;letter-spacing:.04em}
+  table.tbl td:first-child,table.tbl th:first-child{text-align:left;font-variant-numeric:normal}
   table.tbl tr:last-child td{border-bottom:none}
-  .map-wrap{position:relative;height:560px;border-radius:6px;overflow:hidden;border:1px solid var(--line);
-      background:#fff}
-  .leaflet-container{background:#f3ecd9;font-family:inherit}
-  .chart-wrap{position:relative;height:340px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+
+  /* Map */
+  .map-wrap{position:relative;height:540px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+  @media (max-width:980px){.map-wrap{height:440px}}
+  .leaflet-container{background:#fafaf7;font-family:inherit}
+  /* Leaflet zoom moves to top right so it never collides with the hover info box */
+  .leaflet-top.leaflet-left{display:none}
+  .leaflet-top.leaflet-right{top:12px;right:12px}
+
+  /* Charts */
+  .chart-wrap{position:relative;height:340px;background:var(--panel);border:1px solid var(--line);
+      padding:14px 16px}
   .chart-wrap.tall{height:420px}
-  .controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:6px 0 14px}
-  .controls label{font-size:13px;color:var(--slate);font-weight:600}
-  .controls select{font-family:inherit;font-size:14px;padding:7px 12px;
-      border:1px solid var(--line);background:#fff;border-radius:4px;color:var(--slate);cursor:pointer;
-      min-width:300px}
-  .controls select:focus{outline:2px solid var(--teal);outline-offset:1px}
-  .cat-pills, .year-pills{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#fff}
-  .cat-pills button, .year-pills button{font-family:inherit;font-size:13px;padding:7px 14px;border:0;
-      background:#fff;color:var(--slate);cursor:pointer;border-right:1px solid var(--line);font-weight:600;letter-spacing:.02em}
-  .cat-pills button:last-child, .year-pills button:last-child{border-right:0}
-  .cat-pills button.on, .year-pills button.on{background:var(--slate);color:#fff}
-  .cat-pills button:hover:not(.on), .year-pills button:hover:not(.on){background:var(--cream)}
-  .controls button.pill{font-family:inherit;font-size:13px;padding:5px 10px;
-      border:1px solid var(--line);background:#fff;border-radius:3px;color:var(--slate);cursor:pointer}
-  .controls button.pill.on{background:var(--slate);color:#fff;border-color:var(--slate)}
-  .legend{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--slate)}
-  .legend .sw{width:14px;height:10px;display:inline-block;border-radius:2px;margin-right:4px}
-  .fulltbl-wrap{background:#fff;border:1px solid var(--line);border-radius:6px;padding:10px 12px 12px}
-  .fulltbl-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 10px}
-  .fulltbl-toolbar input.search{font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--line);
-      border-radius:4px;color:var(--slate);min-width:220px}
-  .fulltbl-toolbar .dl{font-family:inherit;font-size:12.5px;padding:6px 12px;border:1px solid var(--slate);
-      background:var(--slate);color:#fff;border-radius:4px;cursor:pointer;font-weight:600}
-  .fulltbl-toolbar .dl:hover{background:#1f2f33}
+  @media (max-width:680px){
+    .chart-wrap{height:280px;padding:10px}
+    .chart-wrap.tall{height:360px}
+  }
+
+  /* Controls */
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 14px}
+  .controls label{font-size:11px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+  .controls select{font-family:inherit;font-size:13px;padding:7px 32px 7px 12px;
+      border:1px solid var(--line2);background:#fff;color:var(--ink);cursor:pointer;
+      min-width:260px;max-width:100%;appearance:none;border-radius:2px;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M3 4.5l3 3 3-3' stroke='%231a1f1c' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+      background-repeat:no-repeat;background-position:right 10px center;background-size:11px}
+  .controls select:focus{outline:1px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  @media (max-width:680px){.controls select{min-width:0;width:100%}}
+
+  /* Segmented controls: flat joined buttons, sharp corners */
+  .cat-pills, .year-pills, .wave-pills{display:inline-flex;border:1px solid var(--line2);background:#fff;
+      border-radius:2px;overflow:hidden}
+  .cat-pills button, .year-pills button, .wave-pills button{
+      font-family:inherit;font-size:13px;padding:7px 14px;border:0;
+      background:#fff;color:var(--text);cursor:pointer;font-weight:500;
+      border-right:1px solid var(--line);transition:background .12s ease,color .12s ease}
+  .cat-pills button:last-child, .year-pills button:last-child, .wave-pills button:last-child{border-right:0}
+  .cat-pills button:hover:not(.on), .year-pills button:hover:not(.on), .wave-pills button:hover:not(.on){
+      background:var(--tint);color:var(--ink)}
+  .cat-pills button.on, .year-pills button.on, .wave-pills button.on{
+      background:var(--accent);color:#fff;font-weight:600}
+
+  .controls button.pill{font-family:inherit;font-size:13px;padding:6px 12px;background:#fff;
+      border:1px solid var(--line2);border-radius:2px;color:var(--text);cursor:pointer;font-weight:500}
+  .controls button.pill.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  .legend{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--text)}
+  .legend .sw{width:14px;height:10px;display:inline-block;margin-right:4px}
+
+  /* ------- Full tables ------- */
+  .fulltbl-wrap{background:var(--panel);border:1px solid var(--line);padding:14px 16px 16px}
+  .fulltbl-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:2px 0 12px}
+  .fulltbl-toolbar input.search{font-family:inherit;font-size:13px;padding:7px 12px;
+      border:1px solid var(--line2);border-radius:2px;color:var(--ink);min-width:220px;background:#fff}
+  .fulltbl-toolbar input.search:focus{outline:1px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  .fulltbl-toolbar .dl{font-family:inherit;font-size:12.5px;padding:7px 14px;
+      background:var(--accent);color:#fff;border:0;border-radius:2px;cursor:pointer;font-weight:600;
+      transition:background .12s ease}
+  .fulltbl-toolbar .dl:hover{background:var(--accent-dark)}
   .fulltbl-toolbar .meta{color:var(--mute);font-size:12px;margin-left:auto}
-  .fulltbl-scroll{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:4px}
-  table.full{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;font-family:"SF Mono",Menlo,Consolas,monospace}
-  table.full thead th{position:sticky;top:0;background:var(--slate);color:#fff;padding:8px 10px;text-align:right;
-      font-weight:600;border-right:1px solid #3e535a;font-size:11.5px;letter-spacing:.03em;white-space:nowrap;cursor:pointer;user-select:none}
+  .fulltbl-scroll{max-height:540px;overflow:auto;border:1px solid var(--line);background:#fff}
+  table.full{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;
+      font-variant-numeric:tabular-nums;
+      font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  table.full thead th{position:sticky;top:0;background:var(--ink);color:#fff;padding:9px 12px;text-align:right;
+      font-weight:600;font-size:11.5px;letter-spacing:.02em;white-space:nowrap;cursor:pointer;user-select:none;
+      border-right:1px solid rgba(255,255,255,.08);font-variant-numeric:normal}
+  table.full thead th:last-child{border-right:0}
   table.full thead th:first-child, table.full thead th:nth-child(2){text-align:left}
-  table.full thead th .arr{opacity:.4;margin-left:3px;font-size:10px}
+  table.full thead th .arr{opacity:.45;margin-left:4px;font-size:10px}
   table.full thead th.sort-asc .arr, table.full thead th.sort-desc .arr{opacity:1}
-  table.full tbody td{padding:6px 10px;border-bottom:1px solid #eee6d2;text-align:right;white-space:nowrap}
-  table.full tbody td:first-child, table.full tbody td:nth-child(2){text-align:left;color:var(--slate)}
-  table.full tbody tr:hover{background:#faf4e2}
-  table.full tbody tr.natrow{background:#eef1e4;font-weight:700}
-  table.full tbody tr.natrow:hover{background:#e7ebd9}
-  table.full tbody tr.natrow td:first-child{color:var(--slate);letter-spacing:.04em;text-transform:uppercase;font-size:11px}
-  .wave-pills{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#fff}
-  .wave-pills button{font-family:inherit;font-size:12.5px;padding:6px 12px;border:0;
-      background:#fff;color:var(--slate);cursor:pointer;border-right:1px solid var(--line);font-weight:600}
-  .wave-pills button:last-child{border-right:0}
-  .wave-pills button.on{background:var(--slate);color:#fff}
-  .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--mute)}
-  .footer .contact{color:var(--slate);font-size:14px;margin-bottom:6px}
-  .footer .contact a{color:var(--teal);text-decoration:none;border-bottom:1px solid var(--teal2)}
-  .footer .attrib{font-size:12.5px;color:var(--mute);max-width:820px;line-height:1.55}
-  .src{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;color:var(--mute)}
-  .info{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.96);padding:8px 10px;
-      border-radius:4px;font-size:12px;color:var(--slate);max-width:260px;border:1px solid var(--line);z-index:500}
-  .info h5{margin:0 0 4px;font-size:12.5px;color:var(--slate)}
-  .info .val{font-size:14px;color:var(--slate);font-weight:700}
-  .mini-legend{position:absolute;bottom:14px;left:10px;background:rgba(255,255,255,.96);padding:8px 10px;
-      border-radius:4px;font-size:11.5px;color:var(--slate);border:1px solid var(--line);z-index:500;max-width:260px}
-  .mini-legend .row-l{display:flex;gap:6px;align-items:center;margin:2px 0}
-  .mini-legend .sw{width:18px;height:10px;display:inline-block}
-  .tag{display:inline-block;background:var(--cream);color:var(--slate);padding:2px 8px;border-radius:10px;
-      font-size:11px;margin-right:4px;letter-spacing:.04em;text-transform:uppercase}
-  .tag.green{background:#e4efda;color:#445d37}
-  .tag.teal{background:#dbebf0;color:#26535f}
-  .tag.orange{background:#f1e0d1;color:#7a492a}
-  details.tech{background:var(--cream);padding:10px 14px;border-radius:4px;margin:6px 0;font-size:13.5px}
-  details.tech summary{cursor:pointer;color:var(--slate);font-weight:600}
-  details.tech p{margin:6px 0 0;color:#2f3c3e}
+  table.full tbody td{padding:7px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  table.full tbody td:first-child, table.full tbody td:nth-child(2){text-align:left;color:var(--ink);
+      font-variant-numeric:normal}
+  table.full tbody tr:hover{background:var(--tint)}
+  table.full tbody tr.natrow{background:var(--accent-soft);font-weight:600}
+  table.full tbody tr.natrow:hover{background:#d8e5dc}
+  table.full tbody tr.natrow td:first-child{color:var(--accent-dark);letter-spacing:.03em;
+      text-transform:uppercase;font-size:11px}
+
+  /* ------- Footer ------- */
+  .footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--mute)}
+  .footer .contact{color:var(--ink);font-size:13.5px;margin-bottom:6px;font-weight:500}
+  .footer .contact a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line2)}
+  .footer .contact a:hover{border-bottom-color:var(--accent)}
+  .footer .attrib{font-size:12.5px;color:var(--mute);max-width:880px;line-height:1.6}
+  .src{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;color:var(--mute)}
+
+  /* Map overlays. Info top left, legend bottom left, zoom top right; no collisions. */
+  .info{position:absolute;top:12px;left:12px;background:#fff;padding:10px 14px;
+      font-size:12px;color:var(--ink);max-width:240px;z-index:500;border:1px solid var(--line2);
+      box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .info h5{margin:0 0 4px;font-size:10px;color:var(--mute);font-weight:600;
+      text-transform:uppercase;letter-spacing:.08em}
+  .info .val{font-size:17px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;
+      letter-spacing:-0.01em;display:block;margin:2px 0}
+  .info .ctx{font-size:11px;color:var(--mute);margin-top:2px;display:block}
+  .mini-legend{position:absolute;bottom:14px;left:12px;background:#fff;padding:10px 12px;
+      font-size:11.5px;color:var(--text);z-index:500;max-width:240px;border:1px solid var(--line2);
+      line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .mini-legend b{display:block;color:var(--ink);font-size:10px;text-transform:uppercase;
+      letter-spacing:.08em;margin-bottom:4px;font-weight:600}
+  .mini-legend .sub{display:block;color:var(--mute);font-size:11px;margin-bottom:6px;line-height:1.4}
+  .mini-legend .row-l{display:flex;gap:8px;align-items:center;margin:2px 0;font-variant-numeric:tabular-nums}
+  .mini-legend .sw{width:20px;height:10px;display:inline-block;border:1px solid rgba(0,0,0,.06)}
+  @media (max-width:680px){
+    .info,.mini-legend{max-width:180px;font-size:11px}
+    .info .val{font-size:15px}
+  }
+
+  /* ------- Tags & details ------- */
+  .tag{display:inline-block;background:var(--tint);color:var(--text);padding:2px 8px;
+      font-size:10.5px;margin-right:4px;letter-spacing:.04em;text-transform:uppercase;font-weight:600;
+      border:1px solid var(--line)}
+  .tag.green{background:var(--accent-soft);color:var(--accent-dark);border-color:#cddcd3}
+  .tag.teal{background:var(--accent-soft);color:var(--accent-dark);border-color:#cddcd3}
+  .tag.orange{background:var(--tint);color:var(--text);border-color:var(--line)}
+
+  details.tech{background:var(--panel);padding:12px 16px;margin:6px 0;font-size:13px;
+      border:1px solid var(--line)}
+  details.tech summary{cursor:pointer;color:var(--ink);font-weight:600;list-style:none}
+  details.tech summary::-webkit-details-marker{display:none}
+  details.tech summary::before{content:"+";display:inline-block;margin-right:10px;color:var(--accent);
+      font-weight:600;width:10px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px}
+  details.tech[open] summary::before{content:"–"}
+  details.tech p{margin:8px 0 0;color:var(--text);line-height:1.6}
   small.cap{color:var(--mute);font-size:11.5px}
+
+  /* Leaflet zoom controls: sharp default look */
+  .leaflet-bar{border:1px solid var(--line2) !important;border-radius:2px !important;background:#fff;
+      box-shadow:none !important}
+  .leaflet-bar a,.leaflet-bar a:hover{background:#fff;color:var(--ink);border-radius:0 !important}
+  .leaflet-bar a:hover{background:var(--tint)}
+  .leaflet-bar a:first-child{border-radius:1px 1px 0 0 !important}
+  .leaflet-bar a:last-child{border-radius:0 0 1px 1px !important}
+  .leaflet-bar a{border-bottom-color:var(--line) !important}
 </style>
 </head>
-<body>
-<div class="wrap">
+<body class="cat-rice">
+<div class="layout">
 
-<header class="brand">
-  <img src="__LOGO__" alt="MIXTAPE logo"/>
-  <div class="titles">
-    <div class="kicker">Bangladesh &middot; CGIAR rice &amp; fish technologies</div>
-    <h1>MIXTAPE</h1>
-    <div class="sub">Household-level evidence on rice-variety, aquaculture and mechanisation adoption across four BIHS panel rounds: 2011/12, 2015, 2018/19, 2024.</div>
+<aside class="rail">
+  <div class="brand">
+    <img src="__LOGO__" alt="MIXTAPE logo"/>
+    <div class="name">
+      <div class="acro">MIXTAPE</div>
+      <div class="full">Bangladesh country study</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="t-map" class="on"><span class="num">01</span><span>Map overview</span></button>
+    <button data-tab="t-rice"><span class="num">02</span><span>Rice</span></button>
+    <button data-tab="t-aqua"><span class="num">03</span><span>Aquaculture</span></button>
+    <button data-tab="t-spia"><span class="num">04</span><span>2024 SPIA round</span></button>
+    <button data-tab="t-mech"><span class="num">05</span><span>Mechanisation</span></button>
+  </nav>
+  <div class="rail-meta">
+    <div class="lbl">BIHS rounds</div>
+    <div class="row"><span>2011/12</span><span>6,503</span></div>
+    <div class="row"><span>2015</span><span>6,715</span></div>
+    <div class="row"><span>2018/19</span><span>6,011</span></div>
+    <div class="row"><span>2024 SPIA</span><span>5,554</span></div>
+  </div>
+  <div class="rail-foot">
+    Kushal Kumar<br><a href="mailto:kd475@cornell.edu">kd475@cornell.edu</a><br>
+    Cornell University
+  </div>
+</aside>
+
+<main class="wrap">
+
+<header class="title">
+  <div class="eyebrow">CGIAR Standing Panel on Impact Assessment, country study</div>
+  <h1>Monitoring Impacts for Technology Adoption and Program Engagement in Bangladesh</h1>
+  <div class="meta">
+    <span>Household level evidence on CGIAR linked rice and aquaculture innovations</span>
+    <span>Four BIHS rounds: <b>2011/12, 2015, 2018/19, 2024</b></span>
   </div>
 </header>
 
-<div class="brief"><b>About the project.</b> __BRIEF__</div>
-
-<nav class="tabs" id="tabs">
-  <button data-tab="t-map" class="on">1 &middot; Map overview</button>
-  <button data-tab="t-rice">2 &middot; Rice deep dive</button>
-  <button data-tab="t-aqua">3 &middot; Aquaculture deep dive</button>
-  <button data-tab="t-spia">4 &middot; 2024 SPIA round</button>
-  <button data-tab="t-mech">5 &middot; Mechanisation &amp; practices</button>
-</nav>
+<div class="brief"><b>About.</b> __BRIEF__</div>
 
 <!-- ============================== TAB 1 :: MAP ============================== -->
 <section id="t-map" class="tab on">
-  <h2 class="section">CGIAR technologies across Bangladesh, 2011&mdash;2024</h2>
-  <p class="lede">The map below shows the weighted household-level prevalence of a chosen CGIAR-linked
-  technology for any BIHS round. Prevalence is computed from raw Stata microdata for
-  <b>6,503 (2011) &middot; 6,715 (2015) &middot; 6,011 (2019) &middot; 5,554 (2024)</b> households,
+  <h2 class="section">CGIAR technologies across Bangladesh, 2011 to 2024</h2>
+  <p class="lede">District level weighted prevalence of a chosen CGIAR linked technology for any BIHS round.
+  Prevalence is computed from the household level survey responses for
+  <b>6,503 (2011/12), 6,715 (2015), 6,011 (2018/19), and 5,554 (2024)</b> households,
   aggregated with the round's sampling weights. Hover a district for the underlying number of sampled households.</p>
   <div class="controls">
     <div class="cat-pills" id="mapCatPills">
@@ -219,7 +411,7 @@ HTML_TMPL = r"""<!doctype html>
   </div>
   <div class="map-wrap">
     <div id="map" style="height:100%"></div>
-    <div class="info" id="mapInfo"><h5>Hover a district</h5><div class="val">&mdash;</div></div>
+    <div class="info" id="mapInfo"><h5>Hover a district</h5><div class="val">–</div></div>
     <div class="mini-legend" id="mapLegend"></div>
   </div>
 
@@ -241,7 +433,7 @@ HTML_TMPL = r"""<!doctype html>
 
 <!-- ============================== TAB 2 :: RICE ============================== -->
 <section id="t-rice" class="tab">
-  <h2 class="section">Rice-variety adoption, 2011&mdash;2024</h2>
+  <h2 class="section">Rice variety adoption, 2011 to 2024</h2>
   <p class="lede">Rice varieties are coded round-by-round from module H1 (2011, 2015, 2019) and from 2024's paddy modules
   c2_4 (main paddy) and b6 (seedbed). Each household's set of grown varieties is classified into one of seven CGIAR-relevant
   families; we then compute the weighted share of households growing a family.</p>
@@ -260,10 +452,10 @@ HTML_TMPL = r"""<!doctype html>
   </div>
   <div class="chart-wrap tall"><canvas id="riceDistChart"></canvas></div>
 
-  <h3 class="sub">Top districts &mdash; BRRI core (BR-28 / BR-29) and new BRRI lines (BR-70+), 2024</h3>
+  <h3 class="sub">Top districts: BRRI core (BR-28 / BR-29) and new BRRI lines (BR-70+), 2024</h3>
   <div id="riceTopTables" class="row row-2"></div>
 
-  <h3 class="sub">Full district-level table &mdash; every variety family, all 64 districts, all rounds</h3>
+  <h3 class="sub">Full district level table: every variety family, all 64 districts, all rounds</h3>
   <p class="lede">Pick a round below. Every cell is a weighted share (%) of households in that district who grew a variety
   in the family; <span class="src">n (households)</span> is the unweighted sample size; <span class="src">Σ weight</span> is
   the sum of household sampling weights (the denominator used to compute each percentage). Use the search box to filter,
@@ -277,7 +469,7 @@ HTML_TMPL = r"""<!doctype html>
 
 <!-- ============================== TAB 3 :: AQUA ============================== -->
 <section id="t-aqua" class="tab">
-  <h2 class="section">Aquaculture adoption, 2011&mdash;2024</h2>
+  <h2 class="section">Aquaculture adoption, 2011 to 2024</h2>
   <p class="lede">Pond-level rosters (module L1 in earlier rounds; e5/e10 in 2024) are filtered to ponds with positive
   cultivated area. For every household with at least one cultivated pond we record the fish species present, then
   compute weighted prevalence across the full HH sample.</p>
@@ -299,7 +491,7 @@ HTML_TMPL = r"""<!doctype html>
   <h3 class="sub">Top pond-intensive and tilapia-intensive districts, 2024</h3>
   <div id="aquaTopTables" class="row row-2"></div>
 
-  <h3 class="sub">Full district-level table &mdash; every aquaculture indicator, all 64 districts, all rounds</h3>
+  <h3 class="sub">Full district level table: every aquaculture indicator, all 64 districts, all rounds</h3>
   <p class="lede">Weighted share (%) of households in each district showing the indicator (filtered to ponds with positive
   cultivated area). The 2024 round additionally records intensification practices (supplementary feed, hormone, disease
   control). Sort on any column, filter by district, or export a CSV for the round on display.</p>
@@ -311,7 +503,7 @@ HTML_TMPL = r"""<!doctype html>
 
 <!-- ============================== TAB 4 :: 2024 SPIA ============================== -->
 <section id="t-spia" class="tab">
-  <h2 class="section">2024 SPIA round &mdash; new insights</h2>
+  <h2 class="section">2024 SPIA round: new insights</h2>
   <p class="lede">The 2024 SPIA round adds three pieces of evidence on top of the traditional recall-based BIHS instrument:
   (i) DNA fingerprinting of a random sample of 370 paddy plots, allowing direct rather than self-reported variety identification;
   (ii) a detailed agricultural-equipment ownership roster;
@@ -335,7 +527,7 @@ HTML_TMPL = r"""<!doctype html>
   <h3 class="sub">Equipment-ownership roster (Module a5_6)</h3>
   <div class="chart-wrap"><canvas id="spiaEquip"></canvas></div>
 
-  <h3 class="sub">Full 2024 district-level table &mdash; every rice, aquaculture and mechanisation indicator</h3>
+  <h3 class="sub">Full 2024 district level table: every rice, aquaculture and mechanisation indicator</h3>
   <p class="lede">All indicators measured in the 2024 SPIA round, pooled into a single wide table at the district level.
   Rows sort and filter, and the CSV download exports every column.</p>
   <div class="fulltbl-wrap" id="spiaFullTbl"></div>
@@ -360,7 +552,7 @@ HTML_TMPL = r"""<!doctype html>
 
 <!-- ============================== TAB 5 :: MECH ============================== -->
 <section id="t-mech" class="tab">
-  <h2 class="section">Mechanisation &amp; agricultural practices, 2018/19 and 2024</h2>
+  <h2 class="section">Mechanisation and agricultural practices, 2018/19 and 2024</h2>
   <p class="lede">This panel compares household-level ownership of farm equipment between 2018/19 (BIHS R3 module D2) and
   2024 (SPIA module a5_6). The 2024 round additionally records the <em>actual use</em> of motorised harvest and
   thresh from the paddy operations module.</p>
@@ -379,7 +571,7 @@ HTML_TMPL = r"""<!doctype html>
   </div>
   <div class="chart-wrap tall"><canvas id="mechDistChart"></canvas></div>
 
-  <h3 class="sub">Full district-level table &mdash; every piece of equipment, all rounds with data</h3>
+  <h3 class="sub">Full district level table: every piece of equipment, all rounds with data</h3>
   <p class="lede">Weighted share (%) of households owning each piece of equipment (and, for 2024, actually
   <em>using</em> motorised harvest / thresh). The 2011 and 2015 rounds only carry a tractor flag in the harmonised
   file, so those columns are filled only where microdata exist.</p>
@@ -394,15 +586,18 @@ HTML_TMPL = r"""<!doctype html>
 
 <div class="footer">
 <div class="contact">
-  <b>Contact.</b> Kushal Kumar &middot; <a href="mailto:kd475@cornell.edu">kd475@cornell.edu</a>
+  <b>Contact.</b> Kushal Kumar &middot; <a href="mailto:kd475@cornell.edu">kd475@cornell.edu</a> &middot; Cornell University
 </div>
 <div class="attrib">
-  Data: Bangladesh Integrated Household Survey (BIHS) rounds 1&ndash;3 and the 2024 SPIA round, International Food Policy Research Institute (IFPRI). Methods follow
-  standard weighted-prevalence conventions using the round-specific household sampling weights.
+  <b>Primary data.</b> Bangladesh Integrated Household Survey (BIHS) rounds 1, 2, 3 (IFPRI) and the 2024 SPIA round on the BIHS panel.
+  Methods follow standard weighted prevalence conventions using the round specific household sampling weights provided with each BIHS release.<br>
+  <b>Repositories.</b> BIHS rounds 1 to 3: IFPRI dataverse on Harvard Dataverse (<a href="https://dataverse.harvard.edu/dataverse/IFPRI" target="_blank" rel="noopener">dataverse.harvard.edu/dataverse/IFPRI</a>); 2024 SPIA round, BIHS panel: dataset hosted on the Cornell Institute for Social and Economic Research (CISER) repository (forthcoming public release).<br>
+  <b>Citation.</b> Ahmed, A. (IFPRI). Bangladesh Integrated Household Survey (BIHS). Rounds 1 (2011/12), 2 (2015), 3 (2018/19). International Food Policy Research Institute, Washington, DC.
 </div>
 </div>
 
-</div><!-- /wrap -->
+</main>
+</div><!-- /layout -->
 
 <script>
 /* ==============================  DATA  ============================== */
@@ -462,37 +657,64 @@ const MECH_IND_LBL = {
 };
 
 /* ==============================  COLORS  ============================== */
-const COL = {slate:"#2d3e43", slate2:"#3e535a", leaf:"#6e9b5c", leaf2:"#8fb37a",
-             teal:"#3d8aa0", teal2:"#5aa8bc", cream:"#f6f1e4", ink:"#1f2a2d",
-             mute:"#6b7778", accent:"#c47a4a"};
-const SERIES_COL = [COL.slate, COL.teal, COL.leaf, COL.accent, COL.slate2, COL.teal2, COL.leaf2, "#8a5a8b", "#b4534f", "#4e7c6e"];
+/* Semantic palette. Rice tab uses leaf greens, aqua uses blues, mech uses earth tones. */
+const COL = {slate:"#1a1f1c", slate2:"#4a5550",
+             leaf:"#2d6a4f", leaf2:"#6c9971",
+             teal:"#1f5e8a", teal2:"#6996ad",
+             accent:"#7a6147", accent2:"#bdaa7f",
+             cream:"#f3f5f0", ink:"#1a1f1c", mute:"#6c7570"};
+/* Monochrome series palettes per tab. Dark to light shades within one hue family
+   keep multi-line charts coherent (no rainbow). */
+const SERIES_RICE = ["#1c4a36","#2d6a4f","#467a52","#6c9971","#94b696","#b9cbb0","#dde6dd","#0f3624","#5d8a4d","#3f5e2c"];
+const SERIES_AQUA = ["#0e3a5c","#163f5d","#1f5e8a","#3f7896","#6996ad","#94b3c4","#bccfd9","#5198c7","#1c4a36","#52402b"];
+const SERIES_MECH = ["#332617","#52402b","#7a6147","#9c885c","#bdaa7f","#d6c8a8","#ece4d6","#a3866c","#5e5340","#8a7253"];
+const SERIES_COL = SERIES_RICE; /* default (kept for any code that still references it) */
 
-Chart.defaults.font.family = "Georgia, 'Iowan Old Style', Palatino, serif";
-Chart.defaults.font.size   = 12;
-Chart.defaults.color       = COL.ink;
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+Chart.defaults.font.size   = 11.5;
+Chart.defaults.color       = COL.slate2;
+Chart.defaults.borderColor = "#e3e6e1";
+Chart.defaults.plugins.legend.labels.boxWidth = 10;
+Chart.defaults.plugins.legend.labels.boxHeight = 2;
+Chart.defaults.plugins.legend.labels.padding = 8;
+Chart.defaults.plugins.legend.labels.font = {size: 11};
 
 /* ==============================  TABS  ============================== */
 const chartRefs = {};
 const tabInit   = {};
+const TAB_CAT = {"t-map":"rice","t-rice":"rice","t-aqua":"aqua","t-spia":"rice","t-mech":"mech"};
+function setBodyCat(cat){
+  document.body.classList.remove("cat-rice","cat-aqua","cat-mech");
+  document.body.classList.add("cat-"+cat);
+}
 document.getElementById("tabs").addEventListener("click", e => {
-  if(e.target.tagName !== "BUTTON") return;
-  const id = e.target.dataset.tab;
-  document.querySelectorAll("nav.tabs button").forEach(b => b.classList.toggle("on", b === e.target));
+  const btn = e.target.closest("button"); if(!btn) return;
+  const id = btn.dataset.tab;
+  document.querySelectorAll("nav.tabs button").forEach(b => b.classList.toggle("on", b === btn));
   document.querySelectorAll("section.tab").forEach(s => s.classList.toggle("on", s.id === id));
+  setBodyCat(TAB_CAT[id] || "rice");
   lazyInit(id);
+  window.scrollTo({top:0,behavior:"instant"});
 });
 function lazyInit(id){ if(tabInit[id]) return; tabInit[id]=true; (INITS[id]||(()=>{}))(); }
 
+/* Mobile-only: expand the brief on tap */
+document.querySelectorAll(".brief").forEach(el=>{
+  el.addEventListener("click", ()=>{ if(window.matchMedia("(max-width:680px)").matches) el.classList.add("open"); });
+});
+
 /* ==============================  MAP  ============================== */
 function ramp(v, stops){
-  if(v==null || isNaN(v)) return "#e8e2d2";
+  if(v==null || isNaN(v)) return "#ebede8";
   for(const [t,c] of stops) if(v<=t) return c;
   return stops[stops.length-1][1];
 }
+/* Three sequential ramps. Rice green, aquaculture blue, mechanisation warm earth.
+   Lightest step always contrasts with the page bg (#fafaf7). */
 const MAP_RAMPS = {
-  rice:{stops:[[0,"#f2efe0"],[2,"#e0ebd7"],[5,"#cddfc6"],[10,"#a8c99b"],[20,"#7cae6d"],[35,"#527d46"],[100,"#2e5027"]]},
-  aqua:{stops:[[0,"#f2efe0"],[2,"#dbecee"],[5,"#b9d9dc"],[10,"#87bec5"],[20,"#4f9aa6"],[35,"#2a6a76"],[100,"#0f3f48"]]},
-  mech:{stops:[[0,"#f2efe0"],[2,"#efe2d2"],[5,"#e5c8aa"],[10,"#d4a375"],[20,"#b37a48"],[35,"#8a552a"],[100,"#5a3614"]]}
+  rice:{stops:[[0,"#dde6dd"],[2,"#bcd0bd"],[5,"#94b696"],[10,"#6c9971"],[20,"#467a52"],[35,"#285e3d"],[100,"#143f27"]]},
+  aqua:{stops:[[0,"#dee6ec"],[2,"#bccfd9"],[5,"#94b3c4"],[10,"#6996ad"],[20,"#3f7896"],[35,"#1f5e8a"],[100,"#0e3a5c"]]},
+  mech:{stops:[[0,"#ece4d6"],[2,"#d6c8a8"],[5,"#bdaa7f"],[10,"#9c885c"],[20,"#7a6147"],[35,"#54402b"],[100,"#332617"]]}
 };
 function stopsFor(ind){
   if(["ANY_POND","TILAPIA","CARP_ANY","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA","SUPP_FEED","HORMONE","DISEASE_CTL"].includes(ind))
@@ -509,10 +731,10 @@ const MAP_CATALOG = {
   rice: {
     label: "Rice variety adoption",
     items: [
-      ["BRRI core — BR-28 / BR-29 (Boro mega-varieties)", "BRRI_CORE28_29"],
-      ["New BRRI lines — BR-70 and above (post-2012)",    "BRRI_NEW_POST2012"],
-      ["Stress-tolerant — submergence / Zn / saline / drought", "BRRI_STRESS"],
-      ["Older BRRI HYV — BR-1 through BR-69",            "BRRI_OLDER_HYV"],
+      ["BRRI core: BR-28 / BR-29 (Boro mega-varieties)", "BRRI_CORE28_29"],
+      ["New BRRI lines: BR-70 and above (post-2012)",    "BRRI_NEW_POST2012"],
+      ["Stress tolerant: submergence, Zn, saline, drought", "BRRI_STRESS"],
+      ["Older BRRI HYV: BR-1 through BR-69",            "BRRI_OLDER_HYV"],
       ["Hybrid rice",                                     "HYBRID"],
       ["BINA lines (Binadhan)",                           "BINA"],
       ["Traditional / local landrace",                    "LOCAL"],
@@ -527,8 +749,8 @@ const MAP_CATALOG = {
       ["Carp polyculture (2+ species)",      "POLY_CARP_2PLUS"],
       ["Any carp",                           "CARP_ANY"],
       ["Mola co-culture (small indigenous)", "MOLA"],
-      ["Prawn — galda",                      "PRAWN_GALDA"],
-      ["Shrimp — bagda",                     "SHRIMP_BAGDA"]
+      ["Prawn (galda)",                      "PRAWN_GALDA"],
+      ["Shrimp (bagda)",                     "SHRIMP_BAGDA"]
     ]
   },
   mech: {
@@ -569,9 +791,10 @@ function initMap(){
   drawMap();
   document.getElementById("mapIndicator").onchange = drawMap;
   document.getElementById("mapCatPills").addEventListener("click", e=>{
-    if(e.target.tagName!=="BUTTON") return;
-    mapCat = e.target.dataset.cat;
+    const btn = e.target.closest("button"); if(!btn) return;
+    mapCat = btn.dataset.cat;
     document.querySelectorAll("#mapCatPills button").forEach(b=>b.classList.toggle("on", b.dataset.cat===mapCat));
+    setBodyCat(mapCat);
     rebuildIndicatorSelect();
     drawMap();
   });
@@ -598,7 +821,7 @@ function drawMap(){
     style:f=>{
       const row = data[f.properties.name];
       const v = row ? row[ind] : null;
-      return {color:"#fff",weight:0.8,opacity:1,fillOpacity:0.88,fillColor:ramp(v,stops)};
+      return {color:"#ffffff",weight:0.7,opacity:1,fillOpacity:0.95,fillColor:ramp(v,stops)};
     },
     onEachFeature:(f,layer)=>{
       const row = data[f.properties.name];
@@ -609,10 +832,10 @@ function drawMap(){
           layer.setStyle({weight:2,color:COL.slate});
           const box=document.getElementById("mapInfo");
           box.innerHTML = `<h5>${f.properties.name} <small>(${f.properties.division})</small></h5>
-            <div class="val">${v==null?"&mdash;":v.toFixed(1)+"%"}</div>
-            <small class="cap">${WAVE_LBL[year]} &middot; n=${n??"&mdash;"} households</small>`;
+            <div class="val">${v==null?", ":v.toFixed(1)+"%"}</div>
+            <small class="cap">${WAVE_LBL[year]} &middot; n=${n??"–"} households</small>`;
         },
-        mouseout:()=>{ geoLayer.resetStyle(layer); document.getElementById("mapInfo").innerHTML='<h5>Hover a district</h5><div class="val">&mdash;</div>'; },
+        mouseout:()=>{ geoLayer.resetStyle(layer); document.getElementById("mapInfo").innerHTML='<h5>Hover a district</h5><div class="val">–</div>'; },
         click:()=>map.fitBounds(layer.getBounds(),{padding:[20,20]})
       });
     }
@@ -644,7 +867,7 @@ function buildFullRows(src, wave, indicators){
   const rows = [];
   const nat = data["__NATIONAL__"];
   if(nat){
-    const r = {district:"NATIONAL (weighted)", division:"—", n_hh:nat.n_hh, weight_sum:nat.weight_sum};
+    const r = {district:"NATIONAL (weighted)", division:"–", n_hh:nat.n_hh, weight_sum:nat.weight_sum};
     indicators.forEach(k => r[k] = nat[k] ?? null);
     r._is_nat = true;
     rows.push(r);
@@ -774,7 +997,7 @@ function lineChart(canvas, labels, datasets, opts){
       responsive:true,maintainAspectRatio:false,
       plugins:{title:{display:true,color:COL.slate,font:{size:14,weight:"600"},padding:{bottom:10}},
                legend:{position:"bottom",labels:{boxWidth:12,font:{size:11.5}}}},
-      scales:{y:{beginAtZero:true,title:{display:true,text:"% households (weighted)",font:{size:11}},grid:{color:"#eee4cd"}},
+      scales:{y:{beginAtZero:true,title:{display:true,text:"% households (weighted)",font:{size:11}},grid:{color:"#eef0eb",drawTicks:false}},
               x:{grid:{display:false}}}
     },opts||{})
   });
@@ -788,7 +1011,7 @@ function barChart(canvas, labels, datasets, opts){
       responsive:true,maintainAspectRatio:false,indexAxis:"y",
       plugins:{title:{display:true,color:COL.slate,font:{size:14,weight:"600"},padding:{bottom:10}},
                legend:{position:"bottom",labels:{boxWidth:12,font:{size:11.5}}}},
-      scales:{x:{beginAtZero:true,title:{display:true,text:"% households",font:{size:11}},grid:{color:"#eee4cd"}},
+      scales:{x:{beginAtZero:true,title:{display:true,text:"% households",font:{size:11}},grid:{color:"#eef0eb",drawTicks:false}},
               y:{grid:{display:false}}}
     },opts||{})
   });
@@ -801,13 +1024,13 @@ INITS["t-map"] = function(){
   lineChart("natRice", WAVES.map(w=>WAVE_LBL[w]),
     ["BRRI_CORE28_29","BRRI_NEW_POST2012","BRRI_STRESS","HYBRID","LOCAL","BINA"].map((k,i)=>({
       label: RICE_FAM_LBL[k], data: NAT.rice[k],
-      borderColor: SERIES_COL[i], backgroundColor: SERIES_COL[i], tension:.2, pointRadius:4
+      borderColor: SERIES_RICE[i], backgroundColor: SERIES_RICE[i], tension:.2, pointRadius:4
     })),
     {plugins:{title:{display:true,text:"Rice variety families (national, weighted)"}}});
   lineChart("natAqua", WAVES.map(w=>WAVE_LBL[w]),
     ["ANY_POND","TILAPIA","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"].map((k,i)=>({
       label: AQUA_IND_LBL[k], data: NAT.aqua[k],
-      borderColor: SERIES_COL[i], backgroundColor: SERIES_COL[i], tension:.2, pointRadius:4
+      borderColor: SERIES_AQUA[i], backgroundColor: SERIES_AQUA[i], tension:.2, pointRadius:4
     })),
     {plugins:{title:{display:true,text:"Aquaculture indicators (national, weighted)"}}});
 };
@@ -825,7 +1048,7 @@ INITS["t-rice"] = function(){
 
   const fams = ["BRRI_CORE28_29","BRRI_OLDER_HYV","BRRI_NEW_POST2012","BRRI_STRESS","BINA","HYBRID","LOCAL"];
   lineChart("riceFamilies", WAVES.map(w=>WAVE_LBL[w]),
-    fams.map((k,i)=>({label:RICE_FAM_LBL[k],data:NAT.rice[k],borderColor:SERIES_COL[i],backgroundColor:SERIES_COL[i],tension:.2,pointRadius:4})),
+    fams.map((k,i)=>({label:RICE_FAM_LBL[k],data:NAT.rice[k],borderColor:SERIES_RICE[i],backgroundColor:SERIES_RICE[i],tension:.2,pointRadius:4})),
     {plugins:{title:{display:true,text:"Variety families, national weighted prevalence"}}});
   lineChart("riceGrower", WAVES.map(w=>WAVE_LBL[w]),
     [{label:"Any rice grower",data:NAT.rice.RICE_GROWER,borderColor:COL.leaf,backgroundColor:COL.leaf,tension:.2,pointRadius:4,fill:true}],
@@ -840,7 +1063,7 @@ INITS["t-rice"] = function(){
                   .map(([name,r])=>({name,v:r[k]||0}))
                   .sort((a,b)=>b.v-a.v).slice(0,30);
     barChart("riceDistChart", rows.map(r=>r.name),
-      [{label:RICE_FAM_LBL[k]+" — 2024",data:rows.map(r=>r.v),backgroundColor:COL.leaf,borderColor:COL.leaf}],
+      [{label:RICE_FAM_LBL[k]+" (2024)",data:rows.map(r=>r.v),backgroundColor:COL.leaf,borderColor:COL.leaf}],
       {plugins:{title:{display:true,text:"Top 30 districts for "+RICE_FAM_LBL[k].toLowerCase()+" (2024)"}}});
   }
   sel.onchange = redrawDist; redrawDist();
@@ -857,8 +1080,8 @@ INITS["t-rice"] = function(){
       </tbody></table></div>`;
   }
   document.getElementById("riceTopTables").innerHTML =
-    topTbl("BRRI_CORE28_29","Top 10 districts &mdash; BR-28 / BR-29 (2024)")
-  + topTbl("BRRI_NEW_POST2012","Top 10 districts &mdash; new BRRI lines BR-70+ (2024)");
+    topTbl("BRRI_CORE28_29","Top 10 districts: BR-28 / BR-29 (2024)")
+  + topTbl("BRRI_NEW_POST2012","Top 10 districts: new BRRI lines BR-70+ (2024)");
 
   // Full district-level table (all 4 rounds, all variety families)
   const RICE_TBL_KEYS = ["RICE_GROWER","BRRI_CORE28_29","BRRI_OLDER_HYV","BRRI_NEW_POST2012","BRRI_STRESS","BINA","HYBRID","LOCAL"];
@@ -877,14 +1100,14 @@ INITS["t-aqua"] = function(){
 
   lineChart("aquaTS", WAVES.map(w=>WAVE_LBL[w]),
     ["ANY_POND","TILAPIA","CARP_ANY","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"].map((k,i)=>({
-      label:AQUA_IND_LBL[k],data:NAT.aqua[k],borderColor:SERIES_COL[i],backgroundColor:SERIES_COL[i],tension:.2,pointRadius:4
+      label:AQUA_IND_LBL[k],data:NAT.aqua[k],borderColor:SERIES_AQUA[i],backgroundColor:SERIES_AQUA[i],tension:.2,pointRadius:4
     })),
     {plugins:{title:{display:true,text:"Aquaculture indicators, national weighted prevalence"}}});
 
   lineChart("aquaPoly", WAVES.map(w=>WAVE_LBL[w]),
     [{label:"Carp polyculture (2+)",data:NAT.aqua.POLY_CARP_2PLUS,borderColor:COL.teal,backgroundColor:COL.teal,tension:.2,pointRadius:5,fill:true},
-     {label:"Mola co-culture",data:NAT.aqua.MOLA,borderColor:COL.leaf,backgroundColor:COL.leaf,tension:.2,pointRadius:5,fill:false}],
-    {plugins:{title:{display:true,text:"WorldFish-linked practices: carp polyculture &amp; Mola co-culture"}}});
+     {label:"Mola co-culture",data:NAT.aqua.MOLA,borderColor:COL.teal2,backgroundColor:COL.teal2,tension:.2,pointRadius:5,fill:false}],
+    {plugins:{title:{display:true,text:"WorldFish linked practices: carp polyculture and Mola co-culture"}}});
 
   const sel = document.getElementById("aquaDistInd");
   ["ANY_POND","TILAPIA","CARP_ANY","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"].forEach((k,i)=>{
@@ -897,7 +1120,7 @@ INITS["t-aqua"] = function(){
                   .map(([name,r])=>({name,v:r[k]||0}))
                   .sort((a,b)=>b.v-a.v).slice(0,30);
     barChart("aquaDistChart", rows.map(r=>r.name),
-      [{label:AQUA_IND_LBL[k]+" — 2024",data:rows.map(r=>r.v),backgroundColor:COL.teal,borderColor:COL.teal}],
+      [{label:AQUA_IND_LBL[k]+" (2024)",data:rows.map(r=>r.v),backgroundColor:COL.teal,borderColor:COL.teal}],
       {plugins:{title:{display:true,text:"Top 30 districts for "+AQUA_IND_LBL[k].toLowerCase()+" (2024)"}}});
   }
   sel.onchange = redrawAquaDist; redrawAquaDist();
@@ -1030,9 +1253,9 @@ INITS["t-mech"] = function(){
                 "ELEC_MOTOR_PUMP","DIESEL_MOTOR_PUMP","SPRAYER","REAPER","SEEDER_DRILL","COMBINED_HARVEST"];
   const lbls = keys.map(k=>MECH_IND_LBL[k]);
   barChart("mechOwn", lbls,
-    [{label:"2018/19",data:keys.map(k=>m19[k]||0),backgroundColor:COL.slate2,borderColor:COL.slate2},
-     {label:"2024",   data:keys.map(k=>m24[k]||0),backgroundColor:COL.teal,   borderColor:COL.teal}],
-    {plugins:{title:{display:true,text:"Household equipment ownership — 2018/19 vs 2024"}}});
+    [{label:"2018/19",data:keys.map(k=>m19[k]||0),backgroundColor:COL.accent2,borderColor:COL.accent2},
+     {label:"2024",   data:keys.map(k=>m24[k]||0),backgroundColor:COL.accent, borderColor:COL.accent}],
+    {plugins:{title:{display:true,text:"Household equipment ownership: 2018/19 vs 2024"}}});
 
   // Use 2024
   const useKeys = ["USE_MOTOR_HARVEST","USE_MOTOR_THRESH","USE_TREADLE_THRESH"];
@@ -1050,12 +1273,12 @@ INITS["t-mech"] = function(){
                   .map(([name,r])=>({name,v:r[k]||0}))
                   .sort((a,b)=>b.v-a.v).slice(0,30);
     barChart("mechDistChart", rows.map(r=>r.name),
-      [{label:MECH_IND_LBL[k]+" — 2024",data:rows.map(r=>r.v),backgroundColor:COL.accent,borderColor:COL.accent}],
+      [{label:MECH_IND_LBL[k]+" (2024)",data:rows.map(r=>r.v),backgroundColor:COL.accent,borderColor:COL.accent}],
       {plugins:{title:{display:true,text:"Top 30 districts for "+MECH_IND_LBL[k].toLowerCase()+" (2024)"}}});
   }
   sel.onchange = redrawMechDist; redrawMechDist();
 
-  // Full district-level table — one column per equipment indicator, all rounds we have.
+  // Full district level table: one column per equipment indicator, all rounds we have.
   const MECH_TBL_KEYS = ["TRACTOR","POWER_TILLER","POWER_THRESHER","PADDLE_THRESHER","TREADLE_PUMP","ROWER_PUMP",
                          "AXIAL_FLOW_PUMP","LLP_IRRIG","DIESEL_MOTOR_PUMP","ELEC_MOTOR_PUMP","SPRAYER","REAPER",
                          "SEEDER_DRILL","COMBINED_HARVEST","TRANSPLANTER","FISHING_NET",
