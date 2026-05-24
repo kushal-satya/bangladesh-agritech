@@ -422,7 +422,7 @@ HTML_TMPL = r"""<!doctype html>
     <button data-tab="t-tech"><span class="num">06</span><span>Technology index</span></button>
   </nav>
   <div class="rail-meta">
-    <div class="lbl">BIHS rounds (agri HH)</div>
+    <div class="lbl">Agricultural HH per round</div>
     <div class="row"><span>2011/12</span><span>5,503</span></div>
     <div class="row"><span>2015</span><span>5,447</span></div>
     <div class="row"><span>2018/19</span><span>5,605</span></div>
@@ -452,10 +452,8 @@ HTML_TMPL = r"""<!doctype html>
 <!-- ============================== TAB 1 :: MAP ============================== -->
 <section id="t-map" class="tab on">
   <h2 class="section">CGIAR technologies across Bangladesh, 2011 to 2024</h2>
-  <p class="lede">District level weighted prevalence of a chosen CGIAR linked technology for any BIHS round.
-  Prevalence is computed from the agricultural-household sub-sample (matching the SPIA 2025 analytic frame:
-  <b>5,503 / 5,447 / 5,508 / 5,554</b> households for 2011/12, 2015, 2018/19 and 2024),
-  aggregated with the round's sampling weights. Hover a district for the underlying number of sampled households.</p>
+  <p class="lede">Where adoption of CGIAR-linked rice varieties, aquaculture, and farm equipment sits across Bangladesh's 64 districts, 2011 to 2024. Pick a category, an indicator, and a round.</p>
+  <p class="note">Weighted to the rural agricultural-household population using BIHS sampling weights. Hover any district to see the underlying sample size and the round's value. Method and sample definitions match the SPIA 2025 study; see the 2024 SPIA round tab for the full citation.</p>
   <div class="controls">
     <div class="cat-pills" id="mapCatPills">
       <button class="pill on" data-cat="rice">Rice</button>
@@ -1120,19 +1118,52 @@ function kpiBox(opts){
 }
 
 /* ==============================  CHART HELPERS  ============================== */
+/* Editorial-line defaults per the audit:
+ *  - terminal point only (radius 0 mid-series, 4 at the 2024 end)
+ *  - tooltip mode 'index' so the whole vertical slice is visible on hover
+ *  - no Y-axis title; ticks suffixed with '%'
+ *  - hero-line emphasis when opts.heroIdx is given: hero line 2.5px full color,
+ *    other lines 1px at 50% alpha so the eye knows where to land first
+ */
+function _hex2rgba(hex, a){
+  hex = (hex||"").replace("#","");
+  if(hex.length===3) hex = hex.split("").map(c=>c+c).join("");
+  const n = parseInt(hex,16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
 function lineChart(canvas, labels, datasets, opts){
   if(chartRefs[canvas]) chartRefs[canvas].destroy();
-  chartRefs[canvas] = new Chart(document.getElementById(canvas),{
-    type:"line",
-    data:{labels,datasets},
-    options:Object.assign({
-      responsive:true,maintainAspectRatio:false,
-      plugins:{title:{display:true,color:COL.slate,font:{size:14,weight:"600"},padding:{bottom:10}},
-               legend:{position:"bottom",labels:{boxWidth:12,font:{size:11.5}}}},
-      scales:{y:{beginAtZero:true,title:{display:true,text:"% households (weighted)",font:{size:11}},grid:{color:"#eef0eb",drawTicks:false}},
-              x:{grid:{display:false}}}
-    },opts||{})
+  opts = opts || {};
+  const heroIdx = opts.heroIdx;  // optional dataset index to highlight
+  datasets = datasets.map((d, i) => {
+    const isHero = (heroIdx == null) || (i === heroIdx);
+    const colour = d.borderColor || d.backgroundColor || SERIES_RICE[0];
+    return Object.assign({
+      tension: 0.25,
+      borderWidth: isHero ? 2.5 : 1,
+      borderColor: isHero ? colour : _hex2rgba(colour, 0.55),
+      backgroundColor: isHero ? colour : _hex2rgba(colour, 0.55),
+      pointRadius: labels.map((_, j) => j === labels.length - 1 ? (isHero ? 4 : 3) : 0),
+      pointHoverRadius: 5,
+      fill: false,
+      borderDash: d.borderDash || (isHero ? [] : (i % 2 ? [3,3] : []))
+    }, d);
   });
+  const merged = Object.assign({
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: "index", intersect: false },
+    plugins: {
+      title: { display: !!(opts.plugins && opts.plugins.title), color: COL.slate, font: { size: 13, weight: "600" }, padding: { bottom: 4 } },
+      subtitle: { display: !!(opts.plugins && opts.plugins.subtitle), color: COL.mute, font: { size: 11.5, style: "normal" }, padding: { bottom: 10 } },
+      legend: { position: "top", align: "start", labels: { boxWidth: 10, boxHeight: 2, padding: 6, font: { size: 11 } } },
+      tooltip: { mode: "index", intersect: false }
+    },
+    scales: {
+      y: { beginAtZero: true, grid: { color: "#eef0eb", drawTicks: false }, ticks: { callback: v => v + "%" }, title: { display: false } },
+      x: { grid: { display: false } }
+    }
+  }, opts);
+  chartRefs[canvas] = new Chart(document.getElementById(canvas), { type: "line", data: { labels, datasets }, options: merged });
 }
 function barChart(canvas, labels, datasets, opts){
   if(chartRefs[canvas]) chartRefs[canvas].destroy();
@@ -1141,9 +1172,9 @@ function barChart(canvas, labels, datasets, opts){
     data:{labels,datasets},
     options:Object.assign({
       responsive:true,maintainAspectRatio:false,indexAxis:"y",
-      plugins:{title:{display:true,color:COL.slate,font:{size:14,weight:"600"},padding:{bottom:10}},
-               legend:{position:"bottom",labels:{boxWidth:12,font:{size:11.5}}}},
-      scales:{x:{beginAtZero:true,title:{display:true,text:"% households",font:{size:11}},grid:{color:"#eef0eb",drawTicks:false}},
+      plugins:{title:{display:true,color:COL.slate,font:{size:13,weight:"600"},padding:{bottom:8}},
+               legend:{display:false}},
+      scales:{x:{beginAtZero:true,grid:{color:"#eef0eb",drawTicks:false},ticks:{callback:v=>v+"%"},title:{display:false}},
               y:{grid:{display:false}}}
     },opts||{})
   });
@@ -1153,18 +1184,18 @@ function barChart(canvas, labels, datasets, opts){
 INITS = {};
 INITS["t-map"] = function(){
   initMap();
+  const riceKeys = ["BRRI_CORE28_29","BRRI_NEW_POST2012","HYBRID","LOCAL","BRRI_STRESS","BINA"];
   lineChart("natRice", WAVES.map(w=>WAVE_LBL[w]),
-    ["BRRI_CORE28_29","BRRI_NEW_POST2012","BRRI_STRESS","HYBRID","LOCAL","BINA"].map((k,i)=>({
-      label: RICE_FAM_LBL[k], data: NAT.rice[k],
-      borderColor: SERIES_RICE[i], backgroundColor: SERIES_RICE[i], tension:.2, pointRadius:4
-    })),
-    {plugins:{title:{display:true,text:"Rice variety families (national, weighted)"}}});
+    riceKeys.map((k,i)=>({label:RICE_FAM_LBL[k], data:NAT.rice[k], borderColor:SERIES_RICE[i]})),
+    {heroIdx:0,
+     plugins:{title:{display:true,text:"BRRI core mega-varieties still dominate, hybrid rice surges from a near-zero base"},
+              subtitle:{display:true,text:"Share of agricultural households growing each variety family"}}});
+  const aquaKeys = ["ANY_POND","POLY_CARP_2PLUS","TILAPIA","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"];
   lineChart("natAqua", WAVES.map(w=>WAVE_LBL[w]),
-    ["ANY_POND","TILAPIA","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"].map((k,i)=>({
-      label: AQUA_IND_LBL[k], data: NAT.aqua[k],
-      borderColor: SERIES_AQUA[i], backgroundColor: SERIES_AQUA[i], tension:.2, pointRadius:4
-    })),
-    {plugins:{title:{display:true,text:"Aquaculture indicators (national, weighted)"}}});
+    aquaKeys.map((k,i)=>({label:AQUA_IND_LBL[k], data:NAT.aqua[k], borderColor:SERIES_AQUA[i]})),
+    {heroIdx:0,
+     plugins:{title:{display:true,text:"Pond aquaculture contracts: from ~30% to ~23% of agricultural HH"},
+              subtitle:{display:true,text:"Share of agricultural households cultivating fish in any water body"}}});
 };
 
 /* ==============================  TAB 2 INIT (RICE)  ============================== */
@@ -1181,11 +1212,15 @@ INITS["t-rice"] = function(){
 
   const fams = ["BRRI_CORE28_29","BRRI_OLDER_HYV","BRRI_NEW_POST2012","BRRI_STRESS","BINA","HYBRID","LOCAL"];
   lineChart("riceFamilies", WAVES.map(w=>WAVE_LBL[w]),
-    fams.map((k,i)=>({label:RICE_FAM_LBL[k],data:NAT.rice[k],borderColor:SERIES_RICE[i],backgroundColor:SERIES_RICE[i],tension:.2,pointRadius:4})),
-    {plugins:{title:{display:true,text:"Variety families, national weighted prevalence"}}});
+    fams.map((k,i)=>({label:RICE_FAM_LBL[k], data:NAT.rice[k], borderColor:SERIES_RICE[i]})),
+    {heroIdx:0,
+     plugins:{title:{display:true,text:"BR-28 and BR-29 hold; hybrid rice and BR-70+ lines surge from near zero"},
+              subtitle:{display:true,text:"Share of agricultural households growing each variety family, 2011 to 2024"}}});
   lineChart("riceGrower", WAVES.map(w=>WAVE_LBL[w]),
-    [{label:"Any rice grower",data:NAT.rice.RICE_GROWER,borderColor:COL.leaf,backgroundColor:COL.leaf,tension:.2,pointRadius:4,fill:true}],
-    {plugins:{title:{display:true,text:"Share of BIHS households who grew any rice"}}});
+    [{label:"Any rice grower", data:NAT.rice.RICE_GROWER, borderColor:COL.leaf}],
+    {plugins:{title:{display:true,text:"Rice cultivation participation eases from 84% to 70% of agricultural HH"},
+              subtitle:{display:true,text:"Share of agricultural households who grew any rice, 2011 to 2024"},
+              legend:{display:false}}});
 
   const sel = document.getElementById("riceDistFam");
   fams.forEach((k,i)=>{const o=document.createElement("option");o.value=k;o.innerHTML=RICE_FAM_LBL[k];if(i===0)o.selected=true;sel.appendChild(o);});
@@ -1233,15 +1268,18 @@ INITS["t-aqua"] = function(){
   ].map(kpiBox).join("");
 
   lineChart("aquaTS", WAVES.map(w=>WAVE_LBL[w]),
-    ["ANY_POND","TILAPIA","CARP_ANY","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"].map((k,i)=>({
-      label:AQUA_IND_LBL[k],data:NAT.aqua[k],borderColor:SERIES_AQUA[i],backgroundColor:SERIES_AQUA[i],tension:.2,pointRadius:4
-    })),
-    {plugins:{title:{display:true,text:"Aquaculture indicators, national weighted prevalence"}}});
+    ["ANY_POND","CARP_ANY","POLY_CARP_2PLUS","TILAPIA","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"].map((k,i)=>({
+      label:AQUA_IND_LBL[k], data:NAT.aqua[k], borderColor:SERIES_AQUA[i]})),
+    {heroIdx:0,
+     plugins:{title:{display:true,text:"Pond aquaculture and carp polyculture retreat after 2018/19"},
+              subtitle:{display:true,text:"Share of agricultural households practising each, 2011 to 2024"}}});
 
   lineChart("aquaPoly", WAVES.map(w=>WAVE_LBL[w]),
-    [{label:"Carp polyculture (2+)",data:NAT.aqua.POLY_CARP_2PLUS,borderColor:COL.teal,backgroundColor:COL.teal,tension:.2,pointRadius:5,fill:true},
-     {label:"Mola co-culture",data:NAT.aqua.MOLA,borderColor:COL.teal2,backgroundColor:COL.teal2,tension:.2,pointRadius:5,fill:false}],
-    {plugins:{title:{display:true,text:"WorldFish linked practices: carp polyculture and Mola co-culture"}}});
+    [{label:"Carp polyculture (2+ species)", data:NAT.aqua.POLY_CARP_2PLUS, borderColor:COL.teal},
+     {label:"Mola co-culture",                data:NAT.aqua.MOLA,           borderColor:COL.teal2}],
+    {heroIdx:0,
+     plugins:{title:{display:true,text:"Carp polyculture fell from 23% to 14% of agricultural HH; Mola co-culture stayed below 2%"},
+              subtitle:{display:true,text:"Two WorldFish-linked aquaculture practices, 2011 to 2024"}}});
 
   const sel = document.getElementById("aquaDistInd");
   ["ANY_POND","TILAPIA","CARP_ANY","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"].forEach((k,i)=>{
