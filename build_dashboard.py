@@ -19,6 +19,7 @@ MECH = load("mixtape_mech.json")
 DNA  = load("mixtape_dna.json")
 NAT  = load("mixtape_national.json")
 SUM  = load("mixtape_summary.json")
+TECH = load("mixtape_technologies.json")
 
 # embed logo as base64 so the HTML is truly single-file
 with open(os.path.join(OUT, "MIXTAPE-logo-800x800.png"), "rb") as fh:
@@ -33,7 +34,7 @@ HTML_TMPL = r"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>Bangladesh MIXTAPE \u2014 Rice & Fish Technologies</title>
+<title>MIXTAPE: Bangladesh CGIAR rice and aquaculture technologies</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -111,10 +112,10 @@ HTML_TMPL = r"""<!doctype html>
         scrollbar-width:none;-webkit-overflow-scrolling:touch}
     nav.tabs::-webkit-scrollbar{display:none}
     nav.tabs button{border-left:0;border-bottom:2px solid transparent;border-radius:0;white-space:nowrap;
-        padding:9px 14px;background:transparent;flex-shrink:0}
+        padding:13px 16px;min-height:44px;background:transparent;flex-shrink:0}
     nav.tabs button.on{background:transparent;border-bottom-color:var(--accent)}
     /* Right-edge fade hints at more tabs to scroll */
-    aside.rail::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:42px;pointer-events:none;
+    aside.rail::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:48px;pointer-events:none;
         background:linear-gradient(to right,transparent,#fbfbf8)}
   }
 
@@ -145,6 +146,10 @@ HTML_TMPL = r"""<!doctype html>
   header.title .meta{margin-top:12px;font-size:12px;color:var(--mute);
       display:flex;flex-wrap:wrap;gap:4px 18px;font-variant-numeric:tabular-nums}
   header.title .meta b{font-weight:600;color:var(--ink)}
+  header.title .disclaimer{margin-top:10px;font-size:11.5px;color:var(--mute);max-width:880px;line-height:1.55;
+      padding:8px 12px;background:var(--tint);border-left:2px solid var(--line2)}
+  header.title .disclaimer a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line2)}
+  header.title .disclaimer a:hover{border-bottom-color:var(--accent)}
   @media (max-width:680px){
     header.title{padding-bottom:14px;margin-bottom:16px}
     header.title .eyebrow{font-size:9.5px;letter-spacing:.12em;margin-bottom:6px}
@@ -192,7 +197,12 @@ HTML_TMPL = r"""<!doctype html>
   .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:14px 0 24px;
       border-top:1px solid var(--line);border-left:1px solid var(--line);background:var(--panel)}
   @media (max-width:820px){.kpi{grid-template-columns:repeat(2,1fr)}}
-  .kpi .box{padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .kpi .box{padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column}
+  .kpi .box .spark{display:block;height:28px;width:100%;margin-top:8px}
+  .kpi .box .chip{display:inline-flex;gap:4px;align-items:center;font-size:10.5px;font-variant-numeric:tabular-nums;color:var(--mute);margin-top:6px;font-weight:500}
+  .kpi .box .chip.up{color:#2f6b3a}
+  .kpi .box .chip.dn{color:#9c3a2a}
+  .kpi .box .chip .tri{font-size:9px;line-height:1}
   .kpi .big{font-size:24px;color:var(--ink);font-weight:600;letter-spacing:-.02em;margin:2px 0 0;
       font-variant-numeric:tabular-nums}
   .kpi .lbl{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;font-weight:500}
@@ -342,6 +352,54 @@ HTML_TMPL = r"""<!doctype html>
   .leaflet-bar a:first-child{border-radius:1px 1px 0 0 !important}
   .leaflet-bar a:last-child{border-radius:0 0 1px 1px !important}
   .leaflet-bar a{border-bottom-color:var(--line) !important}
+
+  /* Tech Index */
+  .ref-card{background:var(--panel);border:1px solid var(--line);padding:18px 20px;margin:8px 0 20px}
+  .ref-eyebrow{font-size:10.5px;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:6px}
+  .ref-title{font-size:15px;color:var(--ink);font-weight:600;line-height:1.35;margin-bottom:4px}
+  .ref-meta{font-size:12.5px;color:var(--text);line-height:1.55;margin-bottom:8px}
+  .ref-links{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:8px}
+  .ref-links a{font-size:12.5px;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line2);font-weight:500}
+  .ref-links a:hover{border-bottom-color:var(--accent)}
+  .ref-note{font-size:12px;color:var(--mute);line-height:1.55;font-style:italic;max-width:780px}
+
+  .inst-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line);margin:8px 0 28px}
+  @media (max-width:980px){.inst-grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:680px){.inst-grid{grid-template-columns:1fr}}
+  .inst-card{background:var(--panel);padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .inst-acro{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+  .inst-name{font-size:13.5px;color:var(--ink);font-weight:600;margin-bottom:6px;line-height:1.35}
+  .inst-role{font-size:12px;color:var(--text);line-height:1.55;margin-bottom:8px}
+  .inst-links{display:flex;flex-direction:column;gap:3px}
+  .inst-links a{font-size:11.5px;color:var(--accent);text-decoration:none;line-height:1.4}
+  .inst-links a:hover{text-decoration:underline}
+
+  .tech-controls{align-items:flex-start}
+  .tech-controls .cat-pills{flex-wrap:wrap;max-width:100%}
+  .tech-controls .cat-pills button{padding:6px 12px;font-size:12.5px}
+  .tech-search{font-family:inherit;font-size:13px;padding:7px 12px;border:1px solid var(--line2);border-radius:2px;color:var(--ink);min-width:240px;background:#fff}
+  .tech-search:focus{outline:1px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  .tech-count{font-size:11.5px;color:var(--mute);font-variant-numeric:tabular-nums;margin-left:auto}
+
+  .tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+  @media (max-width:980px){.tech-grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:680px){.tech-grid{grid-template-columns:1fr}}
+  .tech-card{background:var(--panel);padding:14px 16px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column}
+  .tech-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
+  .tech-chip{font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:2px 8px;border:1px solid var(--line)}
+  .chip-rice{color:var(--rice-dark);background:var(--rice-soft);border-color:#cddcd3}
+  .chip-aqua{color:var(--aqua-dark);background:var(--aqua-soft);border-color:#c9d6e2}
+  .chip-mech{color:var(--mech-dark);background:var(--mech-soft);border-color:#dbcfb8}
+  .tech-year{font-size:11.5px;color:var(--mute);font-variant-numeric:tabular-nums;font-weight:600}
+  .tech-name{margin:0 0 4px;font-size:14px;color:var(--ink);font-weight:600;line-height:1.3}
+  .tech-meta{font-size:11.5px;color:var(--mute);line-height:1.45;margin-bottom:8px}
+  .cgiar-badge{display:inline-block;font-size:10.5px;color:var(--accent-dark);background:var(--accent-soft);
+      padding:2px 8px;margin-bottom:8px;font-weight:600;letter-spacing:.03em;border:1px solid var(--line)}
+  .tech-desc{font-size:12.5px;color:var(--text);line-height:1.55;margin:0 0 10px;flex:1}
+  .tech-srcs{display:flex;flex-direction:column;gap:2px;padding-top:8px;border-top:1px solid var(--line)}
+  .tech-srcs a{font-size:11.5px;color:var(--accent);text-decoration:none;line-height:1.4}
+  .tech-srcs a:hover{text-decoration:underline}
+  .empty{padding:24px;background:var(--panel);border:1px solid var(--line);color:var(--mute);font-size:13px;text-align:center}
 </style>
 </head>
 <body class="cat-rice">
@@ -361,17 +419,20 @@ HTML_TMPL = r"""<!doctype html>
     <button data-tab="t-aqua"><span class="num">03</span><span>Aquaculture</span></button>
     <button data-tab="t-spia"><span class="num">04</span><span>2024 SPIA round</span></button>
     <button data-tab="t-mech"><span class="num">05</span><span>Mechanisation</span></button>
+    <button data-tab="t-tech"><span class="num">06</span><span>Technology index</span></button>
   </nav>
   <div class="rail-meta">
-    <div class="lbl">BIHS rounds</div>
-    <div class="row"><span>2011/12</span><span>6,503</span></div>
-    <div class="row"><span>2015</span><span>6,715</span></div>
-    <div class="row"><span>2018/19</span><span>6,011</span></div>
+    <div class="lbl">BIHS rounds (agri HH)</div>
+    <div class="row"><span>2011/12</span><span>5,503</span></div>
+    <div class="row"><span>2015</span><span>5,447</span></div>
+    <div class="row"><span>2018/19</span><span>5,605</span></div>
     <div class="row"><span>2024 SPIA</span><span>5,554</span></div>
   </div>
   <div class="rail-foot">
     Kushal Kumar<br><a href="mailto:kd475@cornell.edu">kd475@cornell.edu</a><br>
-    Cornell University
+    Cornell University<br>
+    <br>
+    Replicates <a href="https://github.com/CGIAR-SPIA/SPIA-Bangladesh-Study-2025" target="_blank" rel="noopener">SPIA Bangladesh Study 2025</a>
   </div>
 </aside>
 
@@ -392,8 +453,8 @@ HTML_TMPL = r"""<!doctype html>
 <section id="t-map" class="tab on">
   <h2 class="section">CGIAR technologies across Bangladesh, 2011 to 2024</h2>
   <p class="lede">District level weighted prevalence of a chosen CGIAR linked technology for any BIHS round.
-  Prevalence is computed from the household level survey responses for
-  <b>6,503 (2011/12), 6,715 (2015), 6,011 (2018/19), and 5,554 (2024)</b> households,
+  Prevalence is computed from the agricultural-household sub-sample (matching the SPIA 2025 analytic frame:
+  <b>5,503 / 5,447 / 5,508 / 5,554</b> households for 2011/12, 2015, 2018/19 and 2024),
   aggregated with the round's sampling weights. Hover a district for the underlying number of sampled households.</p>
   <div class="controls">
     <div class="cat-pills" id="mapCatPills">
@@ -504,6 +565,18 @@ HTML_TMPL = r"""<!doctype html>
 <!-- ============================== TAB 4 :: 2024 SPIA ============================== -->
 <section id="t-spia" class="tab">
   <h2 class="section">2024 SPIA round: new insights</h2>
+
+  <div class="ref-card">
+    <div class="ref-eyebrow">Source for this tab</div>
+    <div class="ref-title">SPIA Bangladesh Study 2025: Updating the Green Revolution</div>
+    <div class="ref-meta">Singla, S., Ul Islam, T., Hassan, F., Monteiro, I., Stevenson, J., Emerick, K. (2025). Standing Panel on Impact Assessment (SPIA), Rome. CC BY-NC-SA 4.0.</div>
+    <div class="ref-links">
+      <a href="https://iaes.cgiar.org/sites/default/files/pdf/SPIA_Bangladesh_Study_2025.pdf" target="_blank" rel="noopener">Read the SPIA 2025 report (PDF)</a>
+      <a href="https://github.com/CGIAR-SPIA/SPIA-Bangladesh-Study-2025" target="_blank" rel="noopener">SPIA replication repository on GitHub</a>
+    </div>
+    <div class="ref-note">The 2024 SPIA round of BIHS, the DNA-fingerprint sample, the equipment roster and the aquaculture-intensification module on this tab are taken from SPIA's published 2025 study. This dashboard presents and verifies a subset of that evidence in a navigable form.</div>
+  </div>
+
   <p class="lede">The 2024 SPIA round adds three pieces of evidence on top of the traditional recall-based BIHS instrument:
   (i) DNA fingerprinting of a random sample of 370 paddy plots, allowing direct rather than self-reported variety identification;
   (ii) a detailed agricultural-equipment ownership roster;
@@ -584,15 +657,33 @@ HTML_TMPL = r"""<!doctype html>
   BIHS_household_2011_15.dta (asset_tractor only).</p>
 </section>
 
+<!-- ============================== TAB 6 :: TECH INDEX ============================== -->
+<section id="t-tech" class="tab">
+  <h2 class="section">Technology index, CGIAR linked innovations in Bangladesh</h2>
+  <p class="lede">Every variety, strain, practice, or piece of equipment tracked by the MIXTAPE dashboard, with a short description and links to authoritative sources. Curated from BRRI, BINA, BARI, IRRI, WorldFish, CIMMYT, ICARDA, ICRISAT, CIP, HarvestPlus, the CGIAR Standing Panel on Impact Assessment (SPIA), and peer reviewed literature. The canonical synthesis is the SPIA Bangladesh Study 2025: Updating the Green Revolution, with replication code on GitHub.</p>
+
+  <div class="primary-ref" id="primaryRef"></div>
+
+  <h3 class="sub">Institutions and programmes</h3>
+  <div class="inst-grid" id="instGrid"></div>
+
+  <h3 class="sub">Browse technologies</h3>
+  <div class="controls tech-controls">
+    <div class="cat-pills" id="techCatPills"></div>
+    <input type="search" class="search tech-search" placeholder="Search variety, strain, or trait..." id="techSearch"/>
+    <span class="tech-count" id="techCount"></span>
+  </div>
+  <div class="tech-grid" id="techGrid"></div>
+</section>
+
 <div class="footer">
 <div class="contact">
-  <b>Contact.</b> Kushal Kumar &middot; <a href="mailto:kd475@cornell.edu">kd475@cornell.edu</a> &middot; Cornell University
+  Kushal Kumar &middot; <a href="mailto:kd475@cornell.edu">kd475@cornell.edu</a> &middot; Cornell University
 </div>
 <div class="attrib">
-  <b>Primary data.</b> Bangladesh Integrated Household Survey (BIHS) rounds 1, 2, 3 (IFPRI) and the 2024 SPIA round on the BIHS panel.
-  Methods follow standard weighted prevalence conventions using the round specific household sampling weights provided with each BIHS release.<br>
-  <b>Repositories.</b> BIHS rounds 1 to 3: IFPRI dataverse on Harvard Dataverse (<a href="https://dataverse.harvard.edu/dataverse/IFPRI" target="_blank" rel="noopener">dataverse.harvard.edu/dataverse/IFPRI</a>); 2024 SPIA round, BIHS panel: dataset hosted on the Cornell Institute for Social and Economic Research (CISER) repository (forthcoming public release).<br>
-  <b>Citation.</b> Ahmed, A. (IFPRI). Bangladesh Integrated Household Survey (BIHS). Rounds 1 (2011/12), 2 (2015), 3 (2018/19). International Food Policy Research Institute, Washington, DC.
+  Underlying microdata: Bangladesh Integrated Household Survey (BIHS) rounds 1 (2011/12), 2 (2015), 3 (2018/19) via the
+  <a href="https://dataverse.harvard.edu/dataverse/IFPRI" target="_blank" rel="noopener">IFPRI dataverse</a>;
+  the 2024 round is from the SPIA Bangladesh Study 2025 (see the 2024 SPIA round tab and the Technology Index tab for the full citation).
 </div>
 </div>
 
@@ -608,6 +699,7 @@ const MECH = __MECH__;
 const DNA  = __DNA__;
 const NAT  = __NAT__;
 const SUM  = __SUM__;
+const TECH = __TECH__;
 
 const WAVES = ["2011","2015","2019","2024"];
 const WAVE_LBL = {"2011":"2011/12","2015":"2015","2019":"2018/19","2024":"2024"};
@@ -682,7 +774,7 @@ Chart.defaults.plugins.legend.labels.font = {size: 11};
 /* ==============================  TABS  ============================== */
 const chartRefs = {};
 const tabInit   = {};
-const TAB_CAT = {"t-map":"rice","t-rice":"rice","t-aqua":"aqua","t-spia":"rice","t-mech":"mech"};
+const TAB_CAT = {"t-map":"rice","t-rice":"rice","t-aqua":"aqua","t-spia":"rice","t-mech":"mech","t-tech":"rice"};
 function setBodyCat(cat){
   document.body.classList.remove("cat-rice","cat-aqua","cat-mech");
   document.body.classList.add("cat-"+cat);
@@ -845,9 +937,12 @@ function drawMap(){
   const item = MAP_CATALOG[mapCat].items.find(x=>x[1]===ind);
   const title = item ? item[0] : "";
   let html = `<b>${MAP_CATALOG[mapCat].label}</b><br>${title}<br><small class="cap">% of households &middot; ${WAVE_LBL[year]}</small>`;
+  // Skip the first stop (collapsed into "0%") and label the cap row as "35%+".
   stops.forEach((s,i)=>{
-    const hi = s[0]; const lo = i===0?0:stops[i-1][0];
-    html += `<div class="row-l"><span class="sw" style="background:${s[1]}"></span>${lo.toFixed(0)}&ndash;${hi===100?">35":hi.toFixed(0)}%</div>`;
+    if(i===0) return;
+    const hi = s[0]; const lo = stops[i-1][0];
+    const label = hi===100 ? `${lo.toFixed(0)}%+` : `${lo.toFixed(0)}–${hi.toFixed(0)}%`;
+    html += `<div class="row-l"><span class="sw" style="background:${s[1]}"></span>${label}</div>`;
   });
   lg.innerHTML = html;
 }
@@ -987,6 +1082,43 @@ function renderFullTable(container, src, indicators, indicatorLabels, csvBase, o
   render();
 }
 
+/* ==============================  KPI HELPER  ============================== */
+/* Render a KPI tile. When `series` (a 4-element array over BIHS rounds) and
+   `colour` are provided, a 28px sparkline plus a "+N.N pp vs 2011/12" delta
+   chip are appended; otherwise the tile renders bare (used for SPIA counts). */
+function kpiBox(opts){
+  const lbl = opts.lbl, val = opts.val;
+  const series = opts.series, colour = opts.colour;
+  if(!series || !colour){
+    return `<div class="box"><div class="lbl">${lbl}</div><div class="big">${val}</div></div>`;
+  }
+  const xs = series.filter(v => v != null && !isNaN(v));
+  if(xs.length < 2){
+    return `<div class="box"><div class="lbl">${lbl}</div><div class="big">${val}</div></div>`;
+  }
+  const base = xs[0], last = xs[xs.length - 1], d = last - base;
+  const sign = d >= 0 ? "up" : "dn";
+  const tri  = d >= 0 ? "▲" : "▼";
+  const w = 120, h = 28;
+  const mn = Math.min.apply(null, xs);
+  const mx = Math.max.apply(null, xs);
+  const r  = (mx - mn) || 1;
+  const pts = xs.map((v, i) =>
+    `${(i / (xs.length - 1) * w).toFixed(1)},${(h - ((v - mn) / r) * h).toFixed(1)}`
+  ).join(" ");
+  const lastY = (h - ((last - mn) / r) * h).toFixed(1);
+  const baseLbl = opts.baseLbl || "2011/12";
+  return `<div class="box">
+    <div class="lbl">${lbl}</div>
+    <div class="big">${val}</div>
+    <svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+      <polyline fill="none" stroke="${colour}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" points="${pts}"/>
+      <circle cx="${w}" cy="${lastY}" r="2.6" fill="${colour}"/>
+    </svg>
+    <span class="chip ${sign}"><span class="tri">${tri}</span>${d >= 0 ? "+" : ""}${d.toFixed(1)} pp vs ${baseLbl}</span>
+  </div>`;
+}
+
 /* ==============================  CHART HELPERS  ============================== */
 function lineChart(canvas, labels, datasets, opts){
   if(chartRefs[canvas]) chartRefs[canvas].destroy();
@@ -1039,12 +1171,13 @@ INITS["t-map"] = function(){
 INITS["t-rice"] = function(){
   const nat24 = RICE.by_wave["2024"].__NATIONAL__;
   const kpi = document.getElementById("kpiRice");
+  const cR = COL.leaf;
   kpi.innerHTML = [
-    {lbl:"Any rice grower, 2024", val:nat24.RICE_GROWER.toFixed(1)+"%"},
-    {lbl:"BRRI core (BR-28/29), 2024", val:nat24.BRRI_CORE28_29.toFixed(1)+"%"},
-    {lbl:"New BRRI lines, 2024", val:nat24.BRRI_NEW_POST2012.toFixed(1)+"%"},
-    {lbl:"Hybrid rice, 2024", val:nat24.HYBRID.toFixed(1)+"%"}
-  ].map(x=>`<div class="box"><div class="lbl">${x.lbl}</div><div class="big">${x.val}</div></div>`).join("");
+    {lbl:"Any rice grower, 2024",       val:nat24.RICE_GROWER.toFixed(1)+"%",       series:NAT.rice.RICE_GROWER,       colour:cR},
+    {lbl:"BRRI core (BR-28/29), 2024",  val:nat24.BRRI_CORE28_29.toFixed(1)+"%",    series:NAT.rice.BRRI_CORE28_29,    colour:cR},
+    {lbl:"New BRRI lines, 2024",        val:nat24.BRRI_NEW_POST2012.toFixed(1)+"%", series:NAT.rice.BRRI_NEW_POST2012, colour:cR},
+    {lbl:"Hybrid rice, 2024",           val:nat24.HYBRID.toFixed(1)+"%",            series:NAT.rice.HYBRID,            colour:cR}
+  ].map(kpiBox).join("");
 
   const fams = ["BRRI_CORE28_29","BRRI_OLDER_HYV","BRRI_NEW_POST2012","BRRI_STRESS","BINA","HYBRID","LOCAL"];
   lineChart("riceFamilies", WAVES.map(w=>WAVE_LBL[w]),
@@ -1091,12 +1224,13 @@ INITS["t-rice"] = function(){
 /* ==============================  TAB 3 INIT (AQUA)  ============================== */
 INITS["t-aqua"] = function(){
   const nat24 = AQUA.by_wave["2024"].__NATIONAL__;
+  const cA = COL.teal;
   document.getElementById("kpiAqua").innerHTML = [
-    {lbl:"Any pond, 2024", val:nat24.ANY_POND.toFixed(1)+"%"},
-    {lbl:"Tilapia (incl. GIFT), 2024", val:nat24.TILAPIA.toFixed(1)+"%"},
-    {lbl:"Carp polyculture (2+), 2024", val:nat24.POLY_CARP_2PLUS.toFixed(1)+"%"},
-    {lbl:"Mola co-culture, 2024", val:nat24.MOLA.toFixed(1)+"%"}
-  ].map(x=>`<div class="box"><div class="lbl">${x.lbl}</div><div class="big">${x.val}</div></div>`).join("");
+    {lbl:"Any pond, 2024",                val:nat24.ANY_POND.toFixed(1)+"%",        series:NAT.aqua.ANY_POND,        colour:cA},
+    {lbl:"Tilapia (incl. GIFT), 2024",    val:nat24.TILAPIA.toFixed(1)+"%",         series:NAT.aqua.TILAPIA,         colour:cA},
+    {lbl:"Carp polyculture (2+), 2024",   val:nat24.POLY_CARP_2PLUS.toFixed(1)+"%", series:NAT.aqua.POLY_CARP_2PLUS, colour:cA},
+    {lbl:"Mola co-culture, 2024",         val:nat24.MOLA.toFixed(1)+"%",            series:NAT.aqua.MOLA,            colour:cA}
+  ].map(kpiBox).join("");
 
   lineChart("aquaTS", WAVES.map(w=>WAVE_LBL[w]),
     ["ANY_POND","TILAPIA","CARP_ANY","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"].map((k,i)=>({
@@ -1164,7 +1298,7 @@ INITS["t-spia"] = function(){
      scales:{x:{title:{display:true,text:"samples"}},y:{ticks:{font:{size:10.5}}}}});
 
   const cl = DNA.by_cluster.slice().sort((a,b)=>b.n_samples-a.n_samples);
-  barChart("dnaByCluster", cl.map(r=>"Cluster "+r.cluster_id+"  \u2014  "+r.top_variety),
+  barChart("dnaByCluster", cl.map(r=>"Cluster "+r.cluster_id+" : "+r.top_variety),
     [{label:"Samples in cluster",data:cl.map(r=>r.n_samples),backgroundColor:COL.teal,borderColor:COL.teal}],
     {plugins:{title:{display:true,text:"Genetic clusters and their dominant variety"},legend:{display:false}},
      scales:{x:{title:{display:true,text:"samples"}}}});
@@ -1241,12 +1375,15 @@ INITS["t-spia"] = function(){
 INITS["t-mech"] = function(){
   const m24 = MECH.by_wave["2024"].__NATIONAL__ || {};
   const m19 = MECH.by_wave["2019"].__NATIONAL__ || {};
+  const cM = COL.accent;
+  // Mech equipment is only consistently tracked from 2018/19 onward; baseline label reflects that.
+  const mechSeries = k => NAT.mech && NAT.mech[k] ? NAT.mech[k] : null;
   document.getElementById("kpiMech").innerHTML = [
-    {lbl:"Power tiller, 2024", val:(m24.POWER_TILLER||0).toFixed(1)+"%"},
-    {lbl:"Motorised thresh use, 2024", val:(m24.USE_MOTOR_THRESH||0).toFixed(1)+"%"},
-    {lbl:"Sprayer, 2024", val:(m24.SPRAYER||0).toFixed(1)+"%"},
-    {lbl:"Electric motor pump, 2024", val:(m24.ELEC_MOTOR_PUMP||0).toFixed(1)+"%"}
-  ].map(x=>`<div class="box"><div class="lbl">${x.lbl}</div><div class="big">${x.val}</div></div>`).join("");
+    {lbl:"Power tiller, 2024",         val:(m24.POWER_TILLER||0).toFixed(1)+"%",     series:mechSeries("POWER_TILLER"),     colour:cM, baseLbl:"2018/19"},
+    {lbl:"Motorised thresh use, 2024", val:(m24.USE_MOTOR_THRESH||0).toFixed(1)+"%", series:mechSeries("USE_MOTOR_THRESH"), colour:cM, baseLbl:"2018/19"},
+    {lbl:"Sprayer, 2024",              val:(m24.SPRAYER||0).toFixed(1)+"%",          series:mechSeries("SPRAYER"),          colour:cM, baseLbl:"2018/19"},
+    {lbl:"Electric motor pump, 2024",  val:(m24.ELEC_MOTOR_PUMP||0).toFixed(1)+"%",  series:mechSeries("ELEC_MOTOR_PUMP"),  colour:cM, baseLbl:"2018/19"}
+  ].map(kpiBox).join("");
 
   // Ownership comparison 2019 vs 2024
   const keys = ["TRACTOR","POWER_TILLER","POWER_THRESHER","LLP_IRRIG","AXIAL_FLOW_PUMP",
@@ -1286,6 +1423,93 @@ INITS["t-mech"] = function(){
   renderFullTable(document.getElementById("mechFullTbl"), MECH, MECH_TBL_KEYS, MECH_IND_LBL, "mixtape_mech_district");
 };
 
+/* ==============================  TAB 6 INIT (TECH INDEX)  ============================== */
+INITS["t-tech"] = function(){
+  // Category color mapping (for the colored chip on each card)
+  const CAT_CLASS = {rice:"rice", wheat:"rice", maize:"rice", potato:"rice", sweetpotato:"rice",
+                     lentil:"rice", groundnut:"rice", chickpea:"rice",
+                     aqua:"aqua", nrm:"aqua", mech:"mech"};
+  const CAT_LABEL = {}; TECH.categories.forEach(c => CAT_LABEL[c.id] = c.label);
+
+  // Primary reference card
+  const ref = TECH.primary_reference;
+  document.getElementById("primaryRef").innerHTML = `
+    <div class="ref-card">
+      <div class="ref-eyebrow">Primary reference</div>
+      <div class="ref-title">${ref.title}</div>
+      <div class="ref-meta">${ref.authors} (${ref.year}). <em>${ref.publisher}</em>. ${ref.license}.</div>
+      <div class="ref-links">
+        <a href="${ref.report_url}" target="_blank" rel="noopener">Read the SPIA 2025 report (PDF)</a>
+        <a href="${ref.github_url}" target="_blank" rel="noopener">SPIA replication repository on GitHub</a>
+      </div>
+      <div class="ref-note">${ref.note}</div>
+    </div>`;
+
+  // Institutions grid
+  const instHtml = TECH.institutions.map(i => `
+    <div class="inst-card">
+      <div class="inst-acro">${i.acronym}</div>
+      <div class="inst-name">${i.name}</div>
+      <div class="inst-role">${i.role}</div>
+      <div class="inst-links">
+        ${i.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener">${l.title}</a>`).join("")}
+      </div>
+    </div>`).join("");
+  document.getElementById("instGrid").innerHTML = instHtml;
+
+  // Category pills
+  const pills = document.getElementById("techCatPills");
+  const cats = [{id:"all", label:"All"}].concat(TECH.categories);
+  pills.innerHTML = cats.map((c,i) =>
+    `<button data-cat="${c.id}" class="${i===0?"on":""}">${c.label}</button>`).join("");
+
+  let activeCat = "all";
+  let searchQ = "";
+
+  function matchesSearch(t){
+    if(!searchQ) return true;
+    const q = searchQ.toLowerCase();
+    return [t.code, t.name, t.description, t.developer, t.cgiar_origin, t.type, t.season, t.species]
+      .filter(Boolean).join(" ").toLowerCase().includes(q);
+  }
+  function render(){
+    const rows = TECH.technologies.filter(t =>
+      (activeCat==="all" || t.category===activeCat) && matchesSearch(t));
+    document.getElementById("techCount").textContent = rows.length + " technology" + (rows.length===1?"":"s");
+    const html = rows.map(t => {
+      const chipCat = CAT_CLASS[t.category] || "rice";
+      const yearStr = t.year ? t.year : "";
+      const meta = [t.season, t.species, t.developer].filter(Boolean).join(" · ");
+      const cgiarBadge = t.cgiar_origin ? `<span class="cgiar-badge">CGIAR: ${t.cgiar_origin}</span>` : "";
+      const srcs = (t.sources||[]).map(s =>
+        `<a href="${s.url}" target="_blank" rel="noopener">${s.title}</a>`).join("");
+      return `
+        <article class="tech-card">
+          <div class="tech-head">
+            <span class="tech-chip chip-${chipCat}">${CAT_LABEL[t.category]||t.category}</span>
+            <span class="tech-year">${yearStr}</span>
+          </div>
+          <h4 class="tech-name">${t.name}</h4>
+          <div class="tech-meta">${meta}</div>
+          ${cgiarBadge}
+          <p class="tech-desc">${t.description}</p>
+          <div class="tech-srcs">${srcs}</div>
+        </article>`;
+    }).join("");
+    document.getElementById("techGrid").innerHTML = html || `<div class="empty">No technologies match your filter.</div>`;
+  }
+  pills.addEventListener("click", e => {
+    const btn = e.target.closest("button"); if(!btn) return;
+    activeCat = btn.dataset.cat;
+    pills.querySelectorAll("button").forEach(b => b.classList.toggle("on", b===btn));
+    render();
+  });
+  document.getElementById("techSearch").addEventListener("input", e => {
+    searchQ = e.target.value; render();
+  });
+  render();
+};
+
 // kick off first tab
 lazyInit("t-map");
 </script>
@@ -1303,6 +1527,7 @@ html_out = (HTML_TMPL
     .replace("__DNA__",  j(DNA))
     .replace("__NAT__",  j(NAT))
     .replace("__SUM__",  j(SUM))
+    .replace("__TECH__", j(TECH))
 )
 # The HTML template is a raw string (r"""..."""), so any \uXXXX escape we wrote
 # inside it reached the output verbatim.  Normalise the few Unicode escapes we used.
