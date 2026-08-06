@@ -8,7 +8,7 @@ __pycache__/
 .vscode/
 .idea/
 
-# Raw BIHS microdata (IFPRI restricted — never commit)
+# Raw BIHS microdata (IFPRI restricted, never commit)
 *.dta
 BIHS*/
 SPIA*/

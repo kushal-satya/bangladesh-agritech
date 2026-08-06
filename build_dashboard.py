@@ -1,15 +1,23 @@
-"""Build the MIXTAPE dashboard HTML by inlining all mixtape_*.json outputs.
+"""Build the MIXTAPE dashboard.
 
-Produces output/mixtape_dashboard.html which is fully self-contained (except for
-the MIXTAPE-logo-800x800.png which must sit next to it) and deploys on GitHub
-Pages as-is.
+Reads the data files in data/, the text and colors in content.toml, and
+writes a fully self-contained index.html next to this script. Deploys on
+GitHub Pages as-is.
+
+To change any wording or color on the dashboard, edit content.toml and
+rerun this script.
 """
-import json, os, html, base64
+import json, os, base64, tomllib
 
-OUT = r"C:/Users/kd475/RES/BGD_MIX/output"
+ROOT = os.path.dirname(os.path.abspath(__file__))
+DATA = os.path.join(ROOT, "data")
+
+with open(os.path.join(ROOT, "content.toml"), "rb") as fh:
+    C = tomllib.load(fh)
+THEME = C["theme"]
 
 def load(name):
-    with open(os.path.join(OUT, name), encoding="utf-8") as fh:
+    with open(os.path.join(DATA, name), encoding="utf-8") as fh:
         return json.load(fh)
 
 GEO  = load("mixtape_geo.json")
@@ -22,19 +30,34 @@ SUM  = load("mixtape_summary.json")
 TECH = load("mixtape_technologies.json")
 
 # embed logo as base64 so the HTML is truly single-file
-with open(os.path.join(OUT, "MIXTAPE-logo-800x800.png"), "rb") as fh:
+with open(os.path.join(DATA, "MIXTAPE-logo-800x800.png"), "rb") as fh:
     LOGO_B64 = "data:image/png;base64," + base64.b64encode(fh.read()).decode()
 
 def j(obj):
     return json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
 
-PROJECT_BRIEF = """MIXTAPE tracks how publicly-bred rice varieties, aquaculture practices, and farm machinery have spread across Bangladesh's farming households between 2011 and 2024, using four rounds of the nationally-representative BIHS panel. Each map and chart shows the share of farmers using a particular technology — by district and over time. Cornell University and Bangladesh Agricultural University run the study; CGIAR's Standing Panel on Impact Assessment (SPIA) funds it through 2027."""
+# Text bundle handed to the page's JavaScript (labels, glosses, chart titles)
+TXT_JS = {
+    "labels":      C["labels"],
+    "map_catalog": C["map_catalog"],
+    "glosses":     C["glosses"],
+    "charts":      C["charts"],
+    "kpi":         C["kpi"],
+    "map":         {k: C["map"][k] for k in
+                    ("info_title", "info_hover_hint", "legend_units", "gloss_suffix",
+                     "kpi_national", "kpi_change", "kpi_highest", "kpi_lowest")},
+    "misc":        C["misc"],
+    "tables":      {"rice_1": C["rice"]["top_table_1"], "rice_2": C["rice"]["top_table_2"],
+                    "aqua_1": C["aqua"]["top_table_1"], "aqua_2": C["aqua"]["top_table_2"]},
+    "tech":        {k: C["tech"][k] for k in
+                    ("primary_ref_eyebrow", "report_link_label", "github_link_label", "no_match")},
+}
 
 HTML_TMPL = r"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>MIXTAPE: Bangladesh CGIAR rice and aquaculture technologies</title>
+<title>__PAGE_TITLE__</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -42,24 +65,8 @@ HTML_TMPL = r"""<!doctype html>
 <link rel="icon" type="image/png" href="__LOGO__"/>
 <style>
   :root{
-    /* Editorial minimal. Neutral surfaces. Two category accents: rice green, aquaculture blue. */
-    --ink:#1a1f1c;
-    --text:#2b332e;
-    --mute:#6c7570;
-    --line:#e3e6e1;
-    --line2:#cfd4cd;
-    --bg:#fafaf7;
-    --panel:#ffffff;
-    --tint:#f3f5f0;
-    --rice:#2d6a4f;
-    --rice-dark:#1c4a36;
-    --rice-soft:#e5ede7;
-    --aqua:#1f5e8a;
-    --aqua-dark:#163f5d;
-    --aqua-soft:#dfe9f1;
-    --mech:#7a6147;
-    --mech-dark:#52402b;
-    --mech-soft:#ece4d6;
+    /* All values come from the [theme] section of content.toml. */
+__ROOT_VARS__
     --accent:var(--rice);
     --accent-dark:var(--rice-dark);
     --accent-soft:var(--rice-soft);
@@ -79,7 +86,7 @@ HTML_TMPL = r"""<!doctype html>
 
   /* Side rail */
   aside.rail{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
-      padding:30px 22px 24px;border-right:1px solid var(--line);background:#fbfbf8}
+      padding:30px 22px 24px;border-right:1px solid var(--line);background:var(--rail-bg)}
   aside.rail::-webkit-scrollbar{width:6px}
   aside.rail::-webkit-scrollbar-thumb{background:#d8dad4;border-radius:3px}
   @media (max-width:980px){
@@ -116,7 +123,7 @@ HTML_TMPL = r"""<!doctype html>
     nav.tabs button.on{background:transparent;border-bottom-color:var(--accent)}
     /* Right-edge fade hints at more tabs to scroll */
     aside.rail::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:48px;pointer-events:none;
-        background:linear-gradient(to right,transparent,#fbfbf8)}
+        background:linear-gradient(to right,transparent,var(--rail-bg))}
   }
 
   /* Rail meta and footer */
@@ -200,8 +207,8 @@ HTML_TMPL = r"""<!doctype html>
   .kpi .box{padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column}
   .kpi .box .spark{display:block;height:28px;width:100%;margin-top:8px}
   .kpi .box .chip{display:inline-flex;gap:4px;align-items:center;font-size:10.5px;font-variant-numeric:tabular-nums;color:var(--mute);margin-top:6px;font-weight:500}
-  .kpi .box .chip.up{color:#2f6b3a}
-  .kpi .box .chip.dn{color:#9c3a2a}
+  .kpi .box .chip.up{color:var(--positive)}
+  .kpi .box .chip.dn{color:var(--negative)}
   .kpi .box .chip .tri{font-size:9px;line-height:1}
   .kpi .big{font-size:24px;color:var(--ink);font-weight:600;letter-spacing:-.02em;margin:2px 0 0;
       font-variant-numeric:tabular-nums}
@@ -240,7 +247,7 @@ HTML_TMPL = r"""<!doctype html>
       padding:10px 14px;margin:0 0 14px;max-width:920px;line-height:1.6}
   .ind-gloss b{color:var(--ink);font-weight:600}
   .ind-gloss em{color:var(--mute);font-style:normal;font-size:12px;display:block;margin-top:4px}
-  .leaflet-container{background:#fafaf7;font-family:inherit}
+  .leaflet-container{background:var(--bg);font-family:inherit}
   /* Leaflet zoom moves to top right so it never collides with the hover info box */
   .leaflet-top.leaflet-left{display:none}
   .leaflet-top.leaflet-right{top:12px;right:12px}
@@ -387,7 +394,7 @@ HTML_TMPL = r"""<!doctype html>
   .finding.f-aqua{border-top-color:var(--aqua)}
   .finding.f-mech{border-top-color:var(--mech)}
   .finding .eyebrow{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-      font-weight:600;margin-bottom:8px;color:var(--mute)}
+      font-weight:600;margin-bottom:8px;color:var(--mute);padding-right:110px}
   .finding.f-rice .eyebrow{color:var(--rice-dark)}
   .finding.f-aqua .eyebrow{color:var(--aqua-dark)}
   .finding.f-mech .eyebrow{color:var(--mech-dark)}
@@ -398,8 +405,8 @@ HTML_TMPL = r"""<!doctype html>
   .finding .ctx b{color:var(--ink);font-weight:600}
   .finding .delta{display:inline-block;font-size:11px;color:var(--mute);margin-top:6px;
       font-variant-numeric:tabular-nums;font-weight:500}
-  .finding .delta.up{color:#2f6b3a}
-  .finding .delta.dn{color:#9c3a2a}
+  .finding .delta.up{color:var(--positive)}
+  .finding .delta.dn{color:var(--negative)}
   .finding .arrow{position:absolute;top:16px;right:18px;color:var(--mute);
       font-size:13px;font-weight:500;letter-spacing:.02em}
 
@@ -481,49 +488,38 @@ HTML_TMPL = r"""<!doctype html>
   <div class="brand">
     <img src="__LOGO__" alt="MIXTAPE logo"/>
     <div class="name">
-      <div class="acro">MIXTAPE</div>
-      <div class="full">Bangladesh country study</div>
+      <div class="acro">__RAIL_ACRO__</div>
+      <div class="full">__RAIL_SUBTITLE__</div>
     </div>
   </div>
   <nav class="tabs" id="tabs">
-    <button data-tab="t-map" class="on"><span class="num">01</span><span>Map overview</span></button>
-    <button data-tab="t-rice"><span class="num">02</span><span>Rice</span></button>
-    <button data-tab="t-aqua"><span class="num">03</span><span>Aquaculture</span></button>
-    <button data-tab="t-spia"><span class="num">04</span><span>2024 SPIA round</span></button>
-    <button data-tab="t-mech"><span class="num">05</span><span>Mechanisation</span></button>
-    <button data-tab="t-tech"><span class="num">06</span><span>Technology index</span></button>
+__NAV_TABS__
   </nav>
   <div class="rail-meta">
-    <div class="lbl">BIHS panel (all rural HH surveyed)</div>
-    <div class="row"><span>2011/12</span><span>6,503</span></div>
-    <div class="row"><span>2015</span><span>6,715</span></div>
-    <div class="row"><span>2018/19</span><span>6,011</span></div>
-    <div class="row"><span>2024 SPIA</span><span>5,554</span></div>
-    <div class="lbl" style="margin-top:12px">Agricultural HH (analysis frame)</div>
-    <div class="row"><span>2011/12</span><span>3,755</span></div>
-    <div class="row"><span>2015</span><span>3,723</span></div>
-    <div class="row"><span>2018/19</span><span>3,220</span></div>
-    <div class="row"><span>2024 SPIA</span><span>2,924</span></div>
+    <div class="lbl">__RAIL_PANEL_LBL__</div>
+__RAIL_PANEL_ROWS__
+    <div class="lbl" style="margin-top:12px">__RAIL_AGRI_LBL__</div>
+__RAIL_AGRI_ROWS__
     <div class="row" style="margin-top:6px;border-top:1px dashed var(--line);padding-top:6px;font-size:10.5px;line-height:1.45">
-      <span style="color:var(--mute);font-weight:500">All percentages on this dashboard are weighted shares of the agricultural sub-frame — farmers who cultivated land or operated a pond. The full BIHS panel covers all rural HH.</span>
+      <span style="color:var(--mute);font-weight:500">__RAIL_NOTE__</span>
     </div>
   </div>
   <div class="rail-foot">
-    Kushal Kumar<br><a href="mailto:kd475@cornell.edu">kd475@cornell.edu</a><br>
-    Cornell University<br>
+    __RAIL_CONTACT_NAME__<br><a href="mailto:__RAIL_CONTACT_EMAIL__">__RAIL_CONTACT_EMAIL__</a><br>
+    __RAIL_CONTACT_AFFIL__<br>
     <br>
-    Replicates <a href="https://github.com/CGIAR-SPIA/SPIA-Bangladesh-Study-2025" target="_blank" rel="noopener">SPIA Bangladesh Study 2025</a>
+    __RAIL_REPL_TEXT__ <a href="__RAIL_REPL_URL__" target="_blank" rel="noopener">__RAIL_REPL_LABEL__</a>
   </div>
 </aside>
 
 <main class="wrap">
 
 <header class="title">
-  <div class="eyebrow">CGIAR Standing Panel on Impact Assessment, country study</div>
-  <h1>Monitoring Impacts for Technology Adoption and Program Engagement in Bangladesh</h1>
+  <div class="eyebrow">__PAGE_EYEBROW__</div>
+  <h1>__PAGE_H1__</h1>
   <div class="meta">
-    <span>Household level evidence on CGIAR linked rice and aquaculture innovations</span>
-    <span>Four BIHS rounds: <b>2011/12, 2015, 2018/19, 2024</b></span>
+    <span>__PAGE_META_LEFT__</span>
+    <span>__PAGE_META_RIGHT__</span>
   </div>
 </header>
 
@@ -531,55 +527,30 @@ HTML_TMPL = r"""<!doctype html>
 
 <!-- ============================== TAB 1 :: MAP ============================== -->
 <section id="t-map" class="tab on">
-  <h2 class="section">What's changed in the four-round BIHS panel, 2011/12 to 2024</h2>
-  <p class="lede">Three big shifts in CGIAR-linked technology adoption: which Boro rice lines farmers plant, how many of them keep fish ponds, and how mechanised paddy production has become. Numbers are weighted shares of <b>agricultural households</b> in each round (n = 2,924 in 2024); the underlying BIHS panel surveys <b>all rural households</b> (n = 5,554 in 2024) regardless of whether they farm. Click any card to open its full tab.</p>
+  <h2 class="section">__MAP_H2__</h2>
+  <p class="lede">__MAP_LEDE__</p>
 
   <div class="findings">
-    <a class="finding f-rice" data-jump="t-rice" tabindex="0">
-      <span class="arrow">Rice ›</span>
-      <div class="eyebrow">Rice · BR-28 / BR-29 (Boro mega-varieties)</div>
-      <div class="big">27.8<span class="unit">%</span></div>
-      <div class="ctx">of farmers planted BR-28 or BR-29 in 2024. Hybrid rice climbed from <b>0.5%</b> (2011/12) to <b>19.5%</b>, and post-2012 BRRI lines (BR-70+) reached <b>10.6%</b> from near zero. Traditional landraces fell from <b>57.9%</b> to <b>17.5%</b>.</div>
-      <div class="delta dn">▼ 20.4 pp vs 2011/12 (48.2%)</div>
-    </a>
-    <a class="finding f-aqua" data-jump="t-aqua" tabindex="0">
-      <span class="arrow">Aquaculture ›</span>
-      <div class="eyebrow">Aquaculture · Any cultivated pond</div>
-      <div class="big">23.5<span class="unit">%</span></div>
-      <div class="ctx">of farmers operate at least one cultivated pond in 2024. Tilapia (incl. GIFT) holds at <b>13.4%</b>; carp polyculture eases from <b>22.6%</b> to <b>13.7%</b>; small-fish (mola) co-culture roughly tripled from <b>0.5%</b> to <b>1.3%</b>.</div>
-      <div class="delta dn">▼ 6.4 pp vs 2011/12 (29.9%)</div>
-    </a>
-    <a class="finding f-mech" data-jump="t-mech" tabindex="0">
-      <span class="arrow">Mechanisation ›</span>
-      <div class="eyebrow">Mechanisation · Motorised threshing (2024)</div>
-      <div class="big">65.4<span class="unit">%</span></div>
-      <div class="ctx">of paddy growers thresh with a motor in 2024. Sprayer use jumped from <b>0.9%</b> (2019) to <b>29.2%</b>, and electric motor-pump irrigation rose from <b>9.2%</b> to <b>14.1%</b>. Power-tiller use is still <b>~82%</b> in the 2024 module.</div>
-      <div class="delta">First measured in the 2024 SPIA round</div>
-    </a>
+__FINDINGS__
   </div>
 
   <details class="method">
-    <summary>How to read these numbers — denominators, weights, sources</summary>
+    <summary>__METHOD_SUMMARY__</summary>
     <div class="body">
-      The BIHS panel <b>surveys all rural households</b> in the Feed-the-Future zone, regardless of whether they farm; analysis here follows the SPIA Bangladesh Study 2025 and restricts to the <b>agricultural sub-frame</b> (households that cultivated land or operated a pond in the recall period). Roughly half of the panel sits in that sub-frame each round. Both denominators are shown so users can pick the one that matches their question.
+      __METHOD_BODY__
       <div class="denom-grid">
-        <div class="cell"><div class="yr">2011/12</div><div class="all">6,503 panel HH</div><div class="agri">3,755 agri-HH</div></div>
-        <div class="cell"><div class="yr">2015</div><div class="all">6,715 panel HH</div><div class="agri">3,723 agri-HH</div></div>
-        <div class="cell"><div class="yr">2018/19</div><div class="all">6,011 panel HH</div><div class="agri">3,220 agri-HH</div></div>
-        <div class="cell"><div class="yr">2024 SPIA</div><div class="all">5,554 panel HH</div><div class="agri">2,924 agri-HH</div></div>
+__DENOM_GRID__
       </div>
-      <small class="cap">Weights: BIHS_FTF baseline 2011/12, BIHS FTF 2015 sampling weights, 158_BIHS r3 weights, SPIA 2024 hhweight_24. Source: <a href="https://github.com/CGIAR-SPIA/SPIA-Bangladesh-Study-2025" target="_blank" rel="noopener">SPIA Bangladesh Study 2025 replication code</a>; full project context in tab 04 (2024 SPIA round) and tab 06 (Technology index).</small>
+      <small class="cap">__METHOD_CAP__</small>
     </div>
   </details>
 
-  <h3 class="sub">District map: pick a category, an indicator, and a round</h3>
-  <p class="lede">Each of Bangladesh's 64 districts is shaded by the share of agricultural households using the selected indicator. <b>Darker means a higher share.</b> Hover any district for its weighted rate; the four headline boxes, the top-5 / bottom-5 list to the right of the map, and the national trend lines at the bottom all update with the indicator you pick.</p>
+  <h3 class="sub">__MAP_SUB_MAP__</h3>
+  <p class="lede">__MAP_LEDE_MAP__</p>
 
   <div class="controls">
     <div class="cat-pills" id="mapCatPills">
-      <button class="pill on" data-cat="rice">Rice variety</button>
-      <button class="pill" data-cat="aqua">Aquaculture</button>
-      <button class="pill" data-cat="mech">Machinery / pumps</button>
+__MAP_CAT_PILLS__
     </div>
     <select id="mapIndicator" aria-label="Indicator"></select>
     <div class="year-pills" id="mapYearPills">
@@ -597,31 +568,29 @@ HTML_TMPL = r"""<!doctype html>
   <div class="map-pair">
     <div class="map-wrap">
       <div id="map" style="height:100%"></div>
-      <div class="info" id="mapInfo"><h5>Bangladesh, weighted mean</h5><div class="val">–</div><small class="cap">Hover any district for its share</small></div>
+      <div class="info" id="mapInfo"><h5>__MAP_INFO_TITLE__</h5><div class="val">–</div><small class="cap">__MAP_INFO_HINT__</small></div>
       <div class="mini-legend" id="mapLegend"></div>
     </div>
     <div class="map-side">
-      <div class="blk"><div class="lbl">Highest adoption (top 5 districts)</div><ol id="mapTopList"></ol></div>
-      <div class="blk"><div class="lbl">Lowest adoption (bottom 5 districts)</div><ol id="mapBotList"></ol></div>
+      <div class="blk"><div class="lbl">__MAP_TOP_LBL__</div><ol id="mapTopList"></ol></div>
+      <div class="blk"><div class="lbl">__MAP_BOT_LBL__</div><ol id="mapBotList"></ol></div>
     </div>
   </div>
 
-  <h3 class="sub">How the national rate has moved, 2011 to 2024</h3>
-  <p class="lede">Each line is the weighted national share of agricultural households for one variety family or aquaculture practice across the four BIHS rounds.</p>
+  <h3 class="sub">__MAP_SUB_TREND__</h3>
+  <p class="lede">__MAP_LEDE_TREND__</p>
   <div class="row row-2">
     <div class="chart-wrap"><canvas id="natRice"></canvas></div>
     <div class="chart-wrap"><canvas id="natAqua"></canvas></div>
   </div>
 
-  <p class="note">Denominator = agricultural households (cultivated land or operated a pond in the recall period), weighted with each round's BIHS sampling weights. Analytic-frame sizes: 3,755 / 3,723 / 3,220 / 2,924 households across the four rounds; the underlying BIHS panel ran 5,503 to 6,715 households per round. Frame definitions follow the SPIA Bangladesh Study 2025 (full citation on the 2024 SPIA round tab). Mechanisation indicators for 2011 and 2015 are limited to a single harmonised tractor flag; richer equipment rosters only exist for 2018/19 (Module D2) and 2024 (a5_6, d2).</p>
+  <p class="note">__MAP_NOTE__</p>
 </section>
 
 <!-- ============================== TAB 2 :: RICE ============================== -->
 <section id="t-rice" class="tab">
-  <h2 class="section">Rice variety adoption, 2011 to 2024</h2>
-  <p class="lede">Rice varieties are coded round-by-round from module H1 (2011, 2015, 2019) and from 2024's paddy modules
-  c2_4 (main paddy) and b6 (seedbed). Each household's set of grown varieties is classified into one of seven CGIAR-relevant
-  families; we then compute the weighted share of households growing a family.</p>
+  <h2 class="section">__RICE_H2__</h2>
+  <p class="lede">__RICE_LEDE__</p>
 
   <div class="kpi" id="kpiRice"></div>
 
@@ -630,34 +599,27 @@ HTML_TMPL = r"""<!doctype html>
     <div class="chart-wrap"><canvas id="riceGrower"></canvas></div>
   </div>
 
-  <h3 class="sub">District-level prevalence, by variety family (2024)</h3>
+  <h3 class="sub">__RICE_SUB_DIST__</h3>
   <div class="controls">
     <label>Family</label>
     <select id="riceDistFam"></select>
   </div>
   <div class="chart-wrap tall"><canvas id="riceDistChart"></canvas></div>
 
-  <h3 class="sub">Top districts: BRRI core (BR-28 / BR-29) and new BRRI lines (BR-70+), 2024</h3>
+  <h3 class="sub">__RICE_SUB_TOP__</h3>
   <div id="riceTopTables" class="row row-2"></div>
 
-  <h3 class="sub">Full district level table: every variety family, all 64 districts, all rounds</h3>
-  <p class="lede">Pick a round below. Every cell is a weighted share (%) of households in that district who grew a variety
-  in the family; <span class="src">n (households)</span> is the unweighted sample size; <span class="src">Σ weight</span> is
-  the sum of household sampling weights (the denominator used to compute each percentage). Use the search box to filter,
-  click any header to sort, and the CSV button to export the full table for that round.</p>
+  <h3 class="sub">__RICE_SUB_FULL__</h3>
+  <p class="lede">__RICE_LEDE_FULL__</p>
   <div class="fulltbl-wrap" id="riceFullTbl"></div>
 
-  <p class="note">Source: BIHS 011_mod_h1_male.dta, 015_r2_mod_h1_male.dta, 021_bihs_r3_male_mod_h1.dta,
-  SPIA_BIHS_2024_module_c2_4.dta + module_b6.dta. Weights: BIHS_FTF baseline sampling weights, BIHS FTF 2015 survey sampling weights,
-  158_BIHS sampling weights_r3.dta, SPIA 2024 hhweight_24.</p>
+  <p class="note">__RICE_NOTE__</p>
 </section>
 
 <!-- ============================== TAB 3 :: AQUA ============================== -->
 <section id="t-aqua" class="tab">
-  <h2 class="section">Aquaculture adoption, 2011 to 2024</h2>
-  <p class="lede">Pond-level rosters (module L1 in earlier rounds; e5/e10 in 2024) are filtered to ponds with positive
-  cultivated area. For every household with at least one cultivated pond we record the fish species present, then
-  compute weighted prevalence across the full HH sample.</p>
+  <h2 class="section">__AQUA_H2__</h2>
+  <p class="lede">__AQUA_LEDE__</p>
 
   <div class="kpi" id="kpiAqua"></div>
 
@@ -666,93 +628,80 @@ HTML_TMPL = r"""<!doctype html>
     <div class="chart-wrap"><canvas id="aquaPoly"></canvas></div>
   </div>
 
-  <h3 class="sub">District-level pond prevalence (2024)</h3>
+  <h3 class="sub">__AQUA_SUB_DIST__</h3>
   <div class="controls">
     <label>Indicator</label>
     <select id="aquaDistInd"></select>
   </div>
   <div class="chart-wrap tall"><canvas id="aquaDistChart"></canvas></div>
 
-  <h3 class="sub">Top pond-intensive and tilapia-intensive districts, 2024</h3>
+  <h3 class="sub">__AQUA_SUB_TOP__</h3>
   <div id="aquaTopTables" class="row row-2"></div>
 
-  <h3 class="sub">Full district level table: every aquaculture indicator, all 64 districts, all rounds</h3>
-  <p class="lede">Weighted share (%) of households in each district showing the indicator (filtered to ponds with positive
-  cultivated area). The 2024 round additionally records intensification practices (supplementary feed, hormone, disease
-  control). Sort on any column, filter by district, or export a CSV for the round on display.</p>
+  <h3 class="sub">__AQUA_SUB_FULL__</h3>
+  <p class="lede">__AQUA_LEDE_FULL__</p>
   <div class="fulltbl-wrap" id="aquaFullTbl"></div>
 
-  <p class="note">Source: BIHS 026_mod_l1_male.dta, 037_r2_mod_l1_male.dta, 051_bihs_r3_male_mod_l1.dta,
-  SPIA_BIHS_2024_module_e5.dta + module_e10.dta. Species codes from value labels in-file.</p>
+  <p class="note">__AQUA_NOTE__</p>
 </section>
 
 <!-- ============================== TAB 4 :: 2024 SPIA ============================== -->
 <section id="t-spia" class="tab">
-  <h2 class="section">2024 SPIA round: new insights</h2>
+  <h2 class="section">__SPIA_H2__</h2>
 
   <div class="ref-card">
-    <div class="ref-eyebrow">Source for this tab</div>
-    <div class="ref-title">SPIA Bangladesh Study 2025: Updating the Green Revolution</div>
-    <div class="ref-meta">Singla, S., Ul Islam, T., Hassan, F., Monteiro, I., Stevenson, J., Emerick, K. (2025). Standing Panel on Impact Assessment (SPIA), Rome. CC BY-NC-SA 4.0.</div>
+    <div class="ref-eyebrow">__SPIA_REF_EYEBROW__</div>
+    <div class="ref-title">__SPIA_REF_TITLE__</div>
+    <div class="ref-meta">__SPIA_REF_CITATION__</div>
     <div class="ref-links">
-      <a href="https://iaes.cgiar.org/sites/default/files/pdf/SPIA_Bangladesh_Study_2025.pdf" target="_blank" rel="noopener">Read the SPIA 2025 report (PDF)</a>
-      <a href="https://github.com/CGIAR-SPIA/SPIA-Bangladesh-Study-2025" target="_blank" rel="noopener">SPIA replication repository on GitHub</a>
+      <a href="__SPIA_REF_REPORT_URL__" target="_blank" rel="noopener">__SPIA_REF_REPORT_LABEL__</a>
+      <a href="__SPIA_REF_GITHUB_URL__" target="_blank" rel="noopener">__SPIA_REF_GITHUB_LABEL__</a>
     </div>
-    <div class="ref-note">The 2024 SPIA round of BIHS, the DNA-fingerprint sample, the equipment roster and the aquaculture-intensification module on this tab are taken from SPIA's published 2025 study. This dashboard presents and verifies a subset of that evidence in a navigable form.</div>
+    <div class="ref-note">__SPIA_REF_NOTE__</div>
   </div>
 
-  <p class="lede">The 2024 SPIA round adds three pieces of evidence on top of the traditional recall-based BIHS instrument:
-  (i) DNA fingerprinting of a random sample of 370 paddy plots, allowing direct rather than self-reported variety identification;
-  (ii) a detailed agricultural-equipment ownership roster;
-  (iii) explicit aquaculture-intensification practices (supplementary feed, hormones, disease control).</p>
+  <p class="lede">__SPIA_LEDE__</p>
 
   <div class="kpi" id="kpiSpia"></div>
 
-  <h3 class="sub">DNA-fingerprint varieties (370 paddy samples, 10 genetic clusters)</h3>
-  <p class="lede">These are the verified varieties, <em>not</em> self-reported: each sample was genotyped and matched to a
-  reference library (rice-hybrids excluded). BR-28 and BR-29 together account for <span id="dnaBoroPct"></span>% of the
-  DNA-typed sample, confirming that the two IRRI-derived BRRI mega-varieties still dominate the Boro season 40+ years after release.</p>
+  <h3 class="sub">__SPIA_SUB_DNA__</h3>
+  <p class="lede">__SPIA_LEDE_DNA__</p>
   <div class="row row-2">
     <div class="chart-wrap"><canvas id="dnaByVariety"></canvas></div>
     <div class="chart-wrap"><canvas id="dnaByCluster"></canvas></div>
   </div>
 
-  <h3 class="sub">Aquaculture-intensification practices (household-weighted, 2024)</h3>
-  <p class="lede">Measured at the household level in the 2024 e10 module.</p>
+  <h3 class="sub">__SPIA_SUB_PRACT__</h3>
+  <p class="lede">__SPIA_LEDE_PRACT__</p>
   <div class="chart-wrap"><canvas id="spiaPractices"></canvas></div>
 
-  <h3 class="sub">Equipment-ownership roster (Module a5_6)</h3>
+  <h3 class="sub">__SPIA_SUB_EQUIP__</h3>
   <div class="chart-wrap"><canvas id="spiaEquip"></canvas></div>
 
-  <h3 class="sub">Full 2024 district level table: every rice, aquaculture and mechanisation indicator</h3>
-  <p class="lede">All indicators measured in the 2024 SPIA round, pooled into a single wide table at the district level.
-  Rows sort and filter, and the CSV download exports every column.</p>
+  <h3 class="sub">__SPIA_SUB_FULL__</h3>
+  <p class="lede">__SPIA_LEDE_FULL__</p>
   <div class="fulltbl-wrap" id="spiaFullTbl"></div>
 
   <div class="row row-2" style="margin-top:16px">
     <div>
-      <h3 class="sub">DNA-fingerprint variety counts (n = 370 samples)</h3>
-      <p class="lede">Raw count of samples matched to each reference variety, descending.</p>
+      <h3 class="sub">__SPIA_SUB_DNAVAR__</h3>
+      <p class="lede">__SPIA_LEDE_DNAVAR__</p>
       <div class="fulltbl-wrap" id="spiaDnaVariety"></div>
     </div>
     <div>
-      <h3 class="sub">Genetic clusters (10 clusters)</h3>
-      <p class="lede">Each sample was assigned to a cluster by its genotype. Here: sample counts per cluster, number of
-      distinct varieties observed in the cluster, and the cluster's most frequent variety.</p>
+      <h3 class="sub">__SPIA_SUB_DNACLUST__</h3>
+      <p class="lede">__SPIA_LEDE_DNACLUST__</p>
       <div class="fulltbl-wrap" id="spiaDnaCluster"></div>
     </div>
   </div>
 
-  <p class="note">Source: SPIA_BIHS_2024_module_a1.dta, a5_6.dta, c2_4.dta, b6.dta, e5.dta, e10.dta, d2.dta,
-  and ref_clusters_no_hybrids_with_HH_Ids.csv (DNA fingerprints).</p>
+  <p class="note">__SPIA_NOTE__</p>
 </section>
 
 <!-- ============================== TAB 5 :: MECH ============================== -->
 <section id="t-mech" class="tab">
-  <h2 class="section">Mechanisation and agricultural practices, 2018/19 and 2024</h2>
-  <p class="lede">This panel compares household-level ownership of farm equipment between 2018/19 (BIHS R3 module D2) and
-  2024 (SPIA module a5_6). The 2024 round additionally records the <em>actual use</em> of motorised harvest and
-  thresh from the paddy operations module.</p>
+  <h2 class="section">__MECH_H2__</h2>
+  <p class="lede">__MECH_LEDE__</p>
 
   <div class="kpi" id="kpiMech"></div>
 
@@ -761,40 +710,34 @@ HTML_TMPL = r"""<!doctype html>
     <div class="chart-wrap"><canvas id="mechUse"></canvas></div>
   </div>
 
-  <h3 class="sub">District-level mechanisation (2024)</h3>
+  <h3 class="sub">__MECH_SUB_DIST__</h3>
   <div class="controls">
     <label>Indicator</label>
     <select id="mechDistInd"></select>
   </div>
   <div class="chart-wrap tall"><canvas id="mechDistChart"></canvas></div>
 
-  <h3 class="sub">Full district level table: every piece of equipment, all rounds with data</h3>
-  <p class="lede">Weighted share (%) of households owning each piece of equipment (and, for 2024, actually
-  <em>using</em> motorised harvest / thresh). The 2011 and 2015 rounds only carry a tractor flag in the harmonised
-  file, so those columns are filled only where microdata exist.</p>
+  <h3 class="sub">__MECH_SUB_FULL__</h3>
+  <p class="lede">__MECH_LEDE_FULL__</p>
   <div class="fulltbl-wrap" id="mechFullTbl"></div>
 
-  <p class="note">Sources: 016_bihs_r3_male_mod_d2.dta (R3 asset roster, codes 12=tractor, 13=power tiller, 15=thresher,
-  22=LLP pump, 25=electric motor pump, 26=diesel pump, 27=sprayer, 28=reaper, 36=axial-flow pump, 37=seeder drill,
-  39=combined harvester); SPIA_BIHS_2024_module_a5_6.dta (binary ownership indicators); SPIA_BIHS_2024_module_d2.dta
-  (actual motorised use). 2011 and 2015 ownership draws on the limited set of durable-asset flags in
-  BIHS_household_2011_15.dta (asset_tractor only).</p>
+  <p class="note">__MECH_NOTE__</p>
 </section>
 
 <!-- ============================== TAB 6 :: TECH INDEX ============================== -->
 <section id="t-tech" class="tab">
-  <h2 class="section">Technology index, CGIAR linked innovations in Bangladesh</h2>
-  <p class="lede">Every variety, strain, practice, or piece of equipment tracked by the MIXTAPE dashboard, with a short description and links to authoritative sources. Curated from BRRI, BINA, BARI, IRRI, WorldFish, CIMMYT, ICARDA, ICRISAT, CIP, HarvestPlus, the CGIAR Standing Panel on Impact Assessment (SPIA), and peer reviewed literature. The canonical synthesis is the SPIA Bangladesh Study 2025: Updating the Green Revolution, with replication code on GitHub.</p>
+  <h2 class="section">__TECH_H2__</h2>
+  <p class="lede">__TECH_LEDE__</p>
 
   <div class="primary-ref" id="primaryRef"></div>
 
-  <h3 class="sub">Institutions and programmes</h3>
+  <h3 class="sub">__TECH_SUB_INST__</h3>
   <div class="inst-grid" id="instGrid"></div>
 
-  <h3 class="sub">Browse technologies</h3>
+  <h3 class="sub">__TECH_SUB_BROWSE__</h3>
   <div class="controls tech-controls">
     <div class="cat-pills" id="techCatPills"></div>
-    <input type="search" class="search tech-search" placeholder="Search variety, strain, or trait..." id="techSearch"/>
+    <input type="search" class="search tech-search" placeholder="__TECH_SEARCH_PH__" id="techSearch"/>
     <span class="tech-count" id="techCount"></span>
   </div>
   <div class="tech-grid" id="techGrid"></div>
@@ -802,12 +745,10 @@ HTML_TMPL = r"""<!doctype html>
 
 <div class="footer">
 <div class="contact">
-  Kushal Kumar &middot; <a href="mailto:kd475@cornell.edu">kd475@cornell.edu</a> &middot; Cornell University
+  __FOOT_NAME__ &middot; <a href="mailto:__FOOT_EMAIL__">__FOOT_EMAIL__</a> &middot; __FOOT_AFFIL__
 </div>
 <div class="attrib">
-  Underlying microdata: Bangladesh Integrated Household Survey (BIHS) rounds 1 (2011/12), 2 (2015), 3 (2018/19) via the
-  <a href="https://dataverse.harvard.edu/dataverse/IFPRI" target="_blank" rel="noopener">IFPRI dataverse</a>;
-  the 2024 round is from the SPIA Bangladesh Study 2025 (see the 2024 SPIA round tab and the Technology Index tab for the full citation).
+  __FOOT_ATTRIB__
 </div>
 </div>
 
@@ -824,72 +765,35 @@ const DNA  = __DNA__;
 const NAT  = __NAT__;
 const SUM  = __SUM__;
 const TECH = __TECH__;
+/* All display text comes from content.toml */
+const TXT   = __TXT__;
+const THEME = __THEME__;
 
 const WAVES = ["2011","2015","2019","2024"];
 const WAVE_LBL = {"2011":"2011/12","2015":"2015","2019":"2018/19","2024":"2024"};
 
-const RICE_FAM_LBL = {
-  BRRI_CORE28_29:   "BRRI core (BR-28 / BR-29)",
-  BRRI_OLDER_HYV:   "BRRI older HYV (BR-1…BR-69)",
-  BRRI_NEW_POST2012:"New BRRI lines (BR-70+)",
-  BRRI_STRESS:      "Stress-tolerant (subm / Zn / saline / drought)",
-  BINA:             "BINA lines (Binadhan)",
-  HYBRID:           "Hybrid rice",
-  LOCAL:            "Traditional / local landraces",
-  RICE_GROWER:      "Any rice grower"
-};
-const AQUA_IND_LBL = {
-  ANY_POND:        "Any cultivated pond",
-  TILAPIA:         "Tilapia (incl. GIFT)",
-  CARP_ANY:        "Any carp",
-  POLY_CARP_2PLUS: "Carp polyculture (2+ species)",
-  MOLA:            "Mola co-culture",
-  PRAWN_GALDA:     "Prawn (galda)",
-  SHRIMP_BAGDA:    "Shrimp (bagda)",
-  SUPP_FEED:       "Supplementary fish feed",
-  HORMONE:         "Hormone use (aquaculture)",
-  DISEASE_CTL:     "Disease control (aquaculture)"
-};
-const MECH_IND_LBL = {
-  TRACTOR:           "Tractor",
-  POWER_TILLER:      "Power tiller",
-  POWER_THRESHER:    "Power thresher",
-  TREADLE_PUMP:      "Treadle pump",
-  ROWER_PUMP:        "Rower pump",
-  AXIAL_FLOW_PUMP:   "Axial-flow (Jumbo) pump",
-  LLP_IRRIG:         "Low-lift irrigation pump",
-  DIESEL_MOTOR_PUMP: "Diesel motor pump",
-  ELEC_MOTOR_PUMP:   "Electric motor pump",
-  SPRAYER:           "Sprayer (motorised)",
-  REAPER:            "Reaper",
-  SEEDER_DRILL:      "Seeder / drill",
-  COMBINED_HARVEST:  "Combined harvester",
-  TRANSPLANTER:      "Rice transplanter",
-  FISHING_NET:       "Fishing net",
-  PADDLE_THRESHER:   "Paddle thresher",
-  USE_MOTOR_HARVEST: "Motorised harvest (actual use)",
-  USE_MOTOR_THRESH:  "Motorised thresh (actual use)",
-  USE_TREADLE_THRESH:"Treadle thresh (actual use)"
-};
+const RICE_FAM_LBL = TXT.labels.rice;
+const AQUA_IND_LBL = TXT.labels.aqua;
+const MECH_IND_LBL = TXT.labels.mech;
 
 /* ==============================  COLORS  ============================== */
-/* Semantic palette. Rice tab uses leaf greens, aqua uses blues, mech uses earth tones. */
-const COL = {slate:"#1a1f1c", slate2:"#4a5550",
-             leaf:"#2d6a4f", leaf2:"#6c9971",
-             teal:"#1f5e8a", teal2:"#6996ad",
-             accent:"#7a6147", accent2:"#bdaa7f",
-             cream:"#f3f5f0", ink:"#1a1f1c", mute:"#6c7570"};
+/* Semantic palette from the [theme] section of content.toml. */
+const COL = {slate:THEME.ink, slate2:THEME.chart_text,
+             leaf:THEME.rice.main, leaf2:THEME.rice.light,
+             teal:THEME.aqua.main, teal2:THEME.aqua.light,
+             accent:THEME.mech.main, accent2:THEME.mech.light,
+             cream:THEME.tint, ink:THEME.ink, mute:THEME.mute};
 /* Monochrome series palettes per tab. Dark to light shades within one hue family
-   keep multi-line charts coherent (no rainbow). */
-const SERIES_RICE = ["#1c4a36","#2d6a4f","#467a52","#6c9971","#94b696","#b9cbb0","#dde6dd","#0f3624","#5d8a4d","#3f5e2c"];
-const SERIES_AQUA = ["#0e3a5c","#163f5d","#1f5e8a","#3f7896","#6996ad","#94b3c4","#bccfd9","#5198c7","#1c4a36","#52402b"];
-const SERIES_MECH = ["#332617","#52402b","#7a6147","#9c885c","#bdaa7f","#d6c8a8","#ece4d6","#a3866c","#5e5340","#8a7253"];
+   keep multi-line charts coherent. */
+const SERIES_RICE = THEME.series.rice;
+const SERIES_AQUA = THEME.series.aqua;
+const SERIES_MECH = THEME.series.mech;
 const SERIES_COL = SERIES_RICE; /* default (kept for any code that still references it) */
 
 Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 Chart.defaults.font.size   = 11.5;
 Chart.defaults.color       = COL.slate2;
-Chart.defaults.borderColor = "#e3e6e1";
+Chart.defaults.borderColor = THEME.line;
 Chart.defaults.plugins.legend.labels.boxWidth = 10;
 Chart.defaults.plugins.legend.labels.boxHeight = 2;
 Chart.defaults.plugins.legend.labels.padding = 8;
@@ -932,16 +836,17 @@ document.querySelectorAll(".finding[data-jump]").forEach(el=>{
 
 /* ==============================  MAP  ============================== */
 function ramp(v, stops){
-  if(v==null || isNaN(v)) return "#ebede8";
+  if(v==null || isNaN(v)) return THEME.map_nodata;
   for(const [t,c] of stops) if(v<=t) return c;
   return stops[stops.length-1][1];
 }
-/* Three sequential ramps. Rice green, aquaculture blue, mechanisation warm earth.
-   Lightest step always contrasts with the page bg (#fafaf7). */
+/* Three sequential ramps from content.toml. Rice green, aquaculture blue,
+   mechanisation warm earth. The lightest step must always contrast with the
+   page background. */
 const MAP_RAMPS = {
-  rice:{stops:[[0,"#dde6dd"],[2,"#bcd0bd"],[5,"#94b696"],[10,"#6c9971"],[20,"#467a52"],[35,"#285e3d"],[100,"#143f27"]]},
-  aqua:{stops:[[0,"#dee6ec"],[2,"#bccfd9"],[5,"#94b3c4"],[10,"#6996ad"],[20,"#3f7896"],[35,"#1f5e8a"],[100,"#0e3a5c"]]},
-  mech:{stops:[[0,"#ece4d6"],[2,"#d6c8a8"],[5,"#bdaa7f"],[10,"#9c885c"],[20,"#7a6147"],[35,"#54402b"],[100,"#332617"]]}
+  rice:{stops:THEME.map_ramps.rice},
+  aqua:{stops:THEME.map_ramps.aqua},
+  mech:{stops:THEME.map_ramps.mech}
 };
 function stopsFor(ind){
   if(["ANY_POND","TILAPIA","CARP_ANY","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA","SUPP_FEED","HORMONE","DISEASE_CTL"].includes(ind))
@@ -954,84 +859,11 @@ function indicatorSource(ind){
   if(ind in MECH_IND_LBL) return MECH;
   return AQUA;
 }
-const MAP_CATALOG = {
-  rice: {
-    label: "Rice variety adoption",
-    items: [
-      ["BRRI core: BR-28 / BR-29 (Boro mega-varieties)", "BRRI_CORE28_29"],
-      ["New BRRI lines: BR-70 and above (post-2012)",    "BRRI_NEW_POST2012"],
-      ["Stress tolerant: submergence, Zn, saline, drought", "BRRI_STRESS"],
-      ["Older BRRI HYV: BR-1 through BR-69",            "BRRI_OLDER_HYV"],
-      ["Hybrid rice",                                     "HYBRID"],
-      ["BINA lines (Binadhan)",                           "BINA"],
-      ["Traditional / local landrace",                    "LOCAL"],
-      ["Any rice grower",                                 "RICE_GROWER"]
-    ]
-  },
-  aqua: {
-    label: "Aquaculture",
-    items: [
-      ["Any cultivated pond",                "ANY_POND"],
-      ["Tilapia (incl. GIFT)",               "TILAPIA"],
-      ["Carp polyculture (2+ species)",      "POLY_CARP_2PLUS"],
-      ["Any carp",                           "CARP_ANY"],
-      ["Mola co-culture (small indigenous)", "MOLA"],
-      ["Prawn (galda)",                      "PRAWN_GALDA"],
-      ["Shrimp (bagda)",                     "SHRIMP_BAGDA"]
-    ]
-  },
-  mech: {
-    label: "Mechanisation",
-    items: [
-      ["Power tiller",            "POWER_TILLER"],
-      ["Tractor",                 "TRACTOR"],
-      ["Power thresher",          "POWER_THRESHER"],
-      ["Sprayer (motorised)",     "SPRAYER"],
-      ["Reaper",                  "REAPER"],
-      ["Combined harvester",      "COMBINED_HARVEST"],
-      ["Seeder / drill",          "SEEDER_DRILL"],
-      ["LLP irrigation pump",     "LLP_IRRIG"],
-      ["Axial-flow (Jumbo) pump", "AXIAL_FLOW_PUMP"],
-      ["Electric motor pump",     "ELEC_MOTOR_PUMP"],
-      ["Diesel motor pump",       "DIESEL_MOTOR_PUMP"]
-    ]
-  }
-};
+const MAP_CATALOG = TXT.map_catalog;
 const DEFAULT_MAP_IND = {rice:"BRRI_CORE28_29", aqua:"ANY_POND", mech:"POWER_TILLER"};
 
-/* Plain-English gloss per indicator. Keep each <100 words; the first sentence is the "what",
-   the second is the "why a fresh viewer should care". The map's gloss strip shows exactly this. */
-const IND_GLOSS = {
-  BRRI_CORE28_29:    "<b>BR-28 and BR-29</b> are the two IRRI-derived Boro-season rice varieties released by BRRI in the 1990s. They are still the workhorse of Bangladesh's dry-season rice — what farmers grow when irrigation is available.",
-  BRRI_NEW_POST2012: "<b>BR-70 and above</b> are the post-2012 BRRI lines (e.g. BR-89 and BR-92, high-yielding aromatic Boro). They show how fast newer public varieties are replacing BR-28/29.",
-  BRRI_STRESS:       "<b>Stress-tolerant BRRI varieties</b> are bred to survive flooding (BR-47 / BR-51), drought (BR-66), salinity (BR-67), or to add zinc to the grain (BR-62 / BR-64). They matter in coastal and flood-prone districts.",
-  BRRI_OLDER_HYV:    "<b>Older BRRI HYVs (BR-1 to BR-69)</b> are pre-2000 public varieties, many still widely grown in Aman/Aus. A rising share for this family suggests older lines are persisting; a falling share suggests they are being displaced.",
-  HYBRID:            "<b>Hybrid rice</b> is F1 seed, mostly imported or produced by private firms. Farmers must buy fresh seed every season, so adoption tracks input markets, not just agronomy.",
-  BINA:              "<b>BINA varieties (Binadhan)</b> come from the Bangladesh Institute of Nuclear Agriculture. Best known for flood-tolerant Binadhan-11 in haor and flash-flood districts.",
-  LOCAL:             "<b>Local landraces</b> are traditional, often single-season varieties grown from saved seed. They flag where modern varieties have not yet displaced informal seed systems.",
-  RICE_GROWER:       "<b>Any rice grower</b> — the share of agricultural households who grew any rice at all in the round. A baseline to compare every other variety family against.",
-  ANY_POND:          "<b>Any cultivated fish pond</b> — the entry point for every aquaculture indicator. Without a cultivated pond, none of the species-level shares can be non-zero.",
-  TILAPIA:           "<b>Tilapia (including GIFT)</b>. GIFT — Genetically Improved Farmed Tilapia — is WorldFish/CGIAR's flagship aquaculture innovation; it dominates Bangladesh's commercial fish ponds.",
-  POLY_CARP_2PLUS:   "<b>Carp polyculture (2+ species)</b> is the CGIAR-promoted intensification path: stocking multiple carp species in the same pond raises pond productivity over single-species culture.",
-  CARP_ANY:          "<b>Any carp</b> — at least one carp species in a cultivated pond, regardless of stocking pattern.",
-  MOLA:              "<b>Mola co-culture</b>: small indigenous fish co-stocked with carp for household nutrition (mola is exceptionally rich in vitamin A, iron and zinc). A WorldFish nutrition-sensitive innovation.",
-  PRAWN_GALDA:       "<b>Galda — freshwater prawn</b>. A high-value export species, concentrated in the southwest.",
-  SHRIMP_BAGDA:      "<b>Bagda — brackish-water shrimp</b>. Concentrated in the coastal southwest belt where saline water permits cultivation.",
-  POWER_TILLER:      "<b>Power tiller</b> — a two-wheel tractor. The dominant machine for land preparation on Bangladesh's small farms.",
-  TRACTOR:           "<b>Four-wheel tractor</b>. Far less common than the power tiller on smallholder farms.",
-  POWER_THRESHER:    "<b>Power thresher</b> — motor-driven post-harvest threshing. A separating step before machines like the combined harvester were widely available.",
-  SPRAYER:           "<b>Motorised sprayer</b>. The fastest-growing piece of farm machinery in the 2024 round; used for pesticides, herbicides and fertilizer foliar sprays.",
-  REAPER:            "<b>Reaper</b> — a motorised crop-cutting machine. Adoption is still concentrated in a few districts.",
-  COMBINED_HARVEST:  "<b>Combined harvester</b> — cuts, threshes and cleans grain in one pass. Still rare; expensive and built for larger plots than most Bangladeshi farms.",
-  SEEDER_DRILL:      "<b>Seeder / drill</b> — a row-planting attachment for power tillers, used to reduce labour at sowing.",
-  LLP_IRRIG:         "<b>LLP (Low-Lift Pump)</b> — surface-water lift for irrigation, especially during Aman and Boro. The traditional irrigation backbone.",
-  AXIAL_FLOW_PUMP:   "<b>Axial-flow ('Jumbo') pump</b> — high-volume, low-head pump for flood-prone surface irrigation.",
-  ELEC_MOTOR_PUMP:   "<b>Electric motor pump</b>. Adoption tracks rural electrification — growing fast in Boro rice belts.",
-  DIESEL_MOTOR_PUMP: "<b>Diesel motor pump</b> — an older but still widespread irrigation source where the grid hasn't reached.",
-  USE_MOTOR_HARVEST: "<b>Motorised harvest, used in 2024</b> — share of households who actually used a motorised harvester this round, not just owned one.",
-  USE_MOTOR_THRESH:  "<b>Motorised threshing, used in 2024</b> — share of households who actually used a power thresher this round. The single most common piece of mechanised agriculture in Bangladesh."
-};
-
+/* Plain language notes per indicator, from the [glosses] section of content.toml. */
+const IND_GLOSS = TXT.glosses;
 let map, geoLayer, mapCat = "rice", mapYear = "2024";
 
 function rebuildIndicatorSelect(){
@@ -1074,10 +906,10 @@ function setMapInfoDefault(ind, year, src, data){
   const box    = document.getElementById("mapInfo");
   if(!box) return;
   const valTxt = (natNow==null||isNaN(natNow)) ? "n/a" : natNow.toFixed(1)+"%";
-  box.innerHTML = `<h5>Bangladesh, weighted mean</h5>
+  box.innerHTML = `<h5>${TXT.map.info_title}</h5>
     <div class="val">${valTxt}</div>
-    <small class="cap">${lbl} &middot; ${WAVE_LBL[year]} &middot; n=${natN??"–"} agri-HH</small>
-    <small class="cap" style="display:block;margin-top:4px;color:var(--mute);font-size:10.5px">Hover any district for its share</small>`;
+    <small class="cap">${lbl} &middot; ${WAVE_LBL[year]} &middot; n = ${natN??"–"} agricultural households</small>
+    <small class="cap" style="display:block;margin-top:4px;color:var(--mute);font-size:10.5px">${TXT.map.info_hover_hint}</small>`;
 }
 function drawMap(){
   const ind  = document.getElementById("mapIndicator").value;
@@ -1107,7 +939,7 @@ function drawMap(){
           const box=document.getElementById("mapInfo");
           box.innerHTML = `<h5>${f.properties.name} <small>(${f.properties.division})</small></h5>
             <div class="val">${v==null?"n/a":v.toFixed(1)+"%"}</div>
-            <small class="cap">${WAVE_LBL[year]} &middot; n=${n??"–"} agri-HH</small>`;
+            <small class="cap">${WAVE_LBL[year]} &middot; n = ${n??"–"} agricultural households</small>`;
         },
         mouseout:()=>{ geoLayer.resetStyle(layer); setMapInfoDefault(ind, year, src, data); },
         click:()=>map.fitBounds(layer.getBounds(),{padding:[20,20]})
@@ -1120,7 +952,7 @@ function drawMap(){
   const lg = document.getElementById("mapLegend");
   const item = MAP_CATALOG[mapCat].items.find(x=>x[1]===ind);
   const title = item ? item[0] : "";
-  let html = `<b>${MAP_CATALOG[mapCat].label}</b><br>${title}<br><small class="cap">% of households &middot; ${WAVE_LBL[year]}</small>`;
+  let html = `<b>${MAP_CATALOG[mapCat].label}</b><br>${title}<br><small class="cap">${TXT.map.legend_units} &middot; ${WAVE_LBL[year]}</small>`;
   // Skip the first stop (collapsed into "0%") and label the cap row as "35%+".
   stops.forEach((s,i)=>{
     if(i===0) return;
@@ -1135,7 +967,7 @@ function drawMap(){
   if(gloss){
     const gtxt = IND_GLOSS[ind] || `<b>${title}</b>`;
     gloss.innerHTML = gtxt +
-      `<em>Map shows: weighted share of agricultural households in each district where this indicator is true, ${WAVE_LBL[year]}. Darker = higher share.</em>`;
+      `<em>${TXT.map.gloss_suffix.replace("{year}", WAVE_LBL[year])}</em>`;
   }
 
   /* --- District rows for this indicator + year (NATIONAL row excluded) --- */
@@ -1170,10 +1002,10 @@ function drawMap(){
     const fmtPct = v => (v==null||isNaN(v)) ? "n/a" : v.toFixed(1)+"%";
     const distFmt = r => `${r.name} <small style="color:var(--mute);font-weight:500;font-size:11px"> · ${fmtPct(r.v)}</small>`;
     kpiEl.innerHTML = [
-      {lbl:`National share, ${WAVE_LBL[year]}`, val:fmtPct(natNow)},
-      {lbl:`Change at the national level`,       val:deltaTxt},
-      {lbl:`Highest district`,                   val: top ? distFmt(top) : "n/a"},
-      {lbl:`Lowest district`,                    val: bot ? distFmt(bot) : "n/a"}
+      {lbl:TXT.map.kpi_national.replace("{year}", WAVE_LBL[year]), val:fmtPct(natNow)},
+      {lbl:TXT.map.kpi_change,  val:deltaTxt},
+      {lbl:TXT.map.kpi_highest, val: top ? distFmt(top) : "n/a"},
+      {lbl:TXT.map.kpi_lowest,  val: bot ? distFmt(bot) : "n/a"}
     ].map(o => `<div class="box"><div class="lbl">${o.lbl}</div><div class="big">${o.val}</div></div>`).join("");
   }
 
@@ -1182,8 +1014,8 @@ function drawMap(){
   const botEl = document.getElementById("mapBotList");
   if(topEl && botEl){
     if(rows.length === 0){
-      topEl.innerHTML = '<li class="empty">No district data this round</li>';
-      botEl.innerHTML = '<li class="empty">No district data this round</li>';
+      topEl.innerHTML = `<li class="empty">${TXT.misc.no_district_data}</li>`;
+      botEl.innerHTML = `<li class="empty">${TXT.misc.no_district_data}</li>`;
     } else {
       const t5 = rows.slice(0,5);
       const b5 = rows.slice(-5).reverse();
@@ -1251,8 +1083,8 @@ function renderFullTable(container, src, indicators, indicatorLabels, csvBase, o
   container.innerHTML = `
     <div class="fulltbl-toolbar">
       ${pillsHtml}
-      <input type="search" class="search" placeholder="Filter districts…"/>
-      <button class="dl">Download CSV</button>
+      <input type="search" class="search" placeholder="${TXT.misc.filter_placeholder}"/>
+      <button class="dl">${TXT.misc.download_csv}</button>
       <span class="meta"></span>
     </div>
     <div class="fulltbl-scroll"><table class="full"></table></div>`;
@@ -1408,7 +1240,7 @@ function lineChart(canvas, labels, datasets, opts){
       tooltip: { mode: "index", intersect: false }
     },
     scales: {
-      y: { beginAtZero: true, grid: { color: "#eef0eb", drawTicks: false }, ticks: { callback: v => v + "%" }, title: { display: false } },
+      y: { beginAtZero: true, grid: { color: THEME.chart_grid, drawTicks: false }, ticks: { callback: v => v + "%" }, title: { display: false } },
       x: { grid: { display: false } }
     }
   }, opts);
@@ -1423,7 +1255,7 @@ function barChart(canvas, labels, datasets, opts){
       responsive:true,maintainAspectRatio:false,indexAxis:"y",
       plugins:{title:{display:true,color:COL.slate,font:{size:13,weight:"600"},padding:{bottom:8}},
                legend:{display:false}},
-      scales:{x:{beginAtZero:true,grid:{color:"#eef0eb",drawTicks:false},ticks:{callback:v=>v+"%"},title:{display:false}},
+      scales:{x:{beginAtZero:true,grid:{color:THEME.chart_grid,drawTicks:false},ticks:{callback:v=>v+"%"},title:{display:false}},
               y:{grid:{display:false}}}
     },opts||{})
   });
@@ -1437,14 +1269,14 @@ INITS["t-map"] = function(){
   lineChart("natRice", WAVES.map(w=>WAVE_LBL[w]),
     riceKeys.map((k,i)=>({label:RICE_FAM_LBL[k], data:NAT.rice[k], borderColor:SERIES_RICE[i]})),
     {heroIdx:0,
-     plugins:{title:{display:true,text:"BRRI core mega-varieties still dominate, hybrid rice surges from a near-zero base"},
-              subtitle:{display:true,text:"Share of agricultural households growing each variety family"}}});
+     plugins:{title:{display:true,text:TXT.charts.natRice.title},
+              subtitle:{display:true,text:TXT.charts.natRice.subtitle}}});
   const aquaKeys = ["ANY_POND","POLY_CARP_2PLUS","TILAPIA","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"];
   lineChart("natAqua", WAVES.map(w=>WAVE_LBL[w]),
     aquaKeys.map((k,i)=>({label:AQUA_IND_LBL[k], data:NAT.aqua[k], borderColor:SERIES_AQUA[i]})),
     {heroIdx:0,
-     plugins:{title:{display:true,text:"Pond aquaculture contracts: from ~30% to ~23% of agricultural HH"},
-              subtitle:{display:true,text:"Share of agricultural households cultivating fish in any water body"}}});
+     plugins:{title:{display:true,text:TXT.charts.natAqua.title},
+              subtitle:{display:true,text:TXT.charts.natAqua.subtitle}}});
 };
 
 /* ==============================  TAB 2 INIT (RICE)  ============================== */
@@ -1453,22 +1285,22 @@ INITS["t-rice"] = function(){
   const kpi = document.getElementById("kpiRice");
   const cR = COL.leaf;
   kpi.innerHTML = [
-    {lbl:"Any rice grower, 2024",       val:nat24.RICE_GROWER.toFixed(1)+"%",       series:NAT.rice.RICE_GROWER,       colour:cR},
-    {lbl:"BRRI core (BR-28/29), 2024",  val:nat24.BRRI_CORE28_29.toFixed(1)+"%",    series:NAT.rice.BRRI_CORE28_29,    colour:cR},
-    {lbl:"New BRRI lines, 2024",        val:nat24.BRRI_NEW_POST2012.toFixed(1)+"%", series:NAT.rice.BRRI_NEW_POST2012, colour:cR},
-    {lbl:"Hybrid rice, 2024",           val:nat24.HYBRID.toFixed(1)+"%",            series:NAT.rice.HYBRID,            colour:cR}
+    {lbl:TXT.kpi.rice.grower,    val:nat24.RICE_GROWER.toFixed(1)+"%",       series:NAT.rice.RICE_GROWER,       colour:cR},
+    {lbl:TXT.kpi.rice.core,      val:nat24.BRRI_CORE28_29.toFixed(1)+"%",    series:NAT.rice.BRRI_CORE28_29,    colour:cR},
+    {lbl:TXT.kpi.rice.new_lines, val:nat24.BRRI_NEW_POST2012.toFixed(1)+"%", series:NAT.rice.BRRI_NEW_POST2012, colour:cR},
+    {lbl:TXT.kpi.rice.hybrid,    val:nat24.HYBRID.toFixed(1)+"%",            series:NAT.rice.HYBRID,            colour:cR}
   ].map(kpiBox).join("");
 
   const fams = ["BRRI_CORE28_29","BRRI_OLDER_HYV","BRRI_NEW_POST2012","BRRI_STRESS","BINA","HYBRID","LOCAL"];
   lineChart("riceFamilies", WAVES.map(w=>WAVE_LBL[w]),
     fams.map((k,i)=>({label:RICE_FAM_LBL[k], data:NAT.rice[k], borderColor:SERIES_RICE[i]})),
     {heroIdx:0,
-     plugins:{title:{display:true,text:"BR-28 and BR-29 hold; hybrid rice and BR-70+ lines surge from near zero"},
-              subtitle:{display:true,text:"Share of agricultural households growing each variety family, 2011 to 2024"}}});
+     plugins:{title:{display:true,text:TXT.charts.riceFamilies.title},
+              subtitle:{display:true,text:TXT.charts.riceFamilies.subtitle}}});
   lineChart("riceGrower", WAVES.map(w=>WAVE_LBL[w]),
-    [{label:"Any rice grower", data:NAT.rice.RICE_GROWER, borderColor:COL.leaf}],
-    {plugins:{title:{display:true,text:"Rice cultivation participation eases from 84% to 70% of agricultural HH"},
-              subtitle:{display:true,text:"Share of agricultural households who grew any rice, 2011 to 2024"},
+    [{label:RICE_FAM_LBL.RICE_GROWER, data:NAT.rice.RICE_GROWER, borderColor:COL.leaf}],
+    {plugins:{title:{display:true,text:TXT.charts.riceGrower.title},
+              subtitle:{display:true,text:TXT.charts.riceGrower.subtitle},
               legend:{display:false}}});
 
   const sel = document.getElementById("riceDistFam");
@@ -1481,7 +1313,7 @@ INITS["t-rice"] = function(){
                   .sort((a,b)=>b.v-a.v).slice(0,30);
     barChart("riceDistChart", rows.map(r=>r.name),
       [{label:RICE_FAM_LBL[k]+" (2024)",data:rows.map(r=>r.v),backgroundColor:COL.leaf,borderColor:COL.leaf}],
-      {plugins:{title:{display:true,text:"Top 30 districts for "+RICE_FAM_LBL[k].toLowerCase()+" (2024)"}}});
+      {plugins:{title:{display:true,text:TXT.charts.top30_template.replace("{label}", RICE_FAM_LBL[k].toLowerCase())}}});
   }
   sel.onchange = redrawDist; redrawDist();
 
@@ -1497,8 +1329,8 @@ INITS["t-rice"] = function(){
       </tbody></table></div>`;
   }
   document.getElementById("riceTopTables").innerHTML =
-    topTbl("BRRI_CORE28_29","Top 10 districts: BR-28 / BR-29 (2024)")
-  + topTbl("BRRI_NEW_POST2012","Top 10 districts: new BRRI lines BR-70+ (2024)");
+    topTbl("BRRI_CORE28_29", TXT.tables.rice_1)
+  + topTbl("BRRI_NEW_POST2012", TXT.tables.rice_2);
 
   // Full district-level table (all 4 rounds, all variety families)
   const RICE_TBL_KEYS = ["RICE_GROWER","BRRI_CORE28_29","BRRI_OLDER_HYV","BRRI_NEW_POST2012","BRRI_STRESS","BINA","HYBRID","LOCAL"];
@@ -1510,25 +1342,25 @@ INITS["t-aqua"] = function(){
   const nat24 = AQUA.by_wave["2024"].__NATIONAL__;
   const cA = COL.teal;
   document.getElementById("kpiAqua").innerHTML = [
-    {lbl:"Any pond, 2024",                val:nat24.ANY_POND.toFixed(1)+"%",        series:NAT.aqua.ANY_POND,        colour:cA},
-    {lbl:"Tilapia (incl. GIFT), 2024",    val:nat24.TILAPIA.toFixed(1)+"%",         series:NAT.aqua.TILAPIA,         colour:cA},
-    {lbl:"Carp polyculture (2+), 2024",   val:nat24.POLY_CARP_2PLUS.toFixed(1)+"%", series:NAT.aqua.POLY_CARP_2PLUS, colour:cA},
-    {lbl:"Mola co-culture, 2024",         val:nat24.MOLA.toFixed(1)+"%",            series:NAT.aqua.MOLA,            colour:cA}
+    {lbl:TXT.kpi.aqua.pond,        val:nat24.ANY_POND.toFixed(1)+"%",        series:NAT.aqua.ANY_POND,        colour:cA},
+    {lbl:TXT.kpi.aqua.tilapia,     val:nat24.TILAPIA.toFixed(1)+"%",         series:NAT.aqua.TILAPIA,         colour:cA},
+    {lbl:TXT.kpi.aqua.polyculture, val:nat24.POLY_CARP_2PLUS.toFixed(1)+"%", series:NAT.aqua.POLY_CARP_2PLUS, colour:cA},
+    {lbl:TXT.kpi.aqua.mola,        val:nat24.MOLA.toFixed(1)+"%",            series:NAT.aqua.MOLA,            colour:cA}
   ].map(kpiBox).join("");
 
   lineChart("aquaTS", WAVES.map(w=>WAVE_LBL[w]),
     ["ANY_POND","CARP_ANY","POLY_CARP_2PLUS","TILAPIA","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"].map((k,i)=>({
       label:AQUA_IND_LBL[k], data:NAT.aqua[k], borderColor:SERIES_AQUA[i]})),
     {heroIdx:0,
-     plugins:{title:{display:true,text:"Pond aquaculture and carp polyculture retreat after 2018/19"},
-              subtitle:{display:true,text:"Share of agricultural households practising each, 2011 to 2024"}}});
+     plugins:{title:{display:true,text:TXT.charts.aquaTS.title},
+              subtitle:{display:true,text:TXT.charts.aquaTS.subtitle}}});
 
   lineChart("aquaPoly", WAVES.map(w=>WAVE_LBL[w]),
-    [{label:"Carp polyculture (2+ species)", data:NAT.aqua.POLY_CARP_2PLUS, borderColor:COL.teal},
-     {label:"Mola co-culture",                data:NAT.aqua.MOLA,           borderColor:COL.teal2}],
+    [{label:AQUA_IND_LBL.POLY_CARP_2PLUS, data:NAT.aqua.POLY_CARP_2PLUS, borderColor:COL.teal},
+     {label:AQUA_IND_LBL.MOLA,            data:NAT.aqua.MOLA,           borderColor:COL.teal2}],
     {heroIdx:0,
-     plugins:{title:{display:true,text:"Carp polyculture fell from 23% to 14% of agricultural HH; Mola co-culture stayed below 2%"},
-              subtitle:{display:true,text:"Two WorldFish-linked aquaculture practices, 2011 to 2024"}}});
+     plugins:{title:{display:true,text:TXT.charts.aquaPoly.title},
+              subtitle:{display:true,text:TXT.charts.aquaPoly.subtitle}}});
 
   const sel = document.getElementById("aquaDistInd");
   ["ANY_POND","TILAPIA","CARP_ANY","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"].forEach((k,i)=>{
@@ -1542,7 +1374,7 @@ INITS["t-aqua"] = function(){
                   .sort((a,b)=>b.v-a.v).slice(0,30);
     barChart("aquaDistChart", rows.map(r=>r.name),
       [{label:AQUA_IND_LBL[k]+" (2024)",data:rows.map(r=>r.v),backgroundColor:COL.teal,borderColor:COL.teal}],
-      {plugins:{title:{display:true,text:"Top 30 districts for "+AQUA_IND_LBL[k].toLowerCase()+" (2024)"}}});
+      {plugins:{title:{display:true,text:TXT.charts.top30_template.replace("{label}", AQUA_IND_LBL[k].toLowerCase())}}});
   }
   sel.onchange = redrawAquaDist; redrawAquaDist();
 
@@ -1556,8 +1388,8 @@ INITS["t-aqua"] = function(){
       </tbody></table></div>`;
   }
   document.getElementById("aquaTopTables").innerHTML =
-    topTbl("ANY_POND","Top 10 pond-intensive districts (2024)")
-  + topTbl("TILAPIA","Top 10 tilapia districts (2024)");
+    topTbl("ANY_POND", TXT.tables.aqua_1)
+  + topTbl("TILAPIA", TXT.tables.aqua_2);
 
   // Full district-level table. 2011/2015/2019 do not have SUPP_FEED/HORMONE/DISEASE_CTL,
   // but the table helper simply shows blanks for missing columns.
@@ -1568,10 +1400,10 @@ INITS["t-aqua"] = function(){
 /* ==============================  TAB 4 INIT (SPIA)  ============================== */
 INITS["t-spia"] = function(){
   document.getElementById("kpiSpia").innerHTML = [
-    {lbl:"DNA samples genotyped", val:DNA.n_samples.toLocaleString()},
-    {lbl:"Unique rice varieties identified", val:DNA.n_varieties},
-    {lbl:"Genetic clusters", val:DNA.n_clusters},
-    {lbl:"SPIA 2024 households", val:SUM.rounds["2024"].n_hh.toLocaleString()}
+    {lbl:TXT.kpi.spia.samples,    val:DNA.n_samples.toLocaleString()},
+    {lbl:TXT.kpi.spia.varieties,  val:DNA.n_varieties},
+    {lbl:TXT.kpi.spia.clusters,   val:DNA.n_clusters},
+    {lbl:TXT.kpi.spia.households, val:SUM.rounds["2024"].n_hh.toLocaleString()}
   ].map(x=>`<div class="box"><div class="lbl">${x.lbl}</div><div class="big">${x.val}</div></div>`).join("");
 
   const vEntries = Object.entries(DNA.by_variety).sort((a,b)=>b[1]-a[1]);
@@ -1581,13 +1413,13 @@ INITS["t-spia"] = function(){
 
   barChart("dnaByVariety", vEntries.map(x=>x[0]),
     [{label:"DNA-verified samples",data:vEntries.map(x=>x[1]),backgroundColor:COL.leaf,borderColor:COL.leaf}],
-    {plugins:{title:{display:true,text:"Rice varieties identified by DNA fingerprint (n=370)"},legend:{display:false}},
+    {plugins:{title:{display:true,text:TXT.charts.dnaByVariety.title},legend:{display:false}},
      scales:{x:{title:{display:true,text:"samples"}},y:{ticks:{font:{size:10.5}}}}});
 
   const cl = DNA.by_cluster.slice().sort((a,b)=>b.n_samples-a.n_samples);
   barChart("dnaByCluster", cl.map(r=>"Cluster "+r.cluster_id+" : "+r.top_variety),
     [{label:"Samples in cluster",data:cl.map(r=>r.n_samples),backgroundColor:COL.teal,borderColor:COL.teal}],
-    {plugins:{title:{display:true,text:"Genetic clusters and their dominant variety"},legend:{display:false}},
+    {plugins:{title:{display:true,text:TXT.charts.dnaByCluster.title},legend:{display:false}},
      scales:{x:{title:{display:true,text:"samples"}}}});
 
   // Aqua practices 2024
@@ -1596,7 +1428,7 @@ INITS["t-spia"] = function(){
     [AQUA_IND_LBL.SUPP_FEED,AQUA_IND_LBL.HORMONE,AQUA_IND_LBL.DISEASE_CTL],
     [{label:"2024 weighted HH %",data:[aqNat24.SUPP_FEED||0,aqNat24.HORMONE||0,aqNat24.DISEASE_CTL||0],
       backgroundColor:COL.teal,borderColor:COL.teal}],
-    {plugins:{title:{display:true,text:"Aquaculture intensification practices (2024, e10 module)"},legend:{display:false}}});
+    {plugins:{title:{display:true,text:TXT.charts.spiaPractices.title},legend:{display:false}}});
 
   // Equipment ownership 2024
   const mechNat24 = MECH.by_wave["2024"].__NATIONAL__ || {};
@@ -1608,7 +1440,7 @@ INITS["t-spia"] = function(){
               .sort((a,b)=>b[1]-a[1])];
   barChart("spiaEquip", eq[0].map(x=>x[0]),
     [{label:"HH ownership %",data:eq[0].map(x=>x[1]),backgroundColor:COL.slate,borderColor:COL.slate}],
-    {plugins:{title:{display:true,text:"Equipment ownership (2024, SPIA module a5_6)"},legend:{display:false}}});
+    {plugins:{title:{display:true,text:TXT.charts.spiaEquip.title},legend:{display:false}}});
 
   // ---- Pooled 2024 district-level full table (rice + aqua + mech) ----
   const POOLED_2024 = { by_wave: { "2024": {} } };
@@ -1666,10 +1498,10 @@ INITS["t-mech"] = function(){
   // Mech equipment is only consistently tracked from 2018/19 onward; baseline label reflects that.
   const mechSeries = k => NAT.mech && NAT.mech[k] ? NAT.mech[k] : null;
   document.getElementById("kpiMech").innerHTML = [
-    {lbl:"Power tiller, 2024",         val:(m24.POWER_TILLER||0).toFixed(1)+"%",     series:mechSeries("POWER_TILLER"),     colour:cM, baseLbl:"2018/19"},
-    {lbl:"Motorised thresh use, 2024", val:(m24.USE_MOTOR_THRESH||0).toFixed(1)+"%", series:mechSeries("USE_MOTOR_THRESH"), colour:cM, baseLbl:"2018/19"},
-    {lbl:"Sprayer, 2024",              val:(m24.SPRAYER||0).toFixed(1)+"%",          series:mechSeries("SPRAYER"),          colour:cM, baseLbl:"2018/19"},
-    {lbl:"Electric motor pump, 2024",  val:(m24.ELEC_MOTOR_PUMP||0).toFixed(1)+"%",  series:mechSeries("ELEC_MOTOR_PUMP"),  colour:cM, baseLbl:"2018/19"}
+    {lbl:TXT.kpi.mech.tiller,  val:(m24.POWER_TILLER||0).toFixed(1)+"%",     series:mechSeries("POWER_TILLER"),     colour:cM, baseLbl:"2018/19"},
+    {lbl:TXT.kpi.mech.thresh,  val:(m24.USE_MOTOR_THRESH||0).toFixed(1)+"%", series:mechSeries("USE_MOTOR_THRESH"), colour:cM, baseLbl:"2018/19"},
+    {lbl:TXT.kpi.mech.sprayer, val:(m24.SPRAYER||0).toFixed(1)+"%",          series:mechSeries("SPRAYER"),          colour:cM, baseLbl:"2018/19"},
+    {lbl:TXT.kpi.mech.pump,    val:(m24.ELEC_MOTOR_PUMP||0).toFixed(1)+"%",  series:mechSeries("ELEC_MOTOR_PUMP"),  colour:cM, baseLbl:"2018/19"}
   ].map(kpiBox).join("");
 
   // Ownership comparison 2019 vs 2024
@@ -1679,13 +1511,13 @@ INITS["t-mech"] = function(){
   barChart("mechOwn", lbls,
     [{label:"2018/19",data:keys.map(k=>m19[k]||0),backgroundColor:COL.accent2,borderColor:COL.accent2},
      {label:"2024",   data:keys.map(k=>m24[k]||0),backgroundColor:COL.accent, borderColor:COL.accent}],
-    {plugins:{title:{display:true,text:"Household equipment ownership: 2018/19 vs 2024"}}});
+    {plugins:{title:{display:true,text:TXT.charts.mechOwn.title}}});
 
   // Use 2024
   const useKeys = ["USE_MOTOR_HARVEST","USE_MOTOR_THRESH","USE_TREADLE_THRESH"];
   barChart("mechUse", useKeys.map(k=>MECH_IND_LBL[k]),
     [{label:"2024 HH %",data:useKeys.map(k=>m24[k]||0),backgroundColor:COL.accent,borderColor:COL.accent}],
-    {plugins:{title:{display:true,text:"Paddy-operation practice (2024 actual use)"},legend:{display:false}}});
+    {plugins:{title:{display:true,text:TXT.charts.mechUse.title},legend:{display:false}}});
 
   // District chart 2024
   const sel = document.getElementById("mechDistInd");
@@ -1698,7 +1530,7 @@ INITS["t-mech"] = function(){
                   .sort((a,b)=>b.v-a.v).slice(0,30);
     barChart("mechDistChart", rows.map(r=>r.name),
       [{label:MECH_IND_LBL[k]+" (2024)",data:rows.map(r=>r.v),backgroundColor:COL.accent,borderColor:COL.accent}],
-      {plugins:{title:{display:true,text:"Top 30 districts for "+MECH_IND_LBL[k].toLowerCase()+" (2024)"}}});
+      {plugins:{title:{display:true,text:TXT.charts.top30_template.replace("{label}", MECH_IND_LBL[k].toLowerCase())}}});
   }
   sel.onchange = redrawMechDist; redrawMechDist();
 
@@ -1722,12 +1554,12 @@ INITS["t-tech"] = function(){
   const ref = TECH.primary_reference;
   document.getElementById("primaryRef").innerHTML = `
     <div class="ref-card">
-      <div class="ref-eyebrow">Primary reference</div>
+      <div class="ref-eyebrow">${TXT.tech.primary_ref_eyebrow}</div>
       <div class="ref-title">${ref.title}</div>
       <div class="ref-meta">${ref.authors} (${ref.year}). <em>${ref.publisher}</em>. ${ref.license}.</div>
       <div class="ref-links">
-        <a href="${ref.report_url}" target="_blank" rel="noopener">Read the SPIA 2025 report (PDF)</a>
-        <a href="${ref.github_url}" target="_blank" rel="noopener">SPIA replication repository on GitHub</a>
+        <a href="${ref.report_url}" target="_blank" rel="noopener">${TXT.tech.report_link_label}</a>
+        <a href="${ref.github_url}" target="_blank" rel="noopener">${TXT.tech.github_link_label}</a>
       </div>
       <div class="ref-note">${ref.note}</div>
     </div>`;
@@ -1783,7 +1615,7 @@ INITS["t-tech"] = function(){
           <div class="tech-srcs">${srcs}</div>
         </article>`;
     }).join("");
-    document.getElementById("techGrid").innerHTML = html || `<div class="empty">No technologies match your filter.</div>`;
+    document.getElementById("techGrid").innerHTML = html || `<div class="empty">${TXT.tech.no_match}</div>`;
   }
   pills.addEventListener("click", e => {
     const btn = e.target.closest("button"); if(!btn) return;
@@ -1804,25 +1636,140 @@ lazyInit("t-map");
 </html>
 """
 
-html_out = (HTML_TMPL
-    .replace("__LOGO__", LOGO_B64)
-    .replace("__BRIEF__", html.escape(PROJECT_BRIEF))
-    .replace("__GEO__",  j(GEO))
-    .replace("__RICE__", j(RICE))
-    .replace("__AQUA__", j(AQUA))
-    .replace("__MECH__", j(MECH))
-    .replace("__DNA__",  j(DNA))
-    .replace("__NAT__",  j(NAT))
-    .replace("__SUM__",  j(SUM))
-    .replace("__TECH__", j(TECH))
-)
-# The HTML template is a raw string (r"""..."""), so any \uXXXX escape we wrote
-# inside it reached the output verbatim.  Normalise the few Unicode escapes we used.
-import re as _re
-def _un(m): return chr(int(m.group(1), 16))
-html_out = _re.sub(r"\\u([0-9a-fA-F]{4})", _un, html_out)
+# ---------------------------------------------------------------------
+# Compose HTML fragments from content.toml
+# ---------------------------------------------------------------------
+def _root_vars():
+    t = THEME
+    pairs = [
+        ("--ink", t["ink"]), ("--text", t["text"]), ("--mute", t["mute"]),
+        ("--line", t["line"]), ("--line2", t["line2"]), ("--bg", t["background"]),
+        ("--panel", t["panel"]), ("--tint", t["tint"]),
+        ("--rail-bg", t["rail_background"]),
+        ("--positive", t["positive"]), ("--negative", t["negative"]),
+        ("--rice", t["rice"]["main"]), ("--rice-dark", t["rice"]["dark"]), ("--rice-soft", t["rice"]["soft"]),
+        ("--aqua", t["aqua"]["main"]), ("--aqua-dark", t["aqua"]["dark"]), ("--aqua-soft", t["aqua"]["soft"]),
+        ("--mech", t["mech"]["main"]), ("--mech-dark", t["mech"]["dark"]), ("--mech-soft", t["mech"]["soft"]),
+    ]
+    return "\n".join(f"    {k}:{v};" for k, v in pairs)
 
-out_path = os.path.join(OUT, "mixtape_dashboard.html")
+def _nav_tabs():
+    out = []
+    for i, t in enumerate(C["tabs"]):
+        on = ' class="on"' if i == 0 else ""
+        out.append(f'    <button data-tab="{t["id"]}"{on}>'
+                   f'<span class="num">{i+1:02d}</span><span>{t["label"]}</span></button>')
+    return "\n".join(out)
+
+def _rail_rows(rows):
+    return "\n".join(f'    <div class="row"><span>{a}</span><span>{b}</span></div>'
+                     for a, b in rows)
+
+def _findings():
+    out = []
+    for f in C["findings"]:
+        delta_cls = f' {f["delta_class"]}' if f["delta_class"] else ""
+        out.append(
+            f'    <a class="finding f-{f["category"]}" data-jump="{f["tab"]}" tabindex="0">\n'
+            f'      <span class="arrow">{f["arrow"]} ›</span>\n'
+            f'      <div class="eyebrow">{f["eyebrow"]}</div>\n'
+            f'      <div class="big">{f["value"]}<span class="unit">{f["unit"]}</span></div>\n'
+            f'      <div class="ctx">{f["context"]}</div>\n'
+            f'      <div class="delta{delta_cls}">{f["delta"]}</div>\n'
+            f'    </a>')
+    return "\n".join(out)
+
+def _denom_grid():
+    return "\n".join(
+        f'        <div class="cell"><div class="yr">{y}</div><div class="all">{a}</div><div class="agri">{g}</div></div>'
+        for y, a, g in C["method"]["denominators"])
+
+def _cat_pills():
+    out = []
+    for i, (cid, lbl) in enumerate(C["map"]["category_pills"]):
+        on = " on" if i == 0 else ""
+        out.append(f'      <button class="pill{on}" data-cat="{cid}">{lbl}</button>')
+    return "\n".join(out)
+
+P, R, M = C["page"], C["rail"], C["map"]
+RC, AQ, SP, ME, TE = C["rice"], C["aqua"], C["spia"], C["mech"], C["tech"]
+REF = SP["reference"]
+
+REPL = {
+    "__LOGO__": LOGO_B64,
+    "__ROOT_VARS__": _root_vars(),
+    # data
+    "__GEO__": j(GEO), "__RICE__": j(RICE), "__AQUA__": j(AQUA), "__MECH__": j(MECH),
+    "__DNA__": j(DNA), "__NAT__": j(NAT), "__SUM__": j(SUM), "__TECH__": j(TECH),
+    "__TXT__": j(TXT_JS), "__THEME__": j(THEME),
+    # page header
+    "__PAGE_TITLE__": P["title"], "__PAGE_EYEBROW__": P["eyebrow"], "__PAGE_H1__": P["heading"],
+    "__PAGE_META_LEFT__": P["meta_left"], "__PAGE_META_RIGHT__": P["meta_right"],
+    "__BRIEF__": P["brief"],
+    # side rail
+    "__RAIL_ACRO__": R["brand_acronym"], "__RAIL_SUBTITLE__": R["brand_subtitle"],
+    "__NAV_TABS__": _nav_tabs(),
+    "__RAIL_PANEL_LBL__": R["panel_label"], "__RAIL_PANEL_ROWS__": _rail_rows(R["panel_rows"]),
+    "__RAIL_AGRI_LBL__": R["agri_label"], "__RAIL_AGRI_ROWS__": _rail_rows(R["agri_rows"]),
+    "__RAIL_NOTE__": R["note"],
+    "__RAIL_CONTACT_NAME__": R["contact_name"], "__RAIL_CONTACT_EMAIL__": R["contact_email"],
+    "__RAIL_CONTACT_AFFIL__": R["contact_affiliation"],
+    "__RAIL_REPL_TEXT__": R["replication_text"], "__RAIL_REPL_URL__": R["replication_link_url"],
+    "__RAIL_REPL_LABEL__": R["replication_link_label"],
+    # map tab
+    "__MAP_H2__": M["heading"], "__MAP_LEDE__": M["lede"],
+    "__FINDINGS__": _findings(),
+    "__METHOD_SUMMARY__": C["method"]["summary"], "__METHOD_BODY__": C["method"]["body"],
+    "__DENOM_GRID__": _denom_grid(), "__METHOD_CAP__": C["method"]["caption"],
+    "__MAP_SUB_MAP__": M["map_heading"], "__MAP_LEDE_MAP__": M["map_lede"],
+    "__MAP_CAT_PILLS__": _cat_pills(),
+    "__MAP_INFO_TITLE__": M["info_title"], "__MAP_INFO_HINT__": M["info_hover_hint"],
+    "__MAP_TOP_LBL__": M["top_list_label"], "__MAP_BOT_LBL__": M["bottom_list_label"],
+    "__MAP_SUB_TREND__": M["trend_heading"], "__MAP_LEDE_TREND__": M["trend_lede"],
+    "__MAP_NOTE__": M["note"],
+    # rice tab
+    "__RICE_H2__": RC["heading"], "__RICE_LEDE__": RC["lede"],
+    "__RICE_SUB_DIST__": RC["district_heading"], "__RICE_SUB_TOP__": RC["top_heading"],
+    "__RICE_SUB_FULL__": RC["full_heading"], "__RICE_LEDE_FULL__": RC["full_lede"],
+    "__RICE_NOTE__": RC["note"],
+    # aqua tab
+    "__AQUA_H2__": AQ["heading"], "__AQUA_LEDE__": AQ["lede"],
+    "__AQUA_SUB_DIST__": AQ["district_heading"], "__AQUA_SUB_TOP__": AQ["top_heading"],
+    "__AQUA_SUB_FULL__": AQ["full_heading"], "__AQUA_LEDE_FULL__": AQ["full_lede"],
+    "__AQUA_NOTE__": AQ["note"],
+    # spia tab
+    "__SPIA_H2__": SP["heading"], "__SPIA_LEDE__": SP["lede"],
+    "__SPIA_REF_EYEBROW__": REF["eyebrow"], "__SPIA_REF_TITLE__": REF["title"],
+    "__SPIA_REF_CITATION__": REF["citation"],
+    "__SPIA_REF_REPORT_URL__": REF["report_url"], "__SPIA_REF_REPORT_LABEL__": REF["report_label"],
+    "__SPIA_REF_GITHUB_URL__": REF["github_url"], "__SPIA_REF_GITHUB_LABEL__": REF["github_label"],
+    "__SPIA_REF_NOTE__": REF["note"],
+    "__SPIA_SUB_DNA__": SP["dna_heading"], "__SPIA_LEDE_DNA__": SP["dna_lede"],
+    "__SPIA_SUB_PRACT__": SP["practices_heading"], "__SPIA_LEDE_PRACT__": SP["practices_lede"],
+    "__SPIA_SUB_EQUIP__": SP["equipment_heading"],
+    "__SPIA_SUB_FULL__": SP["full_heading"], "__SPIA_LEDE_FULL__": SP["full_lede"],
+    "__SPIA_SUB_DNAVAR__": SP["dna_variety_heading"], "__SPIA_LEDE_DNAVAR__": SP["dna_variety_lede"],
+    "__SPIA_SUB_DNACLUST__": SP["dna_cluster_heading"], "__SPIA_LEDE_DNACLUST__": SP["dna_cluster_lede"],
+    "__SPIA_NOTE__": SP["note"],
+    # mech tab
+    "__MECH_H2__": ME["heading"], "__MECH_LEDE__": ME["lede"],
+    "__MECH_SUB_DIST__": ME["district_heading"],
+    "__MECH_SUB_FULL__": ME["full_heading"], "__MECH_LEDE_FULL__": ME["full_lede"],
+    "__MECH_NOTE__": ME["note"],
+    # tech tab
+    "__TECH_H2__": TE["heading"], "__TECH_LEDE__": TE["lede"],
+    "__TECH_SUB_INST__": TE["institutions_heading"], "__TECH_SUB_BROWSE__": TE["browse_heading"],
+    "__TECH_SEARCH_PH__": TE["search_placeholder"],
+    # footer
+    "__FOOT_NAME__": R["contact_name"], "__FOOT_EMAIL__": R["contact_email"],
+    "__FOOT_AFFIL__": R["contact_affiliation"], "__FOOT_ATTRIB__": C["footer"]["attribution"],
+}
+
+html_out = HTML_TMPL
+for key, val in REPL.items():
+    html_out = html_out.replace(key, val)
+
+out_path = os.path.join(ROOT, "index.html")
 with open(out_path, "w", encoding="utf-8") as fh:
     fh.write(html_out)
 print(f"wrote {out_path}  ({os.path.getsize(out_path):,} bytes)")

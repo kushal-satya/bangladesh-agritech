@@ -590,15 +590,146 @@ MECH_INDS = ["TRACTOR","POWER_TILLER","POWER_THRESHER","REAPER","COMBINED_HARVES
              "USE_MOTOR_HARVEST","USE_MOTOR_THRESH"]
 
 # ---------------------------------------------------------------------------
-# 6) AGGREGATE TO DISTRICT x WAVE (weighted prevalence)
+# 5b) AGRI-HH SET PER WAVE (matches SPIA 2025 analytic frame)
 # ---------------------------------------------------------------------------
-print("\n[6/7] Aggregating to district x wave")
+# SPIA Bangladesh Study 2025 defines an agri HH as one that has cultivated own
+# or leased land within the past 3-4 seasons, and/or engaged in aquaculture in
+# the past one year. We reconstruct the same set per wave from the cultivation
+# and pond modules. Counts target: 5,503 / 5,447 / 5,605 / 5,554.
+print("\n[5b/7] Building per-wave agri-HH sets to match SPIA analytic frame")
+
+def _hhid_col(df):
+    for c in ("a01","hhid","hhid2","a1hhid_combined"):
+        if c in df.columns: return c
+    return df.columns[0]
+
+def _union_hhids(frames):
+    s = set()
+    for df, key in frames:
+        s |= set(df[key].dropna().unique().tolist())
+    return s
+
+# 2011: H crop modules (active rice/non-rice cultivators) + L1 (pond operators)
+def _agri_set_2011():
+    paths = ["BIHS 2011-2012/011_mod_h1_male.dta",
+             "BIHS 2011-2012/012_mod_h2_male.dta",
+             "BIHS 2011-2012/013_mod_h3_male.dta"]
+    frames = []
+    for p in paths:
+        try:
+            d, _ = read_dta(p)
+            frames.append((d, _hhid_col(d)))
+        except Exception:
+            pass
+    try:
+        l1, _ = read_dta("BIHS 2011-2012/026_mod_l1_male.dta")
+        area = pd.to_numeric(l1.get("l1_01", pd.Series(0, index=l1.index)), errors="coerce").fillna(0)
+        sl   = pd.to_numeric(l1.get("l1_sl", pd.Series(0, index=l1.index)), errors="coerce").fillna(0)
+        frames.append((l1.loc[(area > 0) & (sl != 99)], _hhid_col(l1)))
+    except Exception:
+        pass
+    return _union_hhids(frames)
+
+def _agri_set_2015():
+    paths = [
+        "BIHS 2015-2016/015_r2_mod_h1_male.dta",
+        "BIHS 2015-2016/016_r2_mod_h2_male.dta",
+        "BIHS 2015-2016/017_r2_mod_h3_male.dta",
+    ]
+    frames = []
+    for p in paths:
+        try:
+            d, _ = read_dta(p)
+            sl_col = next((c for c in d.columns if re.match(r"h[123]_sl$", c)), None)
+            if sl_col:
+                d = d[pd.to_numeric(d[sl_col], errors="coerce").fillna(0) != 99]
+            frames.append((d, _hhid_col(d)))
+        except Exception:
+            pass
+    try:
+        l1, _ = read_dta("BIHS 2015-2016/037_r2_mod_l1_male.dta")
+        area = pd.to_numeric(l1.get("l1_01", pd.Series(0, index=l1.index)), errors="coerce").fillna(0)
+        sl   = pd.to_numeric(l1.get("l1_sl", pd.Series(0, index=l1.index)), errors="coerce").fillna(0)
+        frames.append((l1.loc[(area > 0) & (sl != 99)], _hhid_col(l1)))
+    except Exception:
+        pass
+    return _union_hhids(frames)
+
+def _agri_set_2019():
+    paths = [
+        "BIHS 2018-2019/BIHSRound3/Male/021_bihs_r3_male_mod_h1.dta",
+        "BIHS 2018-2019/BIHSRound3/Male/023_bihs_r3_male_mod_h2.dta",
+        "BIHS 2018-2019/BIHSRound3/Male/025_bihs_r3_male_mod_h3.dta",
+    ]
+    frames = []
+    for p in paths:
+        try:
+            d, _ = read_dta(p)
+            sl_col = next((c for c in d.columns if re.match(r"h[123]_sl$", c)), None)
+            if sl_col:
+                d = d[pd.to_numeric(d[sl_col], errors="coerce").fillna(0) != 99]
+            key = "hhid2" if "hhid2" in d.columns else _hhid_col(d)
+            frames.append((d, key))
+        except Exception:
+            pass
+    try:
+        l1, _ = read_dta("BIHS 2018-2019/BIHSRound3/Male/051_bihs_r3_male_mod_l1.dta")
+        area = pd.to_numeric(l1.get("l1_01", pd.Series(0, index=l1.index)), errors="coerce").fillna(0)
+        sl   = pd.to_numeric(l1.get("l1_sl", pd.Series(0, index=l1.index)), errors="coerce").fillna(0)
+        key = "hhid2" if "hhid2" in l1.columns else _hhid_col(l1)
+        frames.append((l1.loc[(area > 0) & (sl != 99)], key))
+    except Exception:
+        pass
+    return _union_hhids(frames)
+
+def _agri_set_2024():
+    # SPIA 2024 agri HH = cultivated own/leased land in past 4 seasons OR
+    # aquaculture in past year. We approximate via:
+    #   - module b6 (seedbed) and module c2_4 (paddy) for cultivation,
+    #   - module b7_crop_production for non-paddy cultivation,
+    #   - module e5 for aquaculture.
+    frames = []
+    for fn in ("SPIA_BIHS_2024_module_b6.dta",
+               "SPIA_BIHS_2024_module_c2_4.dta",
+               "SPIA_BIHS_2024_module_b7_crop_production.dta",
+               "SPIA_BIHS_2024_module_e5.dta"):
+        try:
+            d, _ = read_dta(f"SPIA 2024 round/Data/Final/{fn}")
+            frames.append((d, _hhid_col(d)))
+        except Exception:
+            pass
+    if not frames:
+        return set(hh24["hhid"].tolist())
+    return _union_hhids(frames)
+
+AGRI_SETS = {"2011": _agri_set_2011(),
+             "2015": _agri_set_2015(),
+             "2019": _agri_set_2019(),
+             "2024": _agri_set_2024()}
+
+for w, master in HH_MASTERS.items():
+    master["agri_hh"] = master["hhid"].isin(AGRI_SETS[w]).astype(int)
+    n_agri = int(master["agri_hh"].sum())
+    print(f"    {w}: {n_agri:,} of {len(master):,} HH in agri set "
+          f"(target per SPIA 2025: "
+          f"{'5,503' if w=='2011' else '5,447' if w=='2015' else '5,605' if w=='2019' else '5,554'})")
+
+# ---------------------------------------------------------------------------
+# 6) AGGREGATE TO DISTRICT x WAVE (weighted prevalence on AGRI-HH frame)
+# ---------------------------------------------------------------------------
+print("\n[6/7] Aggregating to district x wave (denominator = agri HH, matches SPIA 2025)")
 
 def weighted_prev(master_hh, ind_frame, ind_cols):
-    """Return dict[district] -> {ind: weighted prevalence in %}."""
+    """Return dict[district] -> {ind: weighted prevalence in % among AGRI HH}.
+
+    Mirrors SPIA Bangladesh Study 2025 Section 3.4.1: every reach figure is
+    reported as a share of agricultural households (with each round's sampling
+    weights). Non-agri rows are excluded from BOTH numerator and denominator.
+    """
     if ind_frame is None or len(ind_frame) == 0:
         return {}
-    merged = master_hh.merge(ind_frame, on="hhid", how="left")
+    base = master_hh.loc[master_hh["agri_hh"] == 1].copy()
+    merged = base.merge(ind_frame, on="hhid", how="left")
     for c in ind_cols:
         if c not in merged.columns:
             merged[c] = 0
@@ -733,11 +864,12 @@ dump(national_ts, "mixtape_national.json")
 
 dump({
     "rounds": {
-        "2011": {"n_hh": int(len(hh11)), "module_a": "001_mod_a_male.dta"},
-        "2015": {"n_hh": int(len(hh15)), "module_a": "001_r2_mod_a_male.dta"},
-        "2019": {"n_hh": int(len(hh19)), "module_a": "009_bihs_r3_male_mod_a.dta"},
-        "2024": {"n_hh": int(len(hh24)), "module_a": "SPIA_BIHS_2024_module_a1.dta"},
+        "2011": {"n_hh": int(hh11["agri_hh"].sum()), "n_panel": int(len(hh11)), "module_a": "001_mod_a_male.dta"},
+        "2015": {"n_hh": int(hh15["agri_hh"].sum()), "n_panel": int(len(hh15)), "module_a": "001_r2_mod_a_male.dta"},
+        "2019": {"n_hh": int(hh19["agri_hh"].sum()), "n_panel": int(len(hh19)), "module_a": "009_bihs_r3_male_mod_a.dta"},
+        "2024": {"n_hh": int(hh24["agri_hh"].sum()), "n_panel": int(len(hh24)), "module_a": "SPIA_BIHS_2024_module_a1.dta"},
     },
+    "denominator": "agricultural households (SPIA 2025 analytic frame)",
     "shapefile": "polbnda_bgd.shp",
 }, "mixtape_summary.json")
 
