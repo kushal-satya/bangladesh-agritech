@@ -34,7 +34,7 @@ note = "All percentages on this dashboard are weighted shares of the agricultura
 contact_name = "Kushal Kumar"
 contact_email = "kd475@cornell.edu"
 contact_affiliation = "Cornell University"
-replication_text = "Replicates"
+replication_text = "Recomputed alongside"
 replication_link_label = "SPIA Bangladesh Study 2025"
 replication_link_url = "https://github.com/CGIAR-SPIA/SPIA-Bangladesh-Study-2025"
 
@@ -84,9 +84,9 @@ label = "Technology index"
 # ---------------------------------------------------------------------
 [map]
 heading = "What has changed in the four-round BIHS panel, 2011/12 to 2024"
-lede = """Three broad shifts stand out in CGIAR linked technology adoption: the Boro rice varieties that farmers plant, the number of households that keep fish ponds, and the degree of mechanisation in paddy production. All figures are weighted shares of <b>agricultural households</b> in each round (n = 2,924 in 2024). The underlying BIHS panel surveys <b>all rural households</b> (n = 5,554 in 2024) whether or not they farm. Click any card to open its full tab."""
+lede = """Three broad shifts stand out in CGIAR linked technology adoption: the Boro rice varieties that farmers plant, the number of households that keep fish ponds, and the degree of mechanisation in paddy production. Every figure on this dashboard is a weighted share of <b>agricultural households</b>, meaning those that cultivated land or operated a pond in the recall period (n = 2,924 in 2024). The underlying BIHS panel surveys <b>all rural households</b> (n = 5,554 in 2024) whether or not they farm. Read the note on comparability below before quoting any figure against the published SPIA report."""
 map_heading = "District map: pick a category, an indicator, and a round"
-map_lede = """Each of Bangladesh's 64 districts is shaded by the share of agricultural households using the selected indicator. <b>Darker shades mean a higher share.</b> Hover over any district to see its weighted rate. The four headline boxes, the district lists beside the map, and the national trend lines at the bottom all update with the indicator you pick."""
+map_lede = """Each of Bangladesh's 64 districts is shaded by the share of agricultural households using the selected indicator. <b>Darker shades mean a higher share.</b> Hover over any district to see its weighted rate. The summary figures above the map, the district rankings beside it, and the national trend lines below all follow the indicator you pick."""
 trend_heading = "How the national rate has moved, 2011 to 2024"
 trend_lede = "Each line is the weighted national share of agricultural households for one variety family or aquaculture practice across the four BIHS rounds."
 note = """Denominator: agricultural households, meaning those that cultivated land or operated a pond in the recall period, weighted with each round's BIHS sampling weights. The analytic frame holds 3,755 / 3,723 / 3,220 / 2,924 households across the four rounds, while the underlying BIHS panel ran 5,503 to 6,715 households per round. Frame definitions follow the SPIA Bangladesh Study 2025; the full citation appears on the 2024 SPIA round tab. Mechanisation indicators for 2011 and 2015 are limited to a single harmonised tractor flag. Richer equipment rosters exist only for 2018/19 (module D2) and 2024 (modules a5_6 and d2)."""
@@ -103,8 +103,12 @@ top_list_label = "Highest adoption (top 5 districts)"
 bottom_list_label = "Lowest adoption (bottom 5 districts)"
 
 [method]
-summary = "How to read these numbers: denominators, weights, and sources"
-body = """The BIHS panel <b>surveys all rural households</b> in the Feed the Future zone, whether or not they farm. The analysis here follows the SPIA Bangladesh Study 2025 and restricts to the <b>agricultural sub-frame</b>, meaning households that cultivated land or operated a pond in the recall period. Roughly half of the panel falls in that sub-frame each round. Both denominators are shown so that readers can pick the one that matches their question."""
+summary = "How to read these numbers, and how they differ from the published SPIA report"
+body = """The BIHS panel <b>surveys all rural households</b> in the Feed the Future zone, whether or not they farm. This dashboard restricts to the <b>agricultural sub-frame</b>, meaning households that cultivated land or operated a pond in the recall period, and roughly half of the panel falls in that sub-frame each round.
+<br><br>
+<b>These figures are an independent recomputation from the BIHS microdata, not a reproduction of the published SPIA tables.</b> The dashboard applies one denominator, agricultural households, to every indicator so that technologies can be compared with one another and across the four rounds. The SPIA Bangladesh Study 2025 instead selects a denominator suited to each innovation: Boro rice-growing households for rice varieties, fish-cultivating households for individual species, and agricultural households excluding aquaculture-only households for machinery. Rice is where that difference bites hardest. The report works with roughly 1,733 Boro rice-growing households in 2024 against the 2,924 agricultural households used here, so every rice percentage on this dashboard is correspondingly lower than the matching figure in the report.
+<br><br>
+Sample counts also differ. This dashboard reports the BIHS panel as delivered in the microdata, which includes the Feed the Future booster, while the report works from the nationally representative core of roughly 5,500 households per round. The two agree exactly for 2024, at 5,554. <b>Cite the SPIA report rather than this dashboard for official reach estimates.</b>"""
 caption = """Weights: BIHS_FTF baseline 2011/12, BIHS FTF 2015 sampling weights, 158_BIHS r3 weights, SPIA 2024 hhweight_24. Source: <a href="https://github.com/CGIAR-SPIA/SPIA-Bangladesh-Study-2025" target="_blank" rel="noopener">SPIA Bangladesh Study 2025 replication code</a>. Full project context sits in tab 04 (2024 SPIA round) and tab 06 (Technology index)."""
 # One entry per round: [round label, full panel, agricultural sub-frame]
 denominators = [
@@ -115,42 +119,69 @@ denominators = [
 ]
 
 # ---------------------------------------------------------------------
-# Headline findings cards on the map tab.
-# category controls the accent color: rice, aqua or mech.
-# The numbers are typed in by hand, so update them when the data changes.
+# Key indicators table on the map overview tab.
+# Each row is [display label, source, indicator key]. Source is one of
+# rice, aqua or mech. Every number in the table is computed from the
+# files in data/ at build time, so the table cannot drift from the data.
 # ---------------------------------------------------------------------
-[[findings]]
-category = "rice"
-tab = "t-rice"
-arrow = "Rice"
-eyebrow = "Rice &middot; BR-28 / BR-29 (Boro mega-varieties)"
-value = "27.8"
-unit = "%"
-context = """of farmers planted BR-28 or BR-29 in 2024. Hybrid rice climbed from <b>0.5%</b> (2011/12) to <b>19.5%</b>, and post-2012 BRRI lines (BR-70 and above) reached <b>10.6%</b> from near zero. Traditional landraces fell from <b>57.9%</b> to <b>17.5%</b>."""
-delta = "▼ 20.4 pp vs 2011/12 (48.2%)"
-delta_class = "dn"
+[summary]
+heading = "Key indicators across the four rounds"
+caption = "Weighted share of agricultural households (%)"
+note = "Mechanisation was not measured on a comparable basis before 2018/19, and motorised use was first recorded in 2024, so those cells are empty."
+rows = [
+  ["Grew any rice", "rice", "RICE_GROWER"],
+  ["BR-28 or BR-29 (Boro mega-varieties)", "rice", "BRRI_CORE28_29"],
+  ["New BRRI lines, BR-70 and above", "rice", "BRRI_NEW_POST2012"],
+  ["Hybrid rice", "rice", "HYBRID"],
+  ["Traditional or local landraces", "rice", "LOCAL"],
+  ["Operated any cultivated pond", "aqua", "ANY_POND"],
+  ["Tilapia, including GIFT", "aqua", "TILAPIA"],
+  ["Carp polyculture, two or more species", "aqua", "POLY_CARP_2PLUS"],
+  ["Mola co-culture", "aqua", "MOLA"],
+  ["Owned a power tiller", "mech", "POWER_TILLER"],
+  ["Owned a motorised sprayer", "mech", "SPRAYER"],
+  ["Used motorised threshing", "mech", "USE_MOTOR_THRESH"],
+]
 
-[[findings]]
-category = "aqua"
-tab = "t-aqua"
-arrow = "Aquaculture"
-eyebrow = "Aquaculture &middot; Any cultivated pond"
-value = "23.5"
-unit = "%"
-context = """of farmers operated at least one cultivated pond in 2024. Tilapia (including GIFT) held at <b>13.4%</b>, carp polyculture eased from <b>22.6%</b> to <b>13.7%</b>, and small fish (mola) co-culture roughly tripled from <b>0.5%</b> to <b>1.3%</b>."""
-delta = "▼ 6.4 pp vs 2011/12 (29.9%)"
-delta_class = "dn"
+# ---------------------------------------------------------------------
+# Per-tab key figure tables. Same [label, source, indicator key] form.
+# ---------------------------------------------------------------------
+[keyfig]
+caption = "Weighted share of agricultural households (%)"
 
-[[findings]]
-category = "mech"
-tab = "t-mech"
-arrow = "Mechanisation"
-eyebrow = "Mechanisation &middot; Motorised threshing (2024)"
-value = "65.4"
-unit = "%"
-context = """of paddy growers threshed with a motor in 2024. Sprayer use jumped from <b>0.9%</b> (2019) to <b>29.2%</b>, and electric motor pump irrigation rose from <b>9.2%</b> to <b>14.1%</b>. Power tiller use stood near <b>82%</b> in the 2024 module."""
-delta = "First measured in the 2024 SPIA round"
-delta_class = ""
+[keyfig.rice]
+rows = [
+  ["Grew any rice", "rice", "RICE_GROWER"],
+  ["BR-28 or BR-29", "rice", "BRRI_CORE28_29"],
+  ["Older BRRI high yielding varieties", "rice", "BRRI_OLDER_HYV"],
+  ["New BRRI lines, BR-70 and above", "rice", "BRRI_NEW_POST2012"],
+  ["Stress tolerant BRRI varieties", "rice", "BRRI_STRESS"],
+  ["BINA lines", "rice", "BINA"],
+  ["Hybrid rice", "rice", "HYBRID"],
+  ["Traditional or local landraces", "rice", "LOCAL"],
+]
+
+[keyfig.aqua]
+rows = [
+  ["Any cultivated pond", "aqua", "ANY_POND"],
+  ["Any carp", "aqua", "CARP_ANY"],
+  ["Carp polyculture, two or more species", "aqua", "POLY_CARP_2PLUS"],
+  ["Tilapia, including GIFT", "aqua", "TILAPIA"],
+  ["Mola co-culture", "aqua", "MOLA"],
+  ["Prawn, galda", "aqua", "PRAWN_GALDA"],
+  ["Shrimp, bagda", "aqua", "SHRIMP_BAGDA"],
+]
+
+[keyfig.mech]
+rows = [
+  ["Owned a power tiller", "mech", "POWER_TILLER"],
+  ["Owned a power thresher", "mech", "POWER_THRESHER"],
+  ["Owned a motorised sprayer", "mech", "SPRAYER"],
+  ["Owned an electric motor pump", "mech", "ELEC_MOTOR_PUMP"],
+  ["Owned a diesel motor pump", "mech", "DIESEL_MOTOR_PUMP"],
+  ["Used motorised threshing", "mech", "USE_MOTOR_THRESH"],
+  ["Used a motorised harvester", "mech", "USE_MOTOR_HARVEST"],
+]
 
 # ---------------------------------------------------------------------
 # Tab 2: Rice
@@ -171,7 +202,7 @@ top_table_2 = "Top 10 districts: new BRRI lines, BR-70 and above (2024)"
 # ---------------------------------------------------------------------
 [aqua]
 heading = "Aquaculture adoption, 2011 to 2024"
-lede = """Pond level rosters (module L1 in earlier rounds, e5 and e10 in 2024) are filtered to ponds with positive cultivated area. For every household with at least one cultivated pond we record the fish species present, then compute weighted prevalence across the full household sample."""
+lede = """Pond level rosters (module L1 in earlier rounds, e5 and e10 in 2024) are filtered to ponds with positive cultivated area. For every household with at least one cultivated pond we record the fish species present, then compute the weighted share of all agricultural households showing each indicator. Households without a pond count as zero rather than being dropped, so the species shares sit inside the pond ownership share and are not conditional on keeping a pond."""
 district_heading = "District-level pond prevalence (2024)"
 top_heading = "Top pond-intensive and tilapia-intensive districts, 2024"
 full_heading = "Full district level table: every aquaculture indicator, all 64 districts, all rounds"
@@ -185,15 +216,15 @@ top_table_2 = "Top 10 tilapia districts (2024)"
 # ---------------------------------------------------------------------
 [spia]
 heading = "2024 SPIA round: new insights"
-lede = """The 2024 SPIA round adds three pieces of evidence on top of the traditional recall based BIHS instrument: (i) DNA fingerprinting of a random sample of 370 paddy plots, which allows direct rather than self reported variety identification; (ii) a detailed agricultural equipment ownership roster; (iii) explicit aquaculture intensification practices, namely supplementary feed, hormone use, and disease control."""
-dna_heading = "DNA-fingerprint varieties (370 paddy samples, 10 genetic clusters)"
-dna_lede = """These are the verified varieties, <em>not</em> the self reported ones. Each sample was genotyped and matched to a reference library, with rice hybrids excluded. BR-28 and BR-29 together account for <span id="dnaBoroPct"></span>% of the DNA typed sample, which confirms that the two IRRI derived BRRI mega-varieties still dominate the Boro season more than forty years after release."""
+lede = """The 2024 SPIA round adds three pieces of evidence on top of the traditional recall based BIHS instrument: (i) DNA fingerprinting of sampled paddy plots, which allows direct rather than self reported variety identification, and of which this tab shows the hybrid-excluded subset of 370 samples; (ii) a detailed agricultural equipment ownership roster; (iii) explicit aquaculture intensification practices, namely supplementary feed, hormone use, and disease control."""
+dna_heading = "DNA-fingerprint varieties in the hybrid-excluded subset (370 samples, 10 clusters)"
+dna_lede = """These are genotyped varieties rather than self reports, each matched against a reference library. The file used here is the hybrid-excluded cluster release from the SPIA replication package, covering 370 samples in 10 genetic clusters. The full fingerprinting exercise described in the report is considerably larger, so treat this tab as a subset rather than as the complete DNA evidence. BR-28 and BR-29 together account for <span id="dnaBoroPct"></span>% of this subset, the largest share held by any pair of named BRRI releases, although locally named aromatic types such as Jira, Miniket and Katari account for more in aggregate."""
 practices_heading = "Aquaculture intensification practices (household weighted, 2024)"
 practices_lede = "Measured at the household level in the 2024 e10 module."
 equipment_heading = "Equipment ownership roster (module a5_6)"
 full_heading = "Full 2024 district level table: every rice, aquaculture and mechanisation indicator"
 full_lede = """All indicators measured in the 2024 SPIA round, pooled into a single wide table at the district level. Rows sort and filter, and the CSV download exports every column."""
-dna_variety_heading = "DNA-fingerprint variety counts (n = 370 samples)"
+dna_variety_heading = "Variety counts in the hybrid-excluded subset (n = 370 samples)"
 dna_variety_lede = "Raw count of samples matched to each reference variety, in descending order."
 dna_cluster_heading = "Genetic clusters (10 clusters)"
 dna_cluster_lede = """Each sample was assigned to a cluster by its genotype. The table shows sample counts per cluster, the number of distinct varieties observed in the cluster, and the cluster's most frequent variety."""
@@ -214,7 +245,7 @@ note = """The 2024 SPIA round of BIHS, the DNA fingerprint sample, the equipment
 # ---------------------------------------------------------------------
 [mech]
 heading = "Mechanisation and agricultural practices, 2018/19 and 2024"
-lede = """This panel compares household level ownership of farm equipment between 2018/19 (BIHS round 3, module D2) and 2024 (SPIA module a5_6). The 2024 round additionally records the <em>actual use</em> of motorised harvest and threshing from the paddy operations module."""
+lede = """Ownership and use are different things here, and the gap between them is the main finding. Fewer than three percent of agricultural households owned a power tiller in 2024, while about sixty-five percent used motorised threshing. That gap points to rental and custom-hire markets rather than household ownership. Ownership for 2018/19 comes from the round 3 asset roster (module D2) and for 2024 from SPIA module a5_6. The two instruments enumerate equipment differently, so movements between those rounds are indicative rather than a clean trend, and the sharp jumps in sprayers and threshers are at least partly a change in how the question was asked."""
 district_heading = "District-level mechanisation (2024)"
 full_heading = "Full district level table: every piece of equipment, all rounds with data"
 full_lede = """Weighted share (%) of households owning each piece of equipment and, for 2024, actually <em>using</em> motorised harvest or threshing. The 2011 and 2015 rounds carry only a tractor flag in the harmonised file, so those columns are filled only where microdata exist."""
@@ -450,57 +481,30 @@ download_csv = "Download CSV"
 
 # =====================================================================
 # THEME
-# All colors on the dashboard. Values are standard CSS hex colors.
+# Anchored to the CGIAR SPIA house palette (teal #07555F, dark green text,
+# no rounded corners). One accent, used sparingly; everything else neutral.
 # =====================================================================
 [theme]
-ink = "#1a1f1c"            # darkest text, headings
-text = "#2b332e"           # body text
-mute = "#6c7570"           # secondary text
-chart_text = "#4a5550"     # chart axis and legend text
-line = "#e3e6e1"           # hairline borders
-line2 = "#cfd4cd"          # stronger borders, control outlines
-background = "#fafaf7"     # page background
-panel = "#ffffff"          # card background
-tint = "#f3f5f0"           # subtle fill for hover states and notes
-rail_background = "#fbfbf8"# side rail background
-chart_grid = "#eef0eb"     # chart grid lines
-positive = "#2f6b3a"       # upward change
-negative = "#9c3a2a"       # downward change
-map_nodata = "#ebede8"     # districts with no data
-map_stroke = "#ffffff"     # district outline on the map
+accent = "#07555F"         # SPIA teal: links, active nav, the highlighted series
+accent_dark = "#054047"    # hover and emphasis shade
+ink = "#0f2e28"            # headings and figures
+text = "#1f3a34"           # body text, a desaturated dark green rather than black
+mute = "#5d726c"           # captions, axis labels, secondary text
+chart_text = "#5b5b5b"     # chart tick and legend text
+line = "#e4e9e7"           # hairline rules, the main structural device
+line2 = "#b9c4c1"          # stronger rules, control outlines
+background = "#ffffff"     # page background
+tint = "#f4f7f6"           # row hover only
+chart_grid = "#dddddd"     # chart grid lines, drawn dashed
+positive = "#07555F"       # an increase
+negative = "#8c3a22"       # a decrease
+map_nodata = "#ececec"     # districts with no data in the round
 
-# Category accents. main is the primary color, dark the hover and
-# emphasis shade, soft the pale background tint, light the secondary
-# chart shade.
-[theme.rice]
-main = "#2d6a4f"
-dark = "#1c4a36"
-soft = "#e5ede7"
-light = "#6c9971"
+# Chart series, in order. The first entry is the highlighted series and takes
+# the accent; the rest are greys so that one line reads first.
+series = ["#07555F","#3c3c3c","#6f6f6f","#949494","#b0b0b0","#c6c6c6","#d8d8d8","#4a7f86","#5a5a5a","#a3a3a3"]
 
-[theme.aqua]
-main = "#1f5e8a"
-dark = "#163f5d"
-soft = "#dfe9f1"
-light = "#6996ad"
-
-[theme.mech]
-main = "#7a6147"
-dark = "#52402b"
-soft = "#ece4d6"
-light = "#bdaa7f"
-
-# Chart series palettes, darkest first. Lines in multi-series charts
-# take these colors in order.
-[theme.series]
-rice = ["#1c4a36","#2d6a4f","#467a52","#6c9971","#94b696","#b9cbb0","#dde6dd","#0f3624","#5d8a4d","#3f5e2c"]
-aqua = ["#0e3a5c","#163f5d","#1f5e8a","#3f7896","#6996ad","#94b3c4","#bccfd9","#5198c7","#1c4a36","#52402b"]
-mech = ["#332617","#52402b","#7a6147","#9c885c","#bdaa7f","#d6c8a8","#ece4d6","#a3866c","#5e5340","#8a7253"]
-
-# Map color ramps: pairs of [upper bound in %, hex color]. A district
-# falls in the first band whose bound is at or above its value. The
-# lightest step must stay visible against the page background.
-[theme.map_ramps]
-rice = [[0,"#dde6dd"],[2,"#bcd0bd"],[5,"#94b696"],[10,"#6c9971"],[20,"#467a52"],[35,"#285e3d"],[100,"#143f27"]]
-aqua = [[0,"#dee6ec"],[2,"#bccfd9"],[5,"#94b3c4"],[10,"#6996ad"],[20,"#3f7896"],[35,"#1f5e8a"],[100,"#0e3a5c"]]
-mech = [[0,"#ece4d6"],[2,"#d6c8a8"],[5,"#bdaa7f"],[10,"#9c885c"],[20,"#7a6147"],[35,"#54402b"],[100,"#332617"]]
+# Map colour ramp: pairs of [upper bound in %, hex]. A district falls in the
+# first band whose bound is at or above its value. One ramp serves every
+# indicator so a given shade always means the same thing.
+map_ramp = [[0,"#e3ecec"],[2,"#c2d6d8"],[5,"#9bbcc0"],[10,"#6fa0a6"],[20,"#428289"],[35,"#1d666f"],[100,"#07444c"]]

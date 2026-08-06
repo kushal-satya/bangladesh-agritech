@@ -17,7 +17,21 @@ Six tabs:
 5. **Mechanisation.** Ownership comparison between 2018/19 and 2024, plus actual motorised use in 2024.
 6. **Technology index.** Every tracked variety, strain, practice and machine, with descriptions and source links.
 
-All numbers are computed from the raw BIHS Stata microdata, weighted with the round specific household sampling weights. No imputed or synthetic values appear on the page.
+All numbers are computed from the raw BIHS Stata microdata, weighted with the round specific household sampling weights. No imputed or synthetic values appear on the page. Every figure in a table is read from `data/` when `build_dashboard.py` runs, so the published numbers cannot drift away from the underlying data.
+
+## How these figures relate to the SPIA Bangladesh Study 2025
+
+This dashboard is an **independent recomputation** from the BIHS microdata, not a reproduction of the report's published tables. It applies a single denominator, agricultural households, to every indicator so that technologies can be compared with one another and across the four rounds.
+
+The SPIA report instead picks a denominator suited to each innovation: Boro rice-growing households for rice varieties, fish-cultivating households for individual species, and agricultural households excluding aquaculture-only households for machinery. Rice is where that matters most. The report works with roughly 1,733 Boro rice-growing households in 2024 against the 2,924 agricultural households used here, so rice shares on this dashboard are correspondingly lower than the matching figures in the report.
+
+Sample counts also differ. This dashboard reports the BIHS panel as delivered in the microdata, which includes the Feed the Future booster, while the report uses the nationally representative core of roughly 5,500 households per round. The two agree exactly for 2024, at 5,554.
+
+The DNA tab uses the hybrid-excluded cluster file from the replication package, covering 370 samples in 10 clusters. That is a subset of the full fingerprinting exercise described in the report.
+
+**Cite the SPIA report, not this dashboard, for official reach estimates.**
+
+Run `python check_figures.py` to print every national weighted share held in `data/`. That is the quickest way to check any figure still quoted by hand in the prose.
 
 ## Repository layout
 
@@ -25,6 +39,7 @@ All numbers are computed from the raw BIHS Stata microdata, weighted with the ro
 index.html                     Self-contained dashboard (open in any browser)
 content.toml                   All dashboard text and colors, in one editable file
 build_dashboard.py             Combines content.toml and data/ into index.html
+check_figures.py               Prints every national share in data/, for checking prose
 mixtape_pipeline.py            Reads raw BIHS .dta microdata, emits the data/ JSON files
 data/
   mixtape_geo.json             64 simplified district polygons
@@ -40,7 +55,7 @@ data/
 
 ## Editing text or colors
 
-Every heading, paragraph, chart title, indicator label and color on the dashboard lives in `content.toml`. To change any of them:
+Every heading, paragraph, chart title, indicator label and colour on the dashboard lives in `content.toml`. The `[theme]` section holds a single accent colour, taken from the CGIAR SPIA house teal, plus a neutral grey scale, one chart series palette and one map ramp. Changing `accent` there restyles the whole page. To change anything:
 
 ```bash
 # 1. Edit content.toml in any text editor

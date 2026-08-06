@@ -67,112 +67,80 @@ HTML_TMPL = r"""<!doctype html>
   :root{
     /* All values come from the [theme] section of content.toml. */
 __ROOT_VARS__
-    --accent:var(--rice);
-    --accent-dark:var(--rice-dark);
-    --accent-soft:var(--rice-soft);
   }
-  body.cat-rice{--accent:var(--rice);--accent-dark:var(--rice-dark);--accent-soft:var(--rice-soft)}
-  body.cat-aqua{--accent:var(--aqua);--accent-dark:var(--aqua-dark);--accent-soft:var(--aqua-soft)}
-  body.cat-mech{--accent:var(--mech);--accent-dark:var(--mech-dark);--accent-soft:var(--mech-soft)}
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
-      font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Helvetica,Arial,system-ui,sans-serif;
-      line-height:1.55;-webkit-font-smoothing:antialiased;font-size:14.5px}
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,system-ui,sans-serif;
+      line-height:1.5;-webkit-font-smoothing:antialiased;font-size:15px}
+  a{color:var(--accent)}
 
-  /* Two column layout: sticky side rail, main column */
-  .layout{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh;
-      max-width:1500px;margin:0 auto}
+  /* Layout: fixed side rail, main measure-limited column */
+  .layout{display:grid;grid-template-columns:210px minmax(0,1fr);
+      max-width:1360px;margin:0 auto;min-height:100vh}
   @media (max-width:980px){.layout{grid-template-columns:1fr}}
 
-  /* Side rail */
+  /* ---------------- Side rail ---------------- */
   aside.rail{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
-      padding:30px 22px 24px;border-right:1px solid var(--line);background:var(--rail-bg)}
-  aside.rail::-webkit-scrollbar{width:6px}
-  aside.rail::-webkit-scrollbar-thumb{background:#d8dad4;border-radius:3px}
+      padding:34px 26px 26px 0;border-right:1px solid var(--line);background:var(--bg)}
+  aside.rail::-webkit-scrollbar{width:5px}
+  aside.rail::-webkit-scrollbar-thumb{background:var(--line2)}
   @media (max-width:980px){
     aside.rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);
-        padding:16px 18px}
+        padding:14px 16px 0}
   }
-  .brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}
-  .brand img{width:40px;height:40px;background:transparent;flex-shrink:0;object-fit:contain;
+  .brand{display:flex;align-items:baseline;gap:9px;margin-bottom:26px}
+  .brand img{width:26px;height:26px;flex-shrink:0;object-fit:contain;align-self:center;
       mix-blend-mode:multiply}
-  .brand .name{display:flex;flex-direction:column;gap:1px;min-width:0}
-  .brand .name .acro{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:.02em;line-height:1}
-  .brand .name .full{font-size:10.5px;color:var(--mute);line-height:1.35;margin-top:3px}
+  .brand .name{min-width:0}
+  .brand .acro{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:.01em;line-height:1.1}
+  .brand .full{font-size:12px;color:var(--mute);line-height:1.3;margin-top:2px}
 
-  /* Side nav */
-  nav.tabs{display:flex;flex-direction:column;gap:1px;margin:0 0 22px;border:0}
-  nav.tabs button{font-family:inherit;background:transparent;border:0;padding:9px 12px;font-size:13px;
-      color:var(--text);cursor:pointer;font-weight:500;text-align:left;letter-spacing:-0.003em;
-      border-left:2px solid transparent;border-radius:0;
-      transition:background .12s ease,color .12s ease;
-      display:flex;align-items:center;gap:10px}
-  nav.tabs button:hover{background:var(--tint);color:var(--ink)}
-  nav.tabs button.on{color:var(--accent);background:var(--accent-soft);border-left-color:var(--accent);
-      font-weight:600}
-  nav.tabs button .num{font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums;
-      min-width:14px;text-align:right;flex-shrink:0}
-  nav.tabs button.on .num{color:var(--accent)}
+  /* Nav: plain text list, active marked by weight and a rule. No fills, no numbers. */
+  nav.tabs{display:flex;flex-direction:column;margin:0 0 26px}
+  nav.tabs button{font-family:inherit;background:none;border:0;border-left:2px solid transparent;
+      padding:5px 0 5px 11px;margin-left:-13px;font-size:14px;color:var(--text);cursor:pointer;
+      font-weight:400;text-align:left;line-height:1.35}
+  nav.tabs button:hover{color:var(--ink)}
+  nav.tabs button.on{color:var(--ink);font-weight:600;border-left-color:var(--accent)}
   @media (max-width:980px){
-    aside.rail{padding:14px 16px 0;position:relative}
-    nav.tabs{flex-direction:row;overflow-x:auto;gap:0;margin:6px -16px 0;padding:0 16px 0 16px;
-        scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    nav.tabs{flex-direction:row;overflow-x:auto;gap:18px;margin:10px 0 0;
+        scrollbar-width:none;border-bottom:1px solid var(--line)}
     nav.tabs::-webkit-scrollbar{display:none}
-    nav.tabs button{border-left:0;border-bottom:2px solid transparent;border-radius:0;white-space:nowrap;
-        padding:13px 16px;min-height:44px;background:transparent;flex-shrink:0}
-    nav.tabs button.on{background:transparent;border-bottom-color:var(--accent)}
-    /* Right-edge fade hints at more tabs to scroll */
-    aside.rail::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:48px;pointer-events:none;
-        background:linear-gradient(to right,transparent,var(--rail-bg))}
+    nav.tabs button{border-left:0;border-bottom:2px solid transparent;margin:0;padding:8px 0;
+        white-space:nowrap;flex-shrink:0}
+    nav.tabs button.on{border-bottom-color:var(--accent)}
   }
 
-  /* Rail meta and footer */
-  .rail-meta{font-size:11.5px;color:var(--mute);margin-top:6px;padding-top:18px;border-top:1px solid var(--line)}
-  .rail-meta .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:600;
-      color:var(--mute);margin-bottom:8px}
-  .rail-meta .row{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;
-      font-variant-numeric:tabular-nums}
-  .rail-meta .row span:first-child{color:var(--text);font-weight:500}
-  .rail-meta .row span:last-child{color:var(--ink);font-weight:600}
-  .rail-foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:11.5px;
-      color:var(--mute);line-height:1.55}
-  .rail-foot a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line2)}
-  .rail-foot a:hover{border-bottom-color:var(--accent)}
+  /* Rail figures: a small plain table, not a stat panel */
+  .rail-meta{font-size:12px;color:var(--mute);padding-top:18px;border-top:1px solid var(--line)}
+  .rail-meta .lbl{color:var(--ink);font-weight:600;margin-bottom:5px;font-size:12px}
+  .rail-meta table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;
+      margin-bottom:14px}
+  .rail-meta td{padding:1px 0;font-size:12px}
+  .rail-meta td:last-child{text-align:right;color:var(--ink)}
+  .rail-meta .foot{line-height:1.45;padding-top:2px}
+  .rail-foot{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;
+      color:var(--mute);line-height:1.5}
+  .rail-foot a{color:var(--accent)}
   @media (max-width:980px){.rail-meta,.rail-foot{display:none}}
 
-  /* Main column */
-  main.wrap{padding:36px 38px 80px;max-width:1180px;width:100%;min-width:0}
-  @media (max-width:980px){main.wrap{padding:18px 16px 48px}}
+  /* ---------------- Main column ---------------- */
+  main.wrap{padding:34px 0 90px 40px;max-width:940px;width:100%;min-width:0}
+  @media (max-width:980px){main.wrap{padding:20px 16px 56px}}
 
-  /* Title block */
-  header.title{padding-bottom:18px;margin-bottom:22px;border-bottom:1px solid var(--line)}
-  header.title .eyebrow{font-size:10.5px;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;
-      font-weight:600;margin-bottom:8px}
-  header.title h1{margin:0;font-size:22px;line-height:1.3;letter-spacing:-0.015em;color:var(--ink);
-      font-weight:600;max-width:820px}
-  header.title .meta{margin-top:12px;font-size:12px;color:var(--mute);
-      display:flex;flex-wrap:wrap;gap:4px 18px;font-variant-numeric:tabular-nums}
-  header.title .meta b{font-weight:600;color:var(--ink)}
-  header.title .disclaimer{margin-top:10px;font-size:11.5px;color:var(--mute);max-width:880px;line-height:1.55;
-      padding:8px 12px;background:var(--tint);border-left:2px solid var(--line2)}
-  header.title .disclaimer a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line2)}
-  header.title .disclaimer a:hover{border-bottom-color:var(--accent)}
-  @media (max-width:680px){
-    header.title{padding-bottom:14px;margin-bottom:16px}
-    header.title .eyebrow{font-size:9.5px;letter-spacing:.12em;margin-bottom:6px}
-    header.title h1{font-size:17px;line-height:1.28}
-    header.title .meta{margin-top:8px;font-size:11.5px;gap:2px 14px}
-  }
+  header.title{padding-bottom:16px;margin-bottom:20px;border-bottom:2px solid var(--ink)}
+  header.title h1{margin:0;font-size:25px;line-height:1.2;letter-spacing:-.017em;color:var(--ink);
+      font-weight:700;max-width:24em}
+  header.title .meta{margin-top:9px;font-size:13px;color:var(--mute);line-height:1.5}
+  header.title .meta b{font-weight:600;color:var(--text)}
+  @media (max-width:680px){header.title h1{font-size:21px}}
 
-  /* Brief: full text on desktop, collapsible on mobile */
-  .brief{padding:0;margin:0 0 24px;font-size:13.5px;color:var(--text);max-width:920px;line-height:1.65}
-  .brief b{color:var(--ink);font-weight:600}
+  .brief{margin:0 0 26px;font-size:15px;color:var(--text);max-width:40em;line-height:1.6}
   @media (max-width:680px){
-    .brief{font-size:12.5px;line-height:1.55;margin-bottom:18px;
-        max-height:5.5em;overflow:hidden;position:relative;cursor:pointer}
-    .brief::after{content:"Read more";position:absolute;bottom:0;right:0;
-        background:linear-gradient(to right,transparent 0,var(--bg) 36%);padding:0 0 0 28px;
-        color:var(--accent);font-weight:600;font-size:11.5px}
+    .brief{font-size:14px;max-height:6em;overflow:hidden;position:relative;cursor:pointer}
+    .brief::after{content:"Show more";position:absolute;bottom:0;right:0;
+        background:linear-gradient(to right,transparent 0,var(--bg) 40%);padding-left:30px;
+        color:var(--accent);font-size:13px}
     .brief.open{max-height:none;cursor:default}
     .brief.open::after{display:none}
   }
@@ -180,308 +148,213 @@ __ROOT_VARS__
   .tab{display:none}
   .tab.on{display:block}
 
-  /* Section headings */
-  h2.section{font-size:22px;color:var(--ink);margin:32px 0 6px;letter-spacing:-0.015em;font-weight:600}
-  h3.sub{font-size:14.5px;color:var(--ink);margin:22px 0 6px;font-weight:600;letter-spacing:-0.005em}
-  p.lede{color:var(--text);font-size:13.5px;margin:4px 0 14px;max-width:880px;line-height:1.6}
-  p.note{font-size:12px;color:var(--mute);margin:6px 0 18px}
+  /* Headings: sentence case, plain weight contrast, no kickers */
+  h2.section{font-size:20px;color:var(--ink);margin:34px 0 8px;letter-spacing:-.012em;
+      font-weight:700;line-height:1.25;max-width:26em}
+  h2.section:first-of-type{margin-top:0}
+  h3.sub{font-size:15px;color:var(--ink);margin:30px 0 6px;font-weight:700}
+  p.lede{color:var(--text);font-size:14.5px;margin:6px 0 16px;max-width:40em;line-height:1.6}
+  p.note{font-size:12.5px;color:var(--mute);margin:10px 0 20px;max-width:46em;line-height:1.55;
+      padding-top:9px;border-top:1px solid var(--line)}
   @media (max-width:680px){
-    h2.section{font-size:17px;margin:24px 0 6px}
-    h3.sub{font-size:13.5px;margin:18px 0 6px}
-    p.lede{font-size:12.5px}
+    h2.section{font-size:18px}
+    p.lede{font-size:14px}
   }
 
-  /* ------- Layout ------- */
-  .row{display:grid;gap:18px}
+  .row{display:grid;gap:22px}
   .row-2{grid-template-columns:1fr 1fr}
-  .row-3{grid-template-columns:1fr 1fr 1fr}
-  @media (max-width:920px){.row-2,.row-3{grid-template-columns:1fr}}
+  @media (max-width:920px){.row-2{grid-template-columns:1fr}}
 
-  /* ------- Cards & KPIs ------- */
-  .card{background:var(--panel);border:1px solid var(--line);padding:14px 16px}
-  .card h4{margin:0 0 6px 0;font-size:11px;color:var(--mute);font-weight:600;letter-spacing:.06em;
-      text-transform:uppercase}
-  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:14px 0 24px;
-      border-top:1px solid var(--line);border-left:1px solid var(--line);background:var(--panel)}
-  @media (max-width:820px){.kpi{grid-template-columns:repeat(2,1fr)}}
-  .kpi .box{padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column}
-  .kpi .box .spark{display:block;height:28px;width:100%;margin-top:8px}
-  .kpi .box .chip{display:inline-flex;gap:4px;align-items:center;font-size:10.5px;font-variant-numeric:tabular-nums;color:var(--mute);margin-top:6px;font-weight:500}
-  .kpi .box .chip.up{color:var(--positive)}
-  .kpi .box .chip.dn{color:var(--negative)}
-  .kpi .box .chip .tri{font-size:9px;line-height:1}
-  .kpi .big{font-size:24px;color:var(--ink);font-weight:600;letter-spacing:-.02em;margin:2px 0 0;
-      font-variant-numeric:tabular-nums}
-  .kpi .lbl{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;font-weight:500}
+  /* ---------------- Data tables (the primary display device) ---------------- */
+  /* Report style: no vertical rules, no fills, rule under the header, rule under
+     the last row. Numbers right-aligned and tabular. */
+  table.data{width:100%;border-collapse:collapse;font-size:13.5px;
+      font-variant-numeric:tabular-nums;margin:4px 0 6px}
+  table.data caption{caption-side:top;text-align:left;font-size:13.5px;color:var(--ink);
+      font-weight:700;padding-bottom:7px}
+  table.data th,table.data td{padding:5px 10px;text-align:right;white-space:nowrap}
+  table.data th:first-child,table.data td:first-child{text-align:left;padding-left:0;
+      font-variant-numeric:normal;white-space:normal}
+  table.data th:last-child,table.data td:last-child{padding-right:0}
+  table.data thead th{font-weight:600;color:var(--mute);font-size:12.5px;
+      border-bottom:1px solid var(--ink);padding-bottom:5px}
+  table.data tbody td{border-bottom:1px solid var(--line)}
+  table.data tbody tr:last-child td{border-bottom:1px solid var(--line2)}
+  table.data td.chg{color:var(--mute)}
+  table.data td.num{color:var(--ink)}
+  table.data tr.lead td{font-weight:600;color:var(--ink)}
+  table.data .unit{color:var(--mute);font-weight:400}
+  table.data td.dim{color:var(--mute)}
 
-  /* ------- Compact tables ------- */
-  table.tbl{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);
+  /* Compact figure line used above the map: label over value, no boxes */
+  .statline{display:flex;flex-wrap:wrap;gap:0 44px;margin:14px 0 18px;padding:11px 0;
+      border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
+  .statline .item{min-width:0}
+  .statline .k{font-size:12.5px;color:var(--mute);margin-bottom:1px}
+  .statline .v{font-size:17px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;
+      letter-spacing:-.01em}
+  .statline .v small{font-size:12.5px;color:var(--mute);font-weight:400;letter-spacing:0}
+
+  /* ---------------- Map ---------------- */
+  .map-wrap{position:relative;height:520px;overflow:hidden;background:#fff;
       border:1px solid var(--line)}
-  table.tbl th,table.tbl td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:right;
-      font-variant-numeric:tabular-nums}
-  table.tbl th{background:var(--tint);color:var(--ink);text-align:right;font-weight:600;font-size:11px;
-      text-transform:uppercase;letter-spacing:.04em}
-  table.tbl td:first-child,table.tbl th:first-child{text-align:left;font-variant-numeric:normal}
-  table.tbl tr:last-child td{border-bottom:none}
-
-  /* Map */
-  .map-wrap{position:relative;height:540px;overflow:hidden;background:#fff;border:1px solid var(--line)}
-  @media (max-width:980px){.map-wrap{height:440px}}
-
-  /* Map + side panel layout */
-  .map-pair{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:18px;align-items:stretch;margin-top:4px}
+  @media (max-width:980px){.map-wrap{height:400px}}
+  .map-pair{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:22px;margin-top:8px}
   @media (max-width:980px){.map-pair{grid-template-columns:1fr}}
-  .map-side{display:flex;flex-direction:column;gap:14px}
-  .map-side .blk{background:var(--panel);border:1px solid var(--line);padding:12px 14px}
-  .map-side .blk .lbl{font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px}
-  .map-side .blk ol{margin:0;padding:0;list-style:none;font-size:12.5px}
-  .map-side .blk li{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;
-      border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;gap:8px}
-  .map-side .blk li:last-child{border-bottom:0}
-  .map-side .blk li span:first-child{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .map-side .blk li span:last-child{color:var(--accent-dark);font-weight:600;flex-shrink:0}
-  .map-side .blk .empty{color:var(--mute);font-size:12px;font-style:italic}
+  .map-side .blk{margin-bottom:18px}
+  .map-side .blk .lbl{font-size:12.5px;color:var(--ink);font-weight:700;margin-bottom:5px;
+      padding-bottom:4px;border-bottom:1px solid var(--ink)}
+  .map-side .blk ol{margin:0;padding:0;list-style:none;font-size:13px}
+  .map-side .blk li{display:flex;justify-content:space-between;gap:8px;padding:3px 0;
+      border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  .map-side .blk li span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .map-side .blk li span:last-child{color:var(--ink);flex-shrink:0}
+  .map-side .blk .empty{color:var(--mute);font-size:12.5px}
 
-  /* Per-indicator plain-English gloss */
-  .ind-gloss{font-size:13px;color:var(--text);background:var(--tint);border-left:2px solid var(--accent);
-      padding:10px 14px;margin:0 0 14px;max-width:920px;line-height:1.6}
-  .ind-gloss b{color:var(--ink);font-weight:600}
-  .ind-gloss em{color:var(--mute);font-style:normal;font-size:12px;display:block;margin-top:4px}
-  .leaflet-container{background:var(--bg);font-family:inherit}
-  /* Leaflet zoom moves to top right so it never collides with the hover info box */
+  .ind-gloss{font-size:14px;color:var(--text);margin:0 0 14px;max-width:44em;line-height:1.55;
+      padding-left:12px;border-left:2px solid var(--line2)}
+  .ind-gloss em{color:var(--mute);font-style:normal;font-size:12.5px;display:block;margin-top:4px}
+
+  .leaflet-container{background:#fff;font-family:inherit}
   .leaflet-top.leaflet-left{display:none}
-  .leaflet-top.leaflet-right{top:12px;right:12px}
-
-  /* Charts */
-  .chart-wrap{position:relative;height:340px;background:var(--panel);border:1px solid var(--line);
-      padding:14px 16px}
-  .chart-wrap.tall{height:420px}
-  @media (max-width:680px){
-    .chart-wrap{height:280px;padding:10px}
-    .chart-wrap.tall{height:360px}
-  }
-
-  /* Controls */
-  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 14px}
-  .controls label{font-size:11px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
-  .controls select{font-family:inherit;font-size:13px;padding:7px 32px 7px 12px;
-      border:1px solid var(--line2);background:#fff;color:var(--ink);cursor:pointer;
-      min-width:260px;max-width:100%;appearance:none;border-radius:2px;
-      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M3 4.5l3 3 3-3' stroke='%231a1f1c' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-      background-repeat:no-repeat;background-position:right 10px center;background-size:11px}
-  .controls select:focus{outline:1px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
-  @media (max-width:680px){.controls select{min-width:0;width:100%}}
-
-  /* Segmented controls: flat joined buttons, sharp corners */
-  .cat-pills, .year-pills, .wave-pills{display:inline-flex;border:1px solid var(--line2);background:#fff;
-      border-radius:2px;overflow:hidden}
-  .cat-pills button, .year-pills button, .wave-pills button{
-      font-family:inherit;font-size:13px;padding:7px 14px;border:0;
-      background:#fff;color:var(--text);cursor:pointer;font-weight:500;
-      border-right:1px solid var(--line);transition:background .12s ease,color .12s ease}
-  .cat-pills button:last-child, .year-pills button:last-child, .wave-pills button:last-child{border-right:0}
-  .cat-pills button:hover:not(.on), .year-pills button:hover:not(.on), .wave-pills button:hover:not(.on){
-      background:var(--tint);color:var(--ink)}
-  .cat-pills button.on, .year-pills button.on, .wave-pills button.on{
-      background:var(--accent);color:#fff;font-weight:600}
-
-  .controls button.pill{font-family:inherit;font-size:13px;padding:6px 12px;background:#fff;
-      border:1px solid var(--line2);border-radius:2px;color:var(--text);cursor:pointer;font-weight:500}
-  .controls button.pill.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-
-  .legend{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--text)}
-  .legend .sw{width:14px;height:10px;display:inline-block;margin-right:4px}
-
-  /* ------- Full tables ------- */
-  .fulltbl-wrap{background:var(--panel);border:1px solid var(--line);padding:14px 16px 16px}
-  .fulltbl-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:2px 0 12px}
-  .fulltbl-toolbar input.search{font-family:inherit;font-size:13px;padding:7px 12px;
-      border:1px solid var(--line2);border-radius:2px;color:var(--ink);min-width:220px;background:#fff}
-  .fulltbl-toolbar input.search:focus{outline:1px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
-  .fulltbl-toolbar .dl{font-family:inherit;font-size:12.5px;padding:7px 14px;
-      background:var(--accent);color:#fff;border:0;border-radius:2px;cursor:pointer;font-weight:600;
-      transition:background .12s ease}
-  .fulltbl-toolbar .dl:hover{background:var(--accent-dark)}
-  .fulltbl-toolbar .meta{color:var(--mute);font-size:12px;margin-left:auto}
-  .fulltbl-scroll{max-height:540px;overflow:auto;border:1px solid var(--line);background:#fff}
-  table.full{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;
-      font-variant-numeric:tabular-nums;
-      font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  table.full thead th{position:sticky;top:0;background:var(--ink);color:#fff;padding:9px 12px;text-align:right;
-      font-weight:600;font-size:11.5px;letter-spacing:.02em;white-space:nowrap;cursor:pointer;user-select:none;
-      border-right:1px solid rgba(255,255,255,.08);font-variant-numeric:normal}
-  table.full thead th:last-child{border-right:0}
-  table.full thead th:first-child, table.full thead th:nth-child(2){text-align:left}
-  table.full thead th .arr{opacity:.45;margin-left:4px;font-size:10px}
-  table.full thead th.sort-asc .arr, table.full thead th.sort-desc .arr{opacity:1}
-  table.full tbody td{padding:7px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-  table.full tbody td:first-child, table.full tbody td:nth-child(2){text-align:left;color:var(--ink);
-      font-variant-numeric:normal}
-  table.full tbody tr:hover{background:var(--tint)}
-  table.full tbody tr.natrow{background:var(--accent-soft);font-weight:600}
-  table.full tbody tr.natrow:hover{background:#d8e5dc}
-  table.full tbody tr.natrow td:first-child{color:var(--accent-dark);letter-spacing:.03em;
-      text-transform:uppercase;font-size:11px}
-
-  /* ------- Footer ------- */
-  .footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--mute)}
-  .footer .contact{color:var(--ink);font-size:13.5px;margin-bottom:6px;font-weight:500}
-  .footer .contact a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line2)}
-  .footer .contact a:hover{border-bottom-color:var(--accent)}
-  .footer .attrib{font-size:12.5px;color:var(--mute);max-width:880px;line-height:1.6}
-  .src{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;color:var(--mute)}
-
-  /* Map overlays. Info top left, legend bottom left, zoom top right; no collisions. */
-  .info{position:absolute;top:12px;left:12px;background:#fff;padding:10px 14px;
-      font-size:12px;color:var(--ink);max-width:240px;z-index:500;border:1px solid var(--line2);
-      box-shadow:0 1px 2px rgba(0,0,0,.04)}
-  .info h5{margin:0 0 4px;font-size:10px;color:var(--mute);font-weight:600;
-      text-transform:uppercase;letter-spacing:.08em}
-  .info .val{font-size:17px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;
-      letter-spacing:-0.01em;display:block;margin:2px 0}
-  .info .ctx{font-size:11px;color:var(--mute);margin-top:2px;display:block}
-  .mini-legend{position:absolute;bottom:14px;left:12px;background:#fff;padding:10px 12px;
-      font-size:11.5px;color:var(--text);z-index:500;max-width:240px;border:1px solid var(--line2);
-      line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-  .mini-legend b{display:block;color:var(--ink);font-size:10px;text-transform:uppercase;
-      letter-spacing:.08em;margin-bottom:4px;font-weight:600}
-  .mini-legend .sub{display:block;color:var(--mute);font-size:11px;margin-bottom:6px;line-height:1.4}
-  .mini-legend .row-l{display:flex;gap:8px;align-items:center;margin:2px 0;font-variant-numeric:tabular-nums}
-  .mini-legend .sw{width:20px;height:10px;display:inline-block;border:1px solid rgba(0,0,0,.06)}
-  @media (max-width:680px){
-    .info,.mini-legend{max-width:180px;font-size:11px}
-    .info .val{font-size:15px}
-  }
-
-  /* ------- Tags & details ------- */
-  .tag{display:inline-block;background:var(--tint);color:var(--text);padding:2px 8px;
-      font-size:10.5px;margin-right:4px;letter-spacing:.04em;text-transform:uppercase;font-weight:600;
-      border:1px solid var(--line)}
-  .tag.green{background:var(--accent-soft);color:var(--accent-dark);border-color:#cddcd3}
-  .tag.teal{background:var(--accent-soft);color:var(--accent-dark);border-color:#cddcd3}
-  .tag.orange{background:var(--tint);color:var(--text);border-color:var(--line)}
-
-  details.tech{background:var(--panel);padding:12px 16px;margin:6px 0;font-size:13px;
-      border:1px solid var(--line)}
-  details.tech summary{cursor:pointer;color:var(--ink);font-weight:600;list-style:none}
-  details.tech summary::-webkit-details-marker{display:none}
-  details.tech summary::before{content:"+";display:inline-block;margin-right:10px;color:var(--accent);
-      font-weight:600;width:10px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px}
-  details.tech[open] summary::before{content:"–"}
-  details.tech p{margin:8px 0 0;color:var(--text);line-height:1.6}
-  small.cap{color:var(--mute);font-size:11.5px}
-
-  /* Leaflet zoom controls: sharp default look */
-  .leaflet-bar{border:1px solid var(--line2) !important;border-radius:2px !important;background:#fff;
+  .leaflet-top.leaflet-right{top:10px;right:10px}
+  .leaflet-bar{border:1px solid var(--line2) !important;border-radius:0 !important;
       box-shadow:none !important}
   .leaflet-bar a,.leaflet-bar a:hover{background:#fff;color:var(--ink);border-radius:0 !important}
   .leaflet-bar a:hover{background:var(--tint)}
-  .leaflet-bar a:first-child{border-radius:1px 1px 0 0 !important}
-  .leaflet-bar a:last-child{border-radius:0 0 1px 1px !important}
-  .leaflet-bar a{border-bottom-color:var(--line) !important}
 
-  /* ------- Headline findings strip (hero scorecard on Map tab) ------- */
-  .findings{display:grid;grid-template-columns:repeat(3,1fr);gap:0;
-      border-top:1px solid var(--line);border-left:1px solid var(--line);
-      margin:4px 0 22px}
-  @media (max-width:980px){.findings{grid-template-columns:1fr}}
-  .finding{display:block;text-decoration:none;color:inherit;padding:16px 18px 18px;
-      border-right:1px solid var(--line);border-bottom:1px solid var(--line);
-      background:var(--panel);border-top:3px solid var(--accent);position:relative;
-      transition:background .12s ease;cursor:pointer}
-  .finding:hover{background:var(--tint)}
-  .finding.f-rice{border-top-color:var(--rice)}
-  .finding.f-aqua{border-top-color:var(--aqua)}
-  .finding.f-mech{border-top-color:var(--mech)}
-  .finding .eyebrow{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-      font-weight:600;margin-bottom:8px;color:var(--mute);padding-right:110px}
-  .finding.f-rice .eyebrow{color:var(--rice-dark)}
-  .finding.f-aqua .eyebrow{color:var(--aqua-dark)}
-  .finding.f-mech .eyebrow{color:var(--mech-dark)}
-  .finding .big{font-size:32px;font-weight:600;color:var(--ink);letter-spacing:-.02em;
-      font-variant-numeric:tabular-nums;line-height:1.05;margin:0}
-  .finding .big .unit{font-size:18px;font-weight:500;color:var(--mute);margin-left:2px}
-  .finding .ctx{font-size:12.5px;color:var(--text);line-height:1.55;margin-top:8px}
-  .finding .ctx b{color:var(--ink);font-weight:600}
-  .finding .delta{display:inline-block;font-size:11px;color:var(--mute);margin-top:6px;
-      font-variant-numeric:tabular-nums;font-weight:500}
-  .finding .delta.up{color:var(--positive)}
-  .finding .delta.dn{color:var(--negative)}
-  .finding .arrow{position:absolute;top:16px;right:18px;color:var(--mute);
-      font-size:13px;font-weight:500;letter-spacing:.02em}
+  .info{position:absolute;top:10px;left:10px;background:#fff;padding:9px 12px;font-size:12.5px;
+      color:var(--ink);max-width:230px;z-index:500;border:1px solid var(--line2)}
+  .info h5{margin:0 0 3px;font-size:12.5px;color:var(--ink);font-weight:700}
+  .info .val{font-size:19px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;
+      display:block;margin:1px 0;letter-spacing:-.01em}
+  .info .cap{font-size:11.5px;color:var(--mute);display:block;line-height:1.4}
+  .mini-legend{position:absolute;bottom:12px;left:10px;background:#fff;padding:9px 11px;
+      font-size:12px;color:var(--text);z-index:500;max-width:215px;border:1px solid var(--line2);
+      line-height:1.45}
+  .mini-legend b{display:block;color:var(--ink);font-size:12px;margin-bottom:3px;font-weight:700}
+  .mini-legend .sub{display:block;color:var(--mute);font-size:11.5px;margin-bottom:5px}
+  .mini-legend .row-l{display:flex;gap:7px;align-items:center;margin:1px 0;
+      font-variant-numeric:tabular-nums}
+  .mini-legend .sw{width:18px;height:9px;display:inline-block}
+  @media (max-width:680px){.info,.mini-legend{max-width:165px;font-size:11.5px}}
 
-  /* Methodology details block */
-  details.method{background:var(--panel);border:1px solid var(--line);padding:10px 14px;
-      margin:0 0 14px;font-size:12.5px;color:var(--text)}
-  details.method summary{cursor:pointer;color:var(--mute);font-size:11.5px;font-weight:600;
-      letter-spacing:.04em;list-style:none;line-height:1.4}
-  details.method summary::-webkit-details-marker{display:none}
-  details.method summary::before{content:"+";display:inline-block;margin-right:8px;
-      color:var(--accent);font-weight:600;width:10px;
-      font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px}
-  details.method[open] summary::before{content:"–"}
-  details.method .body{margin-top:10px;line-height:1.6;color:var(--text)}
+  /* ---------------- Charts ---------------- */
+  .chart-wrap{position:relative;height:320px;padding:0}
+  .chart-wrap.tall{height:420px}
+  @media (max-width:680px){.chart-wrap{height:270px}.chart-wrap.tall{height:340px}}
+
+  /* ---------------- Controls: plain, square, unfilled ---------------- */
+  .controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:12px 0 14px}
+  .controls label{font-size:13px;color:var(--mute)}
+  .controls select,.tech-search,input.search{font-family:inherit;font-size:13.5px;
+      padding:5px 26px 5px 8px;border:1px solid var(--line2);background:#fff;color:var(--ink);
+      cursor:pointer;min-width:250px;max-width:100%;appearance:none;border-radius:0;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M3 4.5l3 3 3-3' stroke='%232b2b2b' stroke-width='1.3' fill='none' stroke-linecap='round'/></svg>");
+      background-repeat:no-repeat;background-position:right 8px center;background-size:11px}
+  .tech-search,input.search{cursor:text;background-image:none;padding-right:8px;min-width:210px}
+  .controls select:focus,.tech-search:focus,input.search:focus{outline:1px solid var(--accent);
+      outline-offset:0}
+  @media (max-width:680px){.controls select{min-width:0;width:100%}}
+
+  /* Segmented switches: text buttons separated by rules, active is underlined */
+  .cat-pills,.year-pills,.wave-pills{display:inline-flex;gap:0}
+  .cat-pills button,.year-pills button,.wave-pills button{font-family:inherit;font-size:13.5px;
+      padding:4px 11px;border:0;border-bottom:2px solid transparent;background:none;
+      color:var(--mute);cursor:pointer;border-radius:0}
+  .cat-pills button:first-child,.year-pills button:first-child,.wave-pills button:first-child{
+      padding-left:0}
+  .cat-pills button:hover,.year-pills button:hover,.wave-pills button:hover{color:var(--ink)}
+  .cat-pills button.on,.year-pills button.on,.wave-pills button.on{color:var(--ink);
+      font-weight:600;border-bottom-color:var(--accent)}
+
+  /* ---------------- Scrollable full tables ---------------- */
+  .fulltbl-wrap{margin:6px 0 4px}
+  .fulltbl-toolbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:0 0 9px}
+  .fulltbl-toolbar .dl{font-family:inherit;font-size:13px;padding:4px 10px;background:none;
+      color:var(--accent);border:1px solid var(--line2);border-radius:0;cursor:pointer}
+  .fulltbl-toolbar .dl:hover{border-color:var(--accent)}
+  .fulltbl-toolbar .meta{color:var(--mute);font-size:12.5px;margin-left:auto;
+      font-variant-numeric:tabular-nums}
+  .fulltbl-scroll{max-height:500px;overflow:auto;border:1px solid var(--line)}
+  table.full{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;
+      font-variant-numeric:tabular-nums}
+  table.full thead th{position:sticky;top:0;background:#fff;color:var(--ink);padding:7px 10px;
+      text-align:right;font-weight:600;font-size:12px;white-space:nowrap;cursor:pointer;
+      user-select:none;border-bottom:1px solid var(--ink);font-variant-numeric:normal}
+  table.full thead th:first-child,table.full thead th:nth-child(2){text-align:left}
+  table.full thead th .arr{color:var(--line2);margin-left:3px;font-size:9px}
+  table.full thead th.sort-asc .arr,table.full thead th.sort-desc .arr{color:var(--accent)}
+  table.full tbody td{padding:5px 10px;border-bottom:1px solid var(--line);text-align:right;
+      white-space:nowrap}
+  table.full tbody td:first-child,table.full tbody td:nth-child(2){text-align:left;color:var(--ink);
+      font-variant-numeric:normal}
+  table.full tbody tr:hover{background:var(--tint)}
+  table.full tbody tr.natrow td{font-weight:600;color:var(--ink);
+      border-bottom:1px solid var(--ink)}
+
+  /* ---------------- Expandable notes ---------------- */
+  details.method,details.tech{border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+      padding:9px 0;margin:0 0 18px;font-size:13.5px;color:var(--text)}
+  details.method summary,details.tech summary{cursor:pointer;color:var(--ink);font-size:13.5px;
+      font-weight:600;list-style:none;line-height:1.4}
+  details.method summary::-webkit-details-marker,
+  details.tech summary::-webkit-details-marker{display:none}
+  details.method summary::before,details.tech summary::before{content:"+";display:inline-block;
+      margin-right:8px;color:var(--accent);width:9px;font-weight:600}
+  details.method[open] summary::before,details.tech[open] summary::before{content:"\2212"}
+  details.method .body{margin-top:10px;line-height:1.6;max-width:44em}
   details.method .body b{color:var(--ink)}
-  details.method .denom-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
-      border-top:1px solid var(--line);border-left:1px solid var(--line);margin:10px 0 4px}
-  @media (max-width:680px){details.method .denom-grid{grid-template-columns:repeat(2,1fr)}}
-  details.method .denom-grid .cell{padding:8px 10px;border-right:1px solid var(--line);
-      border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
-  details.method .denom-grid .cell .yr{font-size:10px;color:var(--mute);text-transform:uppercase;
-      letter-spacing:.06em;font-weight:600;margin-bottom:4px}
-  details.method .denom-grid .cell .all{font-size:13px;color:var(--ink);font-weight:600}
-  details.method .denom-grid .cell .agri{font-size:12px;color:var(--mute);margin-top:1px}
+  small.cap{color:var(--mute);font-size:12.5px;line-height:1.5;display:block;margin-top:9px}
 
-  /* Tech Index */
-  .ref-card{background:var(--panel);border:1px solid var(--line);padding:18px 20px;margin:8px 0 20px}
-  .ref-eyebrow{font-size:10.5px;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:6px}
-  .ref-title{font-size:15px;color:var(--ink);font-weight:600;line-height:1.35;margin-bottom:4px}
-  .ref-meta{font-size:12.5px;color:var(--text);line-height:1.55;margin-bottom:8px}
-  .ref-links{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:8px}
-  .ref-links a{font-size:12.5px;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line2);font-weight:500}
-  .ref-links a:hover{border-bottom-color:var(--accent)}
-  .ref-note{font-size:12px;color:var(--mute);line-height:1.55;font-style:italic;max-width:780px}
+  /* ---------------- Technology index ---------------- */
+  .ref-card{border-left:2px solid var(--accent);padding:2px 0 2px 14px;margin:10px 0 24px;
+      max-width:44em}
+  .ref-title{font-size:15px;color:var(--ink);font-weight:700;line-height:1.35;margin-bottom:3px}
+  .ref-meta{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:6px}
+  .ref-links{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:7px}
+  .ref-links a{font-size:13px;color:var(--accent)}
+  .ref-note{font-size:12.5px;color:var(--mute);line-height:1.5}
+  .ref-eyebrow{display:none}
 
-  .inst-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line);margin:8px 0 28px}
+  .inst-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 26px;margin:10px 0 30px;
+      padding-top:14px;border-top:1px solid var(--line)}
   @media (max-width:980px){.inst-grid{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:680px){.inst-grid{grid-template-columns:1fr}}
-  .inst-card{background:var(--panel);padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
-  .inst-acro{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
-  .inst-name{font-size:13.5px;color:var(--ink);font-weight:600;margin-bottom:6px;line-height:1.35}
-  .inst-role{font-size:12px;color:var(--text);line-height:1.55;margin-bottom:8px}
-  .inst-links{display:flex;flex-direction:column;gap:3px}
-  .inst-links a{font-size:11.5px;color:var(--accent);text-decoration:none;line-height:1.4}
-  .inst-links a:hover{text-decoration:underline}
+  .inst-card{min-width:0}
+  .inst-acro{display:none}
+  .inst-name{font-size:13.5px;color:var(--ink);font-weight:700;margin-bottom:4px;line-height:1.3}
+  .inst-role{font-size:12.5px;color:var(--text);line-height:1.5;margin-bottom:6px}
+  .inst-links{display:flex;flex-direction:column;gap:2px}
+  .inst-links a{font-size:12.5px;color:var(--accent);line-height:1.4}
 
-  .tech-controls{align-items:flex-start}
-  .tech-controls .cat-pills{flex-wrap:wrap;max-width:100%}
-  .tech-controls .cat-pills button{padding:6px 12px;font-size:12.5px}
-  .tech-search{font-family:inherit;font-size:13px;padding:7px 12px;border:1px solid var(--line2);border-radius:2px;color:var(--ink);min-width:240px;background:#fff}
-  .tech-search:focus{outline:1px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
-  .tech-count{font-size:11.5px;color:var(--mute);font-variant-numeric:tabular-nums;margin-left:auto}
+  .tech-count{font-size:12.5px;color:var(--mute);font-variant-numeric:tabular-nums;margin-left:auto}
+  .tech-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px 30px;margin-top:14px;
+      padding-top:16px;border-top:1px solid var(--line)}
+  @media (max-width:820px){.tech-grid{grid-template-columns:1fr}}
+  .tech-card{min-width:0;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  .tech-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+      margin-bottom:3px;font-size:12.5px;color:var(--mute)}
+  .tech-chip{font-weight:400}
+  .tech-year{font-variant-numeric:tabular-nums}
+  .tech-name{margin:0 0 3px;font-size:14.5px;color:var(--ink);font-weight:700;line-height:1.3}
+  .tech-meta{font-size:12.5px;color:var(--mute);line-height:1.45;margin-bottom:6px}
+  .cgiar-badge{display:inline;font-size:12.5px;color:var(--mute)}
+  .tech-desc{font-size:13.5px;color:var(--text);line-height:1.55;margin:0 0 8px}
+  .tech-srcs{display:flex;flex-direction:column;gap:2px}
+  .tech-srcs a{font-size:12.5px;color:var(--accent);line-height:1.4}
+  .empty{padding:20px 0;color:var(--mute);font-size:13.5px}
 
-  .tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line)}
-  @media (max-width:980px){.tech-grid{grid-template-columns:repeat(2,1fr)}}
-  @media (max-width:680px){.tech-grid{grid-template-columns:1fr}}
-  .tech-card{background:var(--panel);padding:14px 16px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column}
-  .tech-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
-  .tech-chip{font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:2px 8px;border:1px solid var(--line)}
-  .chip-rice{color:var(--rice-dark);background:var(--rice-soft);border-color:#cddcd3}
-  .chip-aqua{color:var(--aqua-dark);background:var(--aqua-soft);border-color:#c9d6e2}
-  .chip-mech{color:var(--mech-dark);background:var(--mech-soft);border-color:#dbcfb8}
-  .tech-year{font-size:11.5px;color:var(--mute);font-variant-numeric:tabular-nums;font-weight:600}
-  .tech-name{margin:0 0 4px;font-size:14px;color:var(--ink);font-weight:600;line-height:1.3}
-  .tech-meta{font-size:11.5px;color:var(--mute);line-height:1.45;margin-bottom:8px}
-  .cgiar-badge{display:inline-block;font-size:10.5px;color:var(--accent-dark);background:var(--accent-soft);
-      padding:2px 8px;margin-bottom:8px;font-weight:600;letter-spacing:.03em;border:1px solid var(--line)}
-  .tech-desc{font-size:12.5px;color:var(--text);line-height:1.55;margin:0 0 10px;flex:1}
-  .tech-srcs{display:flex;flex-direction:column;gap:2px;padding-top:8px;border-top:1px solid var(--line)}
-  .tech-srcs a{font-size:11.5px;color:var(--accent);text-decoration:none;line-height:1.4}
-  .tech-srcs a:hover{text-decoration:underline}
-  .empty{padding:24px;background:var(--panel);border:1px solid var(--line);color:var(--mute);font-size:13px;text-align:center}
+  /* ---------------- Footer ---------------- */
+  .footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--ink);font-size:12.5px;
+      color:var(--mute);max-width:46em}
+  .footer .contact{color:var(--ink);font-size:13.5px;margin-bottom:6px}
+  .footer .attrib{line-height:1.55}
+  .src{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;
+      color:var(--mute)}
 </style>
 </head>
-<body class="cat-rice">
+<body>
 <div class="layout">
 
 <aside class="rail">
@@ -497,12 +370,10 @@ __NAV_TABS__
   </nav>
   <div class="rail-meta">
     <div class="lbl">__RAIL_PANEL_LBL__</div>
-__RAIL_PANEL_ROWS__
-    <div class="lbl" style="margin-top:12px">__RAIL_AGRI_LBL__</div>
-__RAIL_AGRI_ROWS__
-    <div class="row" style="margin-top:6px;border-top:1px dashed var(--line);padding-top:6px;font-size:10.5px;line-height:1.45">
-      <span style="color:var(--mute);font-weight:500">__RAIL_NOTE__</span>
-    </div>
+    <table>__RAIL_PANEL_ROWS__</table>
+    <div class="lbl">__RAIL_AGRI_LBL__</div>
+    <table>__RAIL_AGRI_ROWS__</table>
+    <div class="foot">__RAIL_NOTE__</div>
   </div>
   <div class="rail-foot">
     __RAIL_CONTACT_NAME__<br><a href="mailto:__RAIL_CONTACT_EMAIL__">__RAIL_CONTACT_EMAIL__</a><br>
@@ -515,32 +386,25 @@ __RAIL_AGRI_ROWS__
 <main class="wrap">
 
 <header class="title">
-  <div class="eyebrow">__PAGE_EYEBROW__</div>
   <h1>__PAGE_H1__</h1>
-  <div class="meta">
-    <span>__PAGE_META_LEFT__</span>
-    <span>__PAGE_META_RIGHT__</span>
-  </div>
+  <div class="meta">__PAGE_META_LEFT__. __PAGE_META_RIGHT__</div>
 </header>
 
-<div class="brief"><b>About.</b> __BRIEF__</div>
+<div class="brief">__BRIEF__</div>
 
 <!-- ============================== TAB 1 :: MAP ============================== -->
 <section id="t-map" class="tab on">
   <h2 class="section">__MAP_H2__</h2>
   <p class="lede">__MAP_LEDE__</p>
 
-  <div class="findings">
-__FINDINGS__
-  </div>
+  __SUMMARY_TABLE__
+  <p class="note">__SUMMARY_NOTE__</p>
 
   <details class="method">
     <summary>__METHOD_SUMMARY__</summary>
     <div class="body">
       __METHOD_BODY__
-      <div class="denom-grid">
-__DENOM_GRID__
-      </div>
+      __DENOM_GRID__
       <small class="cap">__METHOD_CAP__</small>
     </div>
   </details>
@@ -563,7 +427,7 @@ __MAP_CAT_PILLS__
 
   <p class="ind-gloss" id="indGloss">&nbsp;</p>
 
-  <div class="kpi" id="kpiMap"></div>
+  <div class="statline" id="statMap"></div>
 
   <div class="map-pair">
     <div class="map-wrap">
@@ -592,7 +456,7 @@ __MAP_CAT_PILLS__
   <h2 class="section">__RICE_H2__</h2>
   <p class="lede">__RICE_LEDE__</p>
 
-  <div class="kpi" id="kpiRice"></div>
+  __RICE_KEYFIG__
 
   <div class="row row-2">
     <div class="chart-wrap"><canvas id="riceFamilies"></canvas></div>
@@ -621,7 +485,7 @@ __MAP_CAT_PILLS__
   <h2 class="section">__AQUA_H2__</h2>
   <p class="lede">__AQUA_LEDE__</p>
 
-  <div class="kpi" id="kpiAqua"></div>
+  __AQUA_KEYFIG__
 
   <div class="row row-2">
     <div class="chart-wrap"><canvas id="aquaTS"></canvas></div>
@@ -662,7 +526,7 @@ __MAP_CAT_PILLS__
 
   <p class="lede">__SPIA_LEDE__</p>
 
-  <div class="kpi" id="kpiSpia"></div>
+  __SPIA_KEYFIG__
 
   <h3 class="sub">__SPIA_SUB_DNA__</h3>
   <p class="lede">__SPIA_LEDE_DNA__</p>
@@ -703,7 +567,7 @@ __MAP_CAT_PILLS__
   <h2 class="section">__MECH_H2__</h2>
   <p class="lede">__MECH_LEDE__</p>
 
-  <div class="kpi" id="kpiMech"></div>
+  __MECH_KEYFIG__
 
   <div class="row row-2">
     <div class="chart-wrap"><canvas id="mechOwn"></canvas></div>
@@ -776,43 +640,42 @@ const RICE_FAM_LBL = TXT.labels.rice;
 const AQUA_IND_LBL = TXT.labels.aqua;
 const MECH_IND_LBL = TXT.labels.mech;
 
-/* ==============================  COLORS  ============================== */
-/* Semantic palette from the [theme] section of content.toml. */
-const COL = {slate:THEME.ink, slate2:THEME.chart_text,
-             leaf:THEME.rice.main, leaf2:THEME.rice.light,
-             teal:THEME.aqua.main, teal2:THEME.aqua.light,
-             accent:THEME.mech.main, accent2:THEME.mech.light,
-             cream:THEME.tint, ink:THEME.ink, mute:THEME.mute};
-/* Monochrome series palettes per tab. Dark to light shades within one hue family
-   keep multi-line charts coherent. */
-const SERIES_RICE = THEME.series.rice;
-const SERIES_AQUA = THEME.series.aqua;
-const SERIES_MECH = THEME.series.mech;
-const SERIES_COL = SERIES_RICE; /* default (kept for any code that still references it) */
+/* ==============================  COLOURS  ============================== */
+/* One accent from content.toml; everything else is neutral grey. The accent is
+   reserved for the series a chart is asking the reader to follow. */
+const COL = {ink:THEME.ink, mute:THEME.mute, chartText:THEME.chart_text,
+             accent:THEME.accent, accentDark:THEME.accent_dark,
+             grey:"#3c3c3c", grey2:"#9a9a9a"};
+const SERIES = THEME.series;
+/* Kept as aliases so chart call sites stay readable. */
+const SERIES_RICE = SERIES, SERIES_AQUA = SERIES, SERIES_MECH = SERIES;
 
 Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 Chart.defaults.font.size   = 11.5;
-Chart.defaults.color       = COL.slate2;
+Chart.defaults.color       = COL.chartText;
 Chart.defaults.borderColor = THEME.line;
 Chart.defaults.plugins.legend.labels.boxWidth = 10;
 Chart.defaults.plugins.legend.labels.boxHeight = 2;
 Chart.defaults.plugins.legend.labels.padding = 8;
 Chart.defaults.plugins.legend.labels.font = {size: 11};
+Chart.defaults.plugins.legend.align = "start";
+Chart.defaults.plugins.title.align = "start";
+Chart.defaults.plugins.title.color = COL.ink;
+Chart.defaults.plugins.title.font = {size: 13, weight: "700"};
+Chart.defaults.plugins.title.padding = {bottom: 4};
+Chart.defaults.plugins.subtitle.align = "start";
+Chart.defaults.plugins.subtitle.color = COL.mute;
+Chart.defaults.plugins.subtitle.font = {size: 11.5, weight: "400"};
+Chart.defaults.plugins.subtitle.padding = {bottom: 10};
 
 /* ==============================  TABS  ============================== */
 const chartRefs = {};
 const tabInit   = {};
-const TAB_CAT = {"t-map":"rice","t-rice":"rice","t-aqua":"aqua","t-spia":"rice","t-mech":"mech","t-tech":"rice"};
-function setBodyCat(cat){
-  document.body.classList.remove("cat-rice","cat-aqua","cat-mech");
-  document.body.classList.add("cat-"+cat);
-}
 document.getElementById("tabs").addEventListener("click", e => {
   const btn = e.target.closest("button"); if(!btn) return;
   const id = btn.dataset.tab;
   document.querySelectorAll("nav.tabs button").forEach(b => b.classList.toggle("on", b === btn));
   document.querySelectorAll("section.tab").forEach(s => s.classList.toggle("on", s.id === id));
-  setBodyCat(TAB_CAT[id] || "rice");
   lazyInit(id);
   window.scrollTo({top:0,behavior:"instant"});
 });
@@ -843,17 +706,8 @@ function ramp(v, stops){
 /* Three sequential ramps from content.toml. Rice green, aquaculture blue,
    mechanisation warm earth. The lightest step must always contrast with the
    page background. */
-const MAP_RAMPS = {
-  rice:{stops:THEME.map_ramps.rice},
-  aqua:{stops:THEME.map_ramps.aqua},
-  mech:{stops:THEME.map_ramps.mech}
-};
-function stopsFor(ind){
-  if(["ANY_POND","TILAPIA","CARP_ANY","POLY_CARP_2PLUS","MOLA","PRAWN_GALDA","SHRIMP_BAGDA","SUPP_FEED","HORMONE","DISEASE_CTL"].includes(ind))
-    return MAP_RAMPS.aqua.stops;
-  if(ind.startsWith("USE_")||ind in MECH_IND_LBL) return MAP_RAMPS.mech.stops;
-  return MAP_RAMPS.rice.stops;
-}
+const MAP_STOPS = THEME.map_ramp;
+function stopsFor(ind){ return MAP_STOPS; }
 function indicatorSource(ind){
   if(ind in RICE_FAM_LBL) return RICE;
   if(ind in MECH_IND_LBL) return MECH;
@@ -886,7 +740,6 @@ function initMap(){
     const btn = e.target.closest("button"); if(!btn) return;
     mapCat = btn.dataset.cat;
     document.querySelectorAll("#mapCatPills button").forEach(b=>b.classList.toggle("on", b.dataset.cat===mapCat));
-    setBodyCat(mapCat);
     rebuildIndicatorSelect();
     drawMap();
   });
@@ -935,7 +788,7 @@ function drawMap(){
       const n = row ? row.n_hh : null;
       layer.on({
         mouseover:()=>{
-          layer.setStyle({weight:2,color:COL.slate});
+          layer.setStyle({weight:2,color:COL.ink});
           const box=document.getElementById("mapInfo");
           box.innerHTML = `<h5>${f.properties.name} <small>(${f.properties.division})</small></h5>
             <div class="val">${v==null?"n/a":v.toFixed(1)+"%"}</div>
@@ -993,20 +846,19 @@ function drawMap(){
   let deltaTxt = "n/a";
   if(natNow != null && firstReal != null){
     const d = natNow - firstReal;
-    const tri = d >= 0 ? "▲" : "▼";
-    deltaTxt = `${tri} ${Math.abs(d).toFixed(1)} pp <small style="color:var(--mute);font-weight:500;font-size:11px">since ${firstWaveLbl}</small>`;
+    deltaTxt = `${d >= 0 ? "+" : "−"}${Math.abs(d).toFixed(1)} pp <small>since ${firstWaveLbl}</small>`;
   }
   const top = rows[0], bot = rows[rows.length-1];
-  const kpiEl = document.getElementById("kpiMap");
+  const kpiEl = document.getElementById("statMap");
   if(kpiEl){
     const fmtPct = v => (v==null||isNaN(v)) ? "n/a" : v.toFixed(1)+"%";
-    const distFmt = r => `${r.name} <small style="color:var(--mute);font-weight:500;font-size:11px"> · ${fmtPct(r.v)}</small>`;
+    const distFmt = r => `${r.name} <small>${fmtPct(r.v)}</small>`;
     kpiEl.innerHTML = [
       {lbl:TXT.map.kpi_national.replace("{year}", WAVE_LBL[year]), val:fmtPct(natNow)},
       {lbl:TXT.map.kpi_change,  val:deltaTxt},
       {lbl:TXT.map.kpi_highest, val: top ? distFmt(top) : "n/a"},
       {lbl:TXT.map.kpi_lowest,  val: bot ? distFmt(bot) : "n/a"}
-    ].map(o => `<div class="box"><div class="lbl">${o.lbl}</div><div class="big">${o.val}</div></div>`).join("");
+    ].map(o => `<div class="item"><div class="k">${o.lbl}</div><div class="v">${o.val}</div></div>`).join("");
   }
 
   /* --- Top 5 and bottom 5 district lists beside the map --- */
@@ -1161,43 +1013,6 @@ function renderFullTable(container, src, indicators, indicatorLabels, csvBase, o
   render();
 }
 
-/* ==============================  KPI HELPER  ============================== */
-/* Render a KPI tile. When `series` (a 4-element array over BIHS rounds) and
-   `colour` are provided, a 28px sparkline plus a "+N.N pp vs 2011/12" delta
-   chip are appended; otherwise the tile renders bare (used for SPIA counts). */
-function kpiBox(opts){
-  const lbl = opts.lbl, val = opts.val;
-  const series = opts.series, colour = opts.colour;
-  if(!series || !colour){
-    return `<div class="box"><div class="lbl">${lbl}</div><div class="big">${val}</div></div>`;
-  }
-  const xs = series.filter(v => v != null && !isNaN(v));
-  if(xs.length < 2){
-    return `<div class="box"><div class="lbl">${lbl}</div><div class="big">${val}</div></div>`;
-  }
-  const base = xs[0], last = xs[xs.length - 1], d = last - base;
-  const sign = d >= 0 ? "up" : "dn";
-  const tri  = d >= 0 ? "▲" : "▼";
-  const w = 120, h = 28;
-  const mn = Math.min.apply(null, xs);
-  const mx = Math.max.apply(null, xs);
-  const r  = (mx - mn) || 1;
-  const pts = xs.map((v, i) =>
-    `${(i / (xs.length - 1) * w).toFixed(1)},${(h - ((v - mn) / r) * h).toFixed(1)}`
-  ).join(" ");
-  const lastY = (h - ((last - mn) / r) * h).toFixed(1);
-  const baseLbl = opts.baseLbl || "2011/12";
-  return `<div class="box">
-    <div class="lbl">${lbl}</div>
-    <div class="big">${val}</div>
-    <svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
-      <polyline fill="none" stroke="${colour}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" points="${pts}"/>
-      <circle cx="${w}" cy="${lastY}" r="2.6" fill="${colour}"/>
-    </svg>
-    <span class="chip ${sign}"><span class="tri">${tri}</span>${d >= 0 ? "+" : ""}${d.toFixed(1)} pp vs ${baseLbl}</span>
-  </div>`;
-}
-
 /* ==============================  CHART HELPERS  ============================== */
 /* Editorial-line defaults per the audit:
  *  - terminal point only (radius 0 mid-series, 4 at the 2024 end)
@@ -1234,28 +1049,30 @@ function lineChart(canvas, labels, datasets, opts){
     responsive: true, maintainAspectRatio: false,
     interaction: { mode: "index", intersect: false },
     plugins: {
-      title: { display: !!(opts.plugins && opts.plugins.title), color: COL.slate, font: { size: 13, weight: "600" }, padding: { bottom: 4 } },
-      subtitle: { display: !!(opts.plugins && opts.plugins.subtitle), color: COL.mute, font: { size: 11.5, style: "normal" }, padding: { bottom: 10 } },
+      title: { display: !!(opts.plugins && opts.plugins.title), align: "start", color: COL.ink, font: { size: 13, weight: "700" }, padding: { bottom: 4 } },
+      subtitle: { display: !!(opts.plugins && opts.plugins.subtitle), align: "start", color: COL.mute, font: { size: 11.5, style: "normal" }, padding: { bottom: 10 } },
       legend: { position: "top", align: "start", labels: { boxWidth: 10, boxHeight: 2, padding: 6, font: { size: 11 } } },
       tooltip: { mode: "index", intersect: false }
     },
     scales: {
-      y: { beginAtZero: true, grid: { color: THEME.chart_grid, drawTicks: false }, ticks: { callback: v => v + "%" }, title: { display: false } },
-      x: { grid: { display: false } }
+      y: { beginAtZero: true, border: { display: false }, grid: { color: THEME.chart_grid, drawTicks: false, borderDash: [4,4] }, ticks: { callback: v => v + "%" }, title: { display: false } },
+      x: { grid: { display: false }, border: { color: THEME.line2 } }
     }
   }, opts);
   chartRefs[canvas] = new Chart(document.getElementById(canvas), { type: "line", data: { labels, datasets }, options: merged });
 }
 function barChart(canvas, labels, datasets, opts){
   if(chartRefs[canvas]) chartRefs[canvas].destroy();
+  datasets = datasets.map(d => Object.assign({maxBarThickness:18, borderWidth:0}, d));
   chartRefs[canvas] = new Chart(document.getElementById(canvas),{
     type:"bar",
     data:{labels,datasets},
     options:Object.assign({
       responsive:true,maintainAspectRatio:false,indexAxis:"y",
-      plugins:{title:{display:true,color:COL.slate,font:{size:13,weight:"600"},padding:{bottom:8}},
+      plugins:{legend:{labels:{boxHeight:8,boxWidth:8}}},
+      plugins:{title:{display:true,align:"start",color:COL.ink,font:{size:13,weight:"700"},padding:{bottom:8}},
                legend:{display:false}},
-      scales:{x:{beginAtZero:true,grid:{color:THEME.chart_grid,drawTicks:false},ticks:{callback:v=>v+"%"},title:{display:false}},
+      scales:{x:{beginAtZero:true,border:{display:false},grid:{color:THEME.chart_grid,drawTicks:false,borderDash:[4,4]},ticks:{callback:v=>v+"%"},title:{display:false}},
               y:{grid:{display:false}}}
     },opts||{})
   });
@@ -1281,16 +1098,6 @@ INITS["t-map"] = function(){
 
 /* ==============================  TAB 2 INIT (RICE)  ============================== */
 INITS["t-rice"] = function(){
-  const nat24 = RICE.by_wave["2024"].__NATIONAL__;
-  const kpi = document.getElementById("kpiRice");
-  const cR = COL.leaf;
-  kpi.innerHTML = [
-    {lbl:TXT.kpi.rice.grower,    val:nat24.RICE_GROWER.toFixed(1)+"%",       series:NAT.rice.RICE_GROWER,       colour:cR},
-    {lbl:TXT.kpi.rice.core,      val:nat24.BRRI_CORE28_29.toFixed(1)+"%",    series:NAT.rice.BRRI_CORE28_29,    colour:cR},
-    {lbl:TXT.kpi.rice.new_lines, val:nat24.BRRI_NEW_POST2012.toFixed(1)+"%", series:NAT.rice.BRRI_NEW_POST2012, colour:cR},
-    {lbl:TXT.kpi.rice.hybrid,    val:nat24.HYBRID.toFixed(1)+"%",            series:NAT.rice.HYBRID,            colour:cR}
-  ].map(kpiBox).join("");
-
   const fams = ["BRRI_CORE28_29","BRRI_OLDER_HYV","BRRI_NEW_POST2012","BRRI_STRESS","BINA","HYBRID","LOCAL"];
   lineChart("riceFamilies", WAVES.map(w=>WAVE_LBL[w]),
     fams.map((k,i)=>({label:RICE_FAM_LBL[k], data:NAT.rice[k], borderColor:SERIES_RICE[i]})),
@@ -1298,7 +1105,7 @@ INITS["t-rice"] = function(){
      plugins:{title:{display:true,text:TXT.charts.riceFamilies.title},
               subtitle:{display:true,text:TXT.charts.riceFamilies.subtitle}}});
   lineChart("riceGrower", WAVES.map(w=>WAVE_LBL[w]),
-    [{label:RICE_FAM_LBL.RICE_GROWER, data:NAT.rice.RICE_GROWER, borderColor:COL.leaf}],
+    [{label:RICE_FAM_LBL.RICE_GROWER, data:NAT.rice.RICE_GROWER, borderColor:COL.accent}],
     {plugins:{title:{display:true,text:TXT.charts.riceGrower.title},
               subtitle:{display:true,text:TXT.charts.riceGrower.subtitle},
               legend:{display:false}}});
@@ -1312,7 +1119,7 @@ INITS["t-rice"] = function(){
                   .map(([name,r])=>({name,v:r[k]||0}))
                   .sort((a,b)=>b.v-a.v).slice(0,30);
     barChart("riceDistChart", rows.map(r=>r.name),
-      [{label:RICE_FAM_LBL[k]+" (2024)",data:rows.map(r=>r.v),backgroundColor:COL.leaf,borderColor:COL.leaf}],
+      [{label:RICE_FAM_LBL[k]+" (2024)",data:rows.map(r=>r.v),backgroundColor:COL.accent,borderColor:COL.accent}],
       {plugins:{title:{display:true,text:TXT.charts.top30_template.replace("{label}", RICE_FAM_LBL[k].toLowerCase())}}});
   }
   sel.onchange = redrawDist; redrawDist();
@@ -1339,15 +1146,6 @@ INITS["t-rice"] = function(){
 
 /* ==============================  TAB 3 INIT (AQUA)  ============================== */
 INITS["t-aqua"] = function(){
-  const nat24 = AQUA.by_wave["2024"].__NATIONAL__;
-  const cA = COL.teal;
-  document.getElementById("kpiAqua").innerHTML = [
-    {lbl:TXT.kpi.aqua.pond,        val:nat24.ANY_POND.toFixed(1)+"%",        series:NAT.aqua.ANY_POND,        colour:cA},
-    {lbl:TXT.kpi.aqua.tilapia,     val:nat24.TILAPIA.toFixed(1)+"%",         series:NAT.aqua.TILAPIA,         colour:cA},
-    {lbl:TXT.kpi.aqua.polyculture, val:nat24.POLY_CARP_2PLUS.toFixed(1)+"%", series:NAT.aqua.POLY_CARP_2PLUS, colour:cA},
-    {lbl:TXT.kpi.aqua.mola,        val:nat24.MOLA.toFixed(1)+"%",            series:NAT.aqua.MOLA,            colour:cA}
-  ].map(kpiBox).join("");
-
   lineChart("aquaTS", WAVES.map(w=>WAVE_LBL[w]),
     ["ANY_POND","CARP_ANY","POLY_CARP_2PLUS","TILAPIA","MOLA","PRAWN_GALDA","SHRIMP_BAGDA"].map((k,i)=>({
       label:AQUA_IND_LBL[k], data:NAT.aqua[k], borderColor:SERIES_AQUA[i]})),
@@ -1356,8 +1154,8 @@ INITS["t-aqua"] = function(){
               subtitle:{display:true,text:TXT.charts.aquaTS.subtitle}}});
 
   lineChart("aquaPoly", WAVES.map(w=>WAVE_LBL[w]),
-    [{label:AQUA_IND_LBL.POLY_CARP_2PLUS, data:NAT.aqua.POLY_CARP_2PLUS, borderColor:COL.teal},
-     {label:AQUA_IND_LBL.MOLA,            data:NAT.aqua.MOLA,           borderColor:COL.teal2}],
+    [{label:AQUA_IND_LBL.POLY_CARP_2PLUS, data:NAT.aqua.POLY_CARP_2PLUS, borderColor:COL.accent},
+     {label:AQUA_IND_LBL.MOLA,            data:NAT.aqua.MOLA,           borderColor:COL.grey2}],
     {heroIdx:0,
      plugins:{title:{display:true,text:TXT.charts.aquaPoly.title},
               subtitle:{display:true,text:TXT.charts.aquaPoly.subtitle}}});
@@ -1373,7 +1171,7 @@ INITS["t-aqua"] = function(){
                   .map(([name,r])=>({name,v:r[k]||0}))
                   .sort((a,b)=>b.v-a.v).slice(0,30);
     barChart("aquaDistChart", rows.map(r=>r.name),
-      [{label:AQUA_IND_LBL[k]+" (2024)",data:rows.map(r=>r.v),backgroundColor:COL.teal,borderColor:COL.teal}],
+      [{label:AQUA_IND_LBL[k]+" (2024)",data:rows.map(r=>r.v),backgroundColor:COL.accent,borderColor:COL.accent}],
       {plugins:{title:{display:true,text:TXT.charts.top30_template.replace("{label}", AQUA_IND_LBL[k].toLowerCase())}}});
   }
   sel.onchange = redrawAquaDist; redrawAquaDist();
@@ -1399,26 +1197,19 @@ INITS["t-aqua"] = function(){
 
 /* ==============================  TAB 4 INIT (SPIA)  ============================== */
 INITS["t-spia"] = function(){
-  document.getElementById("kpiSpia").innerHTML = [
-    {lbl:TXT.kpi.spia.samples,    val:DNA.n_samples.toLocaleString()},
-    {lbl:TXT.kpi.spia.varieties,  val:DNA.n_varieties},
-    {lbl:TXT.kpi.spia.clusters,   val:DNA.n_clusters},
-    {lbl:TXT.kpi.spia.households, val:SUM.rounds["2024"].n_hh.toLocaleString()}
-  ].map(x=>`<div class="box"><div class="lbl">${x.lbl}</div><div class="big">${x.val}</div></div>`).join("");
-
   const vEntries = Object.entries(DNA.by_variety).sort((a,b)=>b[1]-a[1]);
   const tot = vEntries.reduce((s,[,v])=>s+v,0);
   const boro = (DNA.by_variety["Bri Dhan BR-28 (Boro)"]||0) + (DNA.by_variety["Bri Dhan BR-29 (Boro)"]||0);
   document.getElementById("dnaBoroPct").innerText = (100*boro/tot).toFixed(1);
 
   barChart("dnaByVariety", vEntries.map(x=>x[0]),
-    [{label:"DNA-verified samples",data:vEntries.map(x=>x[1]),backgroundColor:COL.leaf,borderColor:COL.leaf}],
+    [{label:"DNA-verified samples",data:vEntries.map(x=>x[1]),backgroundColor:COL.accent,borderColor:COL.accent}],
     {plugins:{title:{display:true,text:TXT.charts.dnaByVariety.title},legend:{display:false}},
      scales:{x:{title:{display:true,text:"samples"}},y:{ticks:{font:{size:10.5}}}}});
 
   const cl = DNA.by_cluster.slice().sort((a,b)=>b.n_samples-a.n_samples);
   barChart("dnaByCluster", cl.map(r=>"Cluster "+r.cluster_id+" : "+r.top_variety),
-    [{label:"Samples in cluster",data:cl.map(r=>r.n_samples),backgroundColor:COL.teal,borderColor:COL.teal}],
+    [{label:"Samples in cluster",data:cl.map(r=>r.n_samples),backgroundColor:COL.accent,borderColor:COL.accent}],
     {plugins:{title:{display:true,text:TXT.charts.dnaByCluster.title},legend:{display:false}},
      scales:{x:{title:{display:true,text:"samples"}}}});
 
@@ -1427,7 +1218,7 @@ INITS["t-spia"] = function(){
   barChart("spiaPractices",
     [AQUA_IND_LBL.SUPP_FEED,AQUA_IND_LBL.HORMONE,AQUA_IND_LBL.DISEASE_CTL],
     [{label:"2024 weighted HH %",data:[aqNat24.SUPP_FEED||0,aqNat24.HORMONE||0,aqNat24.DISEASE_CTL||0],
-      backgroundColor:COL.teal,borderColor:COL.teal}],
+      backgroundColor:COL.accent,borderColor:COL.accent}],
     {plugins:{title:{display:true,text:TXT.charts.spiaPractices.title},legend:{display:false}}});
 
   // Equipment ownership 2024
@@ -1439,7 +1230,7 @@ INITS["t-spia"] = function(){
               .map(k=>[MECH_IND_LBL[k],mechNat24[k]||0])
               .sort((a,b)=>b[1]-a[1])];
   barChart("spiaEquip", eq[0].map(x=>x[0]),
-    [{label:"HH ownership %",data:eq[0].map(x=>x[1]),backgroundColor:COL.slate,borderColor:COL.slate}],
+    [{label:"HH ownership %",data:eq[0].map(x=>x[1]),backgroundColor:COL.accent,borderColor:COL.accent}],
     {plugins:{title:{display:true,text:TXT.charts.spiaEquip.title},legend:{display:false}}});
 
   // ---- Pooled 2024 district-level full table (rice + aqua + mech) ----
@@ -1494,22 +1285,12 @@ INITS["t-spia"] = function(){
 INITS["t-mech"] = function(){
   const m24 = MECH.by_wave["2024"].__NATIONAL__ || {};
   const m19 = MECH.by_wave["2019"].__NATIONAL__ || {};
-  const cM = COL.accent;
-  // Mech equipment is only consistently tracked from 2018/19 onward; baseline label reflects that.
-  const mechSeries = k => NAT.mech && NAT.mech[k] ? NAT.mech[k] : null;
-  document.getElementById("kpiMech").innerHTML = [
-    {lbl:TXT.kpi.mech.tiller,  val:(m24.POWER_TILLER||0).toFixed(1)+"%",     series:mechSeries("POWER_TILLER"),     colour:cM, baseLbl:"2018/19"},
-    {lbl:TXT.kpi.mech.thresh,  val:(m24.USE_MOTOR_THRESH||0).toFixed(1)+"%", series:mechSeries("USE_MOTOR_THRESH"), colour:cM, baseLbl:"2018/19"},
-    {lbl:TXT.kpi.mech.sprayer, val:(m24.SPRAYER||0).toFixed(1)+"%",          series:mechSeries("SPRAYER"),          colour:cM, baseLbl:"2018/19"},
-    {lbl:TXT.kpi.mech.pump,    val:(m24.ELEC_MOTOR_PUMP||0).toFixed(1)+"%",  series:mechSeries("ELEC_MOTOR_PUMP"),  colour:cM, baseLbl:"2018/19"}
-  ].map(kpiBox).join("");
-
   // Ownership comparison 2019 vs 2024
   const keys = ["TRACTOR","POWER_TILLER","POWER_THRESHER","LLP_IRRIG","AXIAL_FLOW_PUMP",
                 "ELEC_MOTOR_PUMP","DIESEL_MOTOR_PUMP","SPRAYER","REAPER","SEEDER_DRILL","COMBINED_HARVEST"];
   const lbls = keys.map(k=>MECH_IND_LBL[k]);
   barChart("mechOwn", lbls,
-    [{label:"2018/19",data:keys.map(k=>m19[k]||0),backgroundColor:COL.accent2,borderColor:COL.accent2},
+    [{label:"2018/19",data:keys.map(k=>m19[k]||0),backgroundColor:COL.grey2,borderColor:COL.grey2},
      {label:"2024",   data:keys.map(k=>m24[k]||0),backgroundColor:COL.accent, borderColor:COL.accent}],
     {plugins:{title:{display:true,text:TXT.charts.mechOwn.title}}});
 
@@ -1642,14 +1423,11 @@ lazyInit("t-map");
 def _root_vars():
     t = THEME
     pairs = [
+        ("--accent", t["accent"]), ("--accent-dark", t["accent_dark"]),
         ("--ink", t["ink"]), ("--text", t["text"]), ("--mute", t["mute"]),
         ("--line", t["line"]), ("--line2", t["line2"]), ("--bg", t["background"]),
-        ("--panel", t["panel"]), ("--tint", t["tint"]),
-        ("--rail-bg", t["rail_background"]),
+        ("--tint", t["tint"]),
         ("--positive", t["positive"]), ("--negative", t["negative"]),
-        ("--rice", t["rice"]["main"]), ("--rice-dark", t["rice"]["dark"]), ("--rice-soft", t["rice"]["soft"]),
-        ("--aqua", t["aqua"]["main"]), ("--aqua-dark", t["aqua"]["dark"]), ("--aqua-soft", t["aqua"]["soft"]),
-        ("--mech", t["mech"]["main"]), ("--mech-dark", t["mech"]["dark"]), ("--mech-soft", t["mech"]["soft"]),
     ]
     return "\n".join(f"    {k}:{v};" for k, v in pairs)
 
@@ -1657,27 +1435,66 @@ def _nav_tabs():
     out = []
     for i, t in enumerate(C["tabs"]):
         on = ' class="on"' if i == 0 else ""
-        out.append(f'    <button data-tab="{t["id"]}"{on}>'
-                   f'<span class="num">{i+1:02d}</span><span>{t["label"]}</span></button>')
+        out.append(f'    <button data-tab="{t["id"]}"{on}>{t["label"]}</button>')
     return "\n".join(out)
+
+# ---------------------------------------------------------------------
+# Indicator tables. Every number is read from data/ at build time, so the
+# published figures cannot drift away from the underlying JSON.
+# ---------------------------------------------------------------------
+WAVES = ["2011", "2015", "2019", "2024"]
+WAVE_LABELS = ["2011/12", "2015", "2018/19", "2024"]
+SOURCES = {"rice": RICE, "aqua": AQUA, "mech": MECH}
+
+def _series(source, key):
+    src = SOURCES[source]
+    out = []
+    for w in WAVES:
+        v = src["by_wave"].get(w, {}).get("__NATIONAL__", {}).get(key)
+        out.append(v if isinstance(v, (int, float)) else None)
+    return out
+
+def _series_table(rows_def, caption):
+    head = "".join(f"<th>{lbl}</th>" for lbl in WAVE_LABELS)
+    body = []
+    for label, source, key in rows_def:
+        vals = _series(source, key)
+        cells = "".join(
+            f'<td class="num">{v:.1f}</td>' if v is not None else '<td class="dim">&ndash;</td>'
+            for v in vals)
+        real = [v for v in vals if v is not None]
+        if len(real) >= 2 and real[0] != real[-1]:
+            d = real[-1] - real[0]
+            chg = f'{"+" if d >= 0 else "−"}{abs(d):.1f}'
+        else:
+            chg = "&ndash;"
+        body.append(f'<tr><td>{label}</td>{cells}<td class="chg">{chg}</td></tr>')
+    return (f'<table class="data"><caption>{caption}</caption>'
+            f'<thead><tr><th>Indicator</th>{head}<th>Change</th></tr></thead>'
+            f'<tbody>{"".join(body)}</tbody></table>')
+
+def _summary_table():
+    S = C["summary"]
+    return _series_table(S["rows"], S["caption"])
+
+def _keyfig(tab):
+    return _series_table(C["keyfig"][tab]["rows"], C["keyfig"]["caption"])
+
+def _spia_counts():
+    """Counts describing the 2024 round, read straight from the data files."""
+    K = C["kpi"]["spia"]
+    rows = [
+        (K["samples"],    f'{DNA["n_samples"]:,}'),
+        (K["varieties"],  f'{DNA["n_varieties"]:,}'),
+        (K["clusters"],   f'{DNA["n_clusters"]:,}'),
+        (K["households"], f'{SUM["rounds"]["2024"]["n_hh"]:,}'),
+    ]
+    body = "".join(f'<tr><td>{k}</td><td class="num">{v}</td></tr>' for k, v in rows)
+    return (f'<table class="data" style="max-width:26em">'
+            f'<tbody>{body}</tbody></table>')
 
 def _rail_rows(rows):
-    return "\n".join(f'    <div class="row"><span>{a}</span><span>{b}</span></div>'
-                     for a, b in rows)
-
-def _findings():
-    out = []
-    for f in C["findings"]:
-        delta_cls = f' {f["delta_class"]}' if f["delta_class"] else ""
-        out.append(
-            f'    <a class="finding f-{f["category"]}" data-jump="{f["tab"]}" tabindex="0">\n'
-            f'      <span class="arrow">{f["arrow"]} ›</span>\n'
-            f'      <div class="eyebrow">{f["eyebrow"]}</div>\n'
-            f'      <div class="big">{f["value"]}<span class="unit">{f["unit"]}</span></div>\n'
-            f'      <div class="ctx">{f["context"]}</div>\n'
-            f'      <div class="delta{delta_cls}">{f["delta"]}</div>\n'
-            f'    </a>')
-    return "\n".join(out)
+    return "".join(f"<tr><td>{a}</td><td>{b}</td></tr>" for a, b in rows)
 
 def _denom_grid():
     return "\n".join(
@@ -1703,7 +1520,7 @@ REPL = {
     "__DNA__": j(DNA), "__NAT__": j(NAT), "__SUM__": j(SUM), "__TECH__": j(TECH),
     "__TXT__": j(TXT_JS), "__THEME__": j(THEME),
     # page header
-    "__PAGE_TITLE__": P["title"], "__PAGE_EYEBROW__": P["eyebrow"], "__PAGE_H1__": P["heading"],
+    "__PAGE_TITLE__": P["title"], "__PAGE_H1__": P["heading"],
     "__PAGE_META_LEFT__": P["meta_left"], "__PAGE_META_RIGHT__": P["meta_right"],
     "__BRIEF__": P["brief"],
     # side rail
@@ -1718,7 +1535,9 @@ REPL = {
     "__RAIL_REPL_LABEL__": R["replication_link_label"],
     # map tab
     "__MAP_H2__": M["heading"], "__MAP_LEDE__": M["lede"],
-    "__FINDINGS__": _findings(),
+    "__SUMMARY_TABLE__": _summary_table(), "__SUMMARY_NOTE__": C["summary"]["note"],
+    "__RICE_KEYFIG__": _keyfig("rice"), "__AQUA_KEYFIG__": _keyfig("aqua"),
+    "__MECH_KEYFIG__": _keyfig("mech"), "__SPIA_KEYFIG__": _spia_counts(),
     "__METHOD_SUMMARY__": C["method"]["summary"], "__METHOD_BODY__": C["method"]["body"],
     "__DENOM_GRID__": _denom_grid(), "__METHOD_CAP__": C["method"]["caption"],
     "__MAP_SUB_MAP__": M["map_heading"], "__MAP_LEDE_MAP__": M["map_lede"],
