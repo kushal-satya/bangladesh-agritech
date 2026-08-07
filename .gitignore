@@ -20,3 +20,6 @@ Thumbs.db
 
 # Build logs
 pipeline_log.txt
+
+# R analysis outputs (regenerate with Rscript R/run_all.R)
+R/output/
