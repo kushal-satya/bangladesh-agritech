@@ -71,24 +71,24 @@ __ROOT_VARS__
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,system-ui,sans-serif;
-      line-height:1.5;-webkit-font-smoothing:antialiased;font-size:15px}
+      line-height:1.45;-webkit-font-smoothing:antialiased;font-size:13.5px}
   a{color:var(--accent)}
 
   /* Layout: fixed side rail, main measure-limited column */
-  .layout{display:grid;grid-template-columns:210px minmax(0,1fr);
-      max-width:1360px;margin:0 auto;min-height:100vh}
+  .layout{display:grid;grid-template-columns:196px minmax(0,1fr);
+      max-width:1500px;margin:0 auto;min-height:100vh}
   @media (max-width:980px){.layout{grid-template-columns:1fr}}
 
   /* ---------------- Side rail ---------------- */
   aside.rail{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
-      padding:34px 26px 26px 0;border-right:1px solid var(--line);background:var(--bg)}
+      padding:22px 22px 22px 0;border-right:1px solid var(--line);background:var(--bg)}
   aside.rail::-webkit-scrollbar{width:5px}
   aside.rail::-webkit-scrollbar-thumb{background:var(--line2)}
   @media (max-width:980px){
     aside.rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);
         padding:14px 16px 0}
   }
-  .brand{display:flex;align-items:baseline;gap:9px;margin-bottom:26px}
+  .brand{display:flex;align-items:baseline;gap:8px;margin-bottom:18px}
   .brand img{width:26px;height:26px;flex-shrink:0;object-fit:contain;align-self:center;
       mix-blend-mode:multiply}
   .brand .name{min-width:0}
@@ -96,9 +96,9 @@ __ROOT_VARS__
   .brand .full{font-size:12px;color:var(--mute);line-height:1.3;margin-top:2px}
 
   /* Nav: plain text list, active marked by weight and a rule. No fills, no numbers. */
-  nav.tabs{display:flex;flex-direction:column;margin:0 0 26px}
+  nav.tabs{display:flex;flex-direction:column;margin:0 0 18px}
   nav.tabs button{font-family:inherit;background:none;border:0;border-left:2px solid transparent;
-      padding:5px 0 5px 11px;margin-left:-13px;font-size:14px;color:var(--text);cursor:pointer;
+      padding:3px 0 3px 10px;margin-left:-12px;font-size:13px;color:var(--text);cursor:pointer;
       font-weight:400;text-align:left;line-height:1.35}
   nav.tabs button:hover{color:var(--ink)}
   nav.tabs button.on{color:var(--ink);font-weight:600;border-left-color:var(--accent)}
@@ -112,11 +112,11 @@ __ROOT_VARS__
   }
 
   /* Rail figures: a small plain table, not a stat panel */
-  .rail-meta{font-size:12px;color:var(--mute);padding-top:18px;border-top:1px solid var(--line)}
+  .rail-meta{font-size:11.5px;color:var(--mute);padding-top:13px;border-top:1px solid var(--line)}
   .rail-meta .lbl{color:var(--ink);font-weight:600;margin-bottom:5px;font-size:12px}
   .rail-meta table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;
-      margin-bottom:14px}
-  .rail-meta td{padding:1px 0;font-size:12px}
+      margin-bottom:10px}
+  .rail-meta td{padding:0;font-size:11.5px}
   .rail-meta td:last-child{text-align:right;color:var(--ink)}
   .rail-meta .foot{line-height:1.45;padding-top:2px}
   .rail-foot{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;
@@ -125,17 +125,17 @@ __ROOT_VARS__
   @media (max-width:980px){.rail-meta,.rail-foot{display:none}}
 
   /* ---------------- Main column ---------------- */
-  main.wrap{padding:34px 0 90px 40px;max-width:940px;width:100%;min-width:0}
-  @media (max-width:980px){main.wrap{padding:20px 16px 56px}}
+  main.wrap{padding:22px 24px 70px 32px;max-width:1140px;width:100%;min-width:0}
+  @media (max-width:980px){main.wrap{padding:16px 14px 48px}}
 
-  header.title{padding-bottom:16px;margin-bottom:20px;border-bottom:2px solid var(--ink)}
-  header.title h1{margin:0;font-size:25px;line-height:1.2;letter-spacing:-.017em;color:var(--ink);
-      font-weight:700;max-width:24em}
-  header.title .meta{margin-top:9px;font-size:13px;color:var(--mute);line-height:1.5}
+  header.title{padding-bottom:10px;margin-bottom:14px;border-bottom:2px solid var(--ink)}
+  header.title h1{margin:0;font-size:21px;line-height:1.18;letter-spacing:-.015em;color:var(--ink);
+      font-weight:700;max-width:34em}
+  header.title .meta{margin-top:5px;font-size:12px;color:var(--mute);line-height:1.4}
   header.title .meta b{font-weight:600;color:var(--text)}
-  @media (max-width:680px){header.title h1{font-size:21px}}
+  @media (max-width:680px){header.title h1{font-size:18px}}
 
-  .brief{margin:0 0 26px;font-size:15px;color:var(--text);max-width:40em;line-height:1.6}
+  .brief{margin:0 0 16px;font-size:13.5px;color:var(--text);max-width:46em;line-height:1.55}
   @media (max-width:680px){
     .brief{font-size:14px;max-height:6em;overflow:hidden;position:relative;cursor:pointer}
     .brief::after{content:"Show more";position:absolute;bottom:0;right:0;
@@ -149,35 +149,35 @@ __ROOT_VARS__
   .tab.on{display:block}
 
   /* Headings: sentence case, plain weight contrast, no kickers */
-  h2.section{font-size:20px;color:var(--ink);margin:34px 0 8px;letter-spacing:-.012em;
-      font-weight:700;line-height:1.25;max-width:26em}
+  h2.section{font-size:17px;color:var(--ink);margin:24px 0 5px;letter-spacing:-.01em;
+      font-weight:700;line-height:1.25;max-width:40em}
   h2.section:first-of-type{margin-top:0}
-  h3.sub{font-size:15px;color:var(--ink);margin:30px 0 6px;font-weight:700}
-  p.lede{color:var(--text);font-size:14.5px;margin:6px 0 16px;max-width:40em;line-height:1.6}
-  p.note{font-size:12.5px;color:var(--mute);margin:10px 0 20px;max-width:46em;line-height:1.55;
-      padding-top:9px;border-top:1px solid var(--line)}
+  h3.sub{font-size:13.5px;color:var(--ink);margin:22px 0 4px;font-weight:700}
+  p.lede{color:var(--text);font-size:13.5px;margin:4px 0 12px;max-width:46em;line-height:1.55}
+  p.note{font-size:12px;color:var(--mute);margin:8px 0 16px;max-width:56em;line-height:1.5;
+      padding-top:7px;border-top:1px solid var(--line)}
   @media (max-width:680px){
-    h2.section{font-size:18px}
-    p.lede{font-size:14px}
+    h2.section{font-size:16px}
+    p.lede{font-size:13px}
   }
 
-  .row{display:grid;gap:22px}
+  .row{display:grid;gap:20px}
   .row-2{grid-template-columns:1fr 1fr}
   @media (max-width:920px){.row-2{grid-template-columns:1fr}}
 
   /* ---------------- Data tables (the primary display device) ---------------- */
   /* Report style: no vertical rules, no fills, rule under the header, rule under
      the last row. Numbers right-aligned and tabular. */
-  table.data{width:100%;border-collapse:collapse;font-size:13.5px;
-      font-variant-numeric:tabular-nums;margin:4px 0 6px}
-  table.data caption{caption-side:top;text-align:left;font-size:13.5px;color:var(--ink);
-      font-weight:700;padding-bottom:7px}
-  table.data th,table.data td{padding:5px 10px;text-align:right;white-space:nowrap}
+  table.data{width:100%;border-collapse:collapse;font-size:12.5px;
+      font-variant-numeric:tabular-nums;margin:2px 0 4px}
+  table.data caption{caption-side:top;text-align:left;font-size:12.5px;color:var(--ink);
+      font-weight:700;padding-bottom:5px}
+  table.data th,table.data td{padding:3px 10px;text-align:right;white-space:nowrap}
   table.data th:first-child,table.data td:first-child{text-align:left;padding-left:0;
       font-variant-numeric:normal;white-space:normal}
   table.data th:last-child,table.data td:last-child{padding-right:0}
-  table.data thead th{font-weight:600;color:var(--mute);font-size:12.5px;
-      border-bottom:1px solid var(--ink);padding-bottom:5px}
+  table.data thead th{font-weight:600;color:var(--mute);font-size:11.5px;
+      border-bottom:1px solid var(--ink);padding-bottom:4px}
   table.data tbody td{border-bottom:1px solid var(--line)}
   table.data tbody tr:last-child td{border-bottom:1px solid var(--line2)}
   table.data td.chg{color:var(--mute)}
@@ -187,19 +187,19 @@ __ROOT_VARS__
   table.data td.dim{color:var(--mute)}
 
   /* Compact figure line used above the map: label over value, no boxes */
-  .statline{display:flex;flex-wrap:wrap;gap:0 44px;margin:14px 0 18px;padding:11px 0;
+  .statline{display:flex;flex-wrap:wrap;gap:0 40px;margin:10px 0 12px;padding:8px 0;
       border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
   .statline .item{min-width:0}
   .statline .k{font-size:12.5px;color:var(--mute);margin-bottom:1px}
-  .statline .v{font-size:17px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;
+  .statline .v{font-size:15px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;
       letter-spacing:-.01em}
   .statline .v small{font-size:12.5px;color:var(--mute);font-weight:400;letter-spacing:0}
 
   /* ---------------- Map ---------------- */
-  .map-wrap{position:relative;height:520px;overflow:hidden;background:#fff;
+  .map-wrap{position:relative;height:560px;overflow:hidden;background:#fff;
       border:1px solid var(--line)}
   @media (max-width:980px){.map-wrap{height:400px}}
-  .map-pair{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:22px;margin-top:8px}
+  .map-pair{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:22px;margin-top:6px}
   @media (max-width:980px){.map-pair{grid-template-columns:1fr}}
   .map-side .blk{margin-bottom:18px}
   .map-side .blk .lbl{font-size:12.5px;color:var(--ink);font-weight:700;margin-bottom:5px;
@@ -211,8 +211,8 @@ __ROOT_VARS__
   .map-side .blk li span:last-child{color:var(--ink);flex-shrink:0}
   .map-side .blk .empty{color:var(--mute);font-size:12.5px}
 
-  .ind-gloss{font-size:14px;color:var(--text);margin:0 0 14px;max-width:44em;line-height:1.55;
-      padding-left:12px;border-left:2px solid var(--line2)}
+  .ind-gloss{font-size:13px;color:var(--text);margin:0 0 10px;max-width:56em;line-height:1.5;
+      padding-left:11px;border-left:2px solid var(--line2)}
   .ind-gloss em{color:var(--mute);font-style:normal;font-size:12.5px;display:block;margin-top:4px}
 
   .leaflet-container{background:#fff;font-family:inherit}
@@ -240,7 +240,7 @@ __ROOT_VARS__
   @media (max-width:680px){.info,.mini-legend{max-width:165px;font-size:11.5px}}
 
   /* ---------------- Charts ---------------- */
-  .chart-wrap{position:relative;height:320px;padding:0}
+  .chart-wrap{position:relative;height:290px;padding:0}
   .chart-wrap.tall{height:420px}
   @media (max-width:680px){.chart-wrap{height:270px}.chart-wrap.tall{height:340px}}
 
@@ -276,8 +276,8 @@ __ROOT_VARS__
   .fulltbl-toolbar .dl:hover{border-color:var(--accent)}
   .fulltbl-toolbar .meta{color:var(--mute);font-size:12.5px;margin-left:auto;
       font-variant-numeric:tabular-nums}
-  .fulltbl-scroll{max-height:500px;overflow:auto;border:1px solid var(--line)}
-  table.full{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;
+  .fulltbl-scroll{max-height:460px;overflow:auto;border:1px solid var(--line)}
+  table.full{width:100%;border-collapse:collapse;font-size:12px;background:#fff;
       font-variant-numeric:tabular-nums}
   table.full thead th{position:sticky;top:0;background:#fff;color:var(--ink);padding:7px 10px;
       text-align:right;font-weight:600;font-size:12px;white-space:nowrap;cursor:pointer;
@@ -285,7 +285,7 @@ __ROOT_VARS__
   table.full thead th:first-child,table.full thead th:nth-child(2){text-align:left}
   table.full thead th .arr{color:var(--line2);margin-left:3px;font-size:9px}
   table.full thead th.sort-asc .arr,table.full thead th.sort-desc .arr{color:var(--accent)}
-  table.full tbody td{padding:5px 10px;border-bottom:1px solid var(--line);text-align:right;
+  table.full tbody td{padding:3px 9px;border-bottom:1px solid var(--line);text-align:right;
       white-space:nowrap}
   table.full tbody td:first-child,table.full tbody td:nth-child(2){text-align:left;color:var(--ink);
       font-variant-numeric:normal}
@@ -303,7 +303,7 @@ __ROOT_VARS__
   details.method summary::before,details.tech summary::before{content:"+";display:inline-block;
       margin-right:8px;color:var(--accent);width:9px;font-weight:600}
   details.method[open] summary::before,details.tech[open] summary::before{content:"\2212"}
-  details.method .body{margin-top:10px;line-height:1.6;max-width:44em}
+  details.method .body{margin-top:9px;line-height:1.55;max-width:56em}
   details.method .body b{color:var(--ink)}
   small.cap{color:var(--mute);font-size:12.5px;line-height:1.5;display:block;margin-top:9px}
 
@@ -317,8 +317,9 @@ __ROOT_VARS__
   .ref-note{font-size:12.5px;color:var(--mute);line-height:1.5}
   .ref-eyebrow{display:none}
 
-  .inst-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 26px;margin:10px 0 30px;
-      padding-top:14px;border-top:1px solid var(--line)}
+  .inst-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px 24px;margin:8px 0 24px;
+      padding-top:12px;border-top:1px solid var(--line)}
+  @media (max-width:1100px){.inst-grid{grid-template-columns:repeat(3,1fr)}}
   @media (max-width:980px){.inst-grid{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:680px){.inst-grid{grid-template-columns:1fr}}
   .inst-card{min-width:0}
@@ -329,8 +330,9 @@ __ROOT_VARS__
   .inst-links a{font-size:12.5px;color:var(--accent);line-height:1.4}
 
   .tech-count{font-size:12.5px;color:var(--mute);font-variant-numeric:tabular-nums;margin-left:auto}
-  .tech-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px 30px;margin-top:14px;
-      padding-top:16px;border-top:1px solid var(--line)}
+  .tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 26px;margin-top:12px;
+      padding-top:14px;border-top:1px solid var(--line)}
+  @media (max-width:1100px){.tech-grid{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:820px){.tech-grid{grid-template-columns:1fr}}
   .tech-card{min-width:0;padding-bottom:18px;border-bottom:1px solid var(--line)}
   .tech-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
