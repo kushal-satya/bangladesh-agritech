@@ -216,18 +216,18 @@ top_table_2 = "Top 10 tilapia districts (2024)"
 # ---------------------------------------------------------------------
 [spia]
 heading = "2024 SPIA round: new insights"
-lede = """The 2024 SPIA round adds three pieces of evidence on top of the traditional recall based BIHS instrument: (i) DNA fingerprinting of sampled paddy plots, which allows direct rather than self reported variety identification, and of which this tab shows the hybrid-excluded subset of 370 samples; (ii) a detailed agricultural equipment ownership roster; (iii) explicit aquaculture intensification practices, namely supplementary feed, hormone use, and disease control."""
-dna_heading = "DNA-fingerprint varieties in the hybrid-excluded subset (370 samples, 10 clusters)"
-dna_lede = """These are genotyped varieties rather than self reports, each matched against a reference library. The file used here is the hybrid-excluded cluster release from the SPIA replication package, covering 370 samples in 10 genetic clusters. The full fingerprinting exercise described in the report is considerably larger, so treat this tab as a subset rather than as the complete DNA evidence. BR-28 and BR-29 together account for <span id="dnaBoroPct"></span>% of this subset, the largest share held by any pair of named BRRI releases, although locally named aromatic types such as Jira, Miniket and Katari account for more in aggregate."""
+lede = """The 2024 SPIA round adds three pieces of evidence on top of the traditional recall based BIHS instrument: (i) DNA fingerprinting of sampled paddy plots, which allows direct rather than self reported variety identification; (ii) a detailed agricultural equipment ownership roster; (iii) explicit aquaculture intensification practices, namely supplementary feed, hormone use, and disease control."""
+dna_heading = "DNA-fingerprint variety assignments"
+dna_lede = """These are genotyped varieties rather than self reports. Each field sample was matched against a reference library, and 1,199 of the 2,202 field samples could be assigned to a known variety; the rest either failed to match or were not run. Among the assigned samples, BR-28 and BR-29 together account for <span id="dnaBoroPct"></span>%, which is what the report means when it says the two mega-varieties continue to dominate the Boro season more than forty years after release. Note that BR-29 alone is roughly four times BR-28 in the genotyped data, a ranking that self reports reverse."""
 practices_heading = "Aquaculture intensification practices (household weighted, 2024)"
 practices_lede = "Measured at the household level in the 2024 e10 module."
 equipment_heading = "Equipment ownership roster (module a5_6)"
 full_heading = "Full 2024 district level table: every rice, aquaculture and mechanisation indicator"
 full_lede = """All indicators measured in the 2024 SPIA round, pooled into a single wide table at the district level. Rows sort and filter, and the CSV download exports every column."""
-dna_variety_heading = "Variety counts in the hybrid-excluded subset (n = 370 samples)"
-dna_variety_lede = "Raw count of samples matched to each reference variety, in descending order."
-dna_cluster_heading = "Genetic clusters (10 clusters)"
-dna_cluster_lede = """Each sample was assigned to a cluster by its genotype. The table shows sample counts per cluster, the number of distinct varieties observed in the cluster, and the cluster's most frequent variety."""
+dna_variety_heading = "Assigned variety counts (n = 1,199 samples)"
+dna_variety_lede = "Raw count of field samples matched to each reference variety, in descending order. BD numbers are BRRI releases, so BD-29 is BRRI Dhan 29."
+dna_cluster_heading = "Assignment status of field samples"
+dna_cluster_lede = """Not every genotyped sample resolves to a named reference variety. Roughly forty-five percent of field samples came back unassigned, which bounds how much of the picture the fingerprinting can settle on its own."""
 note = """Source: SPIA_BIHS_2024_module_a1.dta, a5_6.dta, c2_4.dta, b6.dta, e5.dta, e10.dta, d2.dta, and ref_clusters_no_hybrids_with_HH_Ids.csv (DNA fingerprints)."""
 
 [spia.reference]
@@ -427,10 +427,10 @@ title = "Carp polyculture fell from 23% to 14% of agricultural households, and m
 subtitle = "Two WorldFish linked aquaculture practices, 2011 to 2024"
 
 [charts.dnaByVariety]
-title = "Rice varieties identified by DNA fingerprint (n = 370)"
+title = "Rice varieties identified by DNA fingerprint (n = 1,199 assigned samples)"
 
 [charts.dnaByCluster]
-title = "Genetic clusters and their dominant variety"
+title = "How many field samples could be assigned to a reference variety"
 
 [charts.spiaPractices]
 title = "Aquaculture intensification practices (2024, e10 module)"
@@ -460,9 +460,9 @@ polyculture = "Carp polyculture (2+), 2024"
 mola = "Mola co-culture, 2024"
 
 [kpi.spia]
-samples = "DNA samples genotyped"
-varieties = "Unique rice varieties identified"
-clusters = "Genetic clusters"
+samples = "Field samples genotyped"
+varieties = "Distinct varieties assigned"
+clusters = "Samples assigned to a variety"
 households = "SPIA 2024 households"
 
 [kpi.mech]

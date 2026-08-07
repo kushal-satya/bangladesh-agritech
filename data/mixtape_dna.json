@@ -1,1 +1,41 @@
-{"source": "ref_clusters_no_hybrids_with_HH_Ids.csv (n=370 samples)", "n_samples": 370, "n_varieties": 17, "n_clusters": 10, "by_variety": {"Others": 86, "Jira": 57, "Miniket": 47, "Katari": 42, "Bri Dhan BR-28 (Boro)": 38, "Bri Dhan BR-29 (Boro)": 33, "Shuvo Lota": 16, "Hira": 13, "Bri Dhan 89": 9, "Bri Dhan 92": 6, "Bhojon(white/coarse)": 5, "Bri Dhan 74": 5, "Guti/rajshahi/lalshorNo": 4, "Hira 2": 4, "Bri Dhan 100": 2, "Bri Dhan 96": 2, "Jonok Raj": 1}, "by_cluster": [{"cluster_id": 1, "n_samples": 75, "n_varieties": 14, "top_variety": "Others"}, {"cluster_id": 2, "n_samples": 57, "n_varieties": 7, "top_variety": "Katari"}, {"cluster_id": 3, "n_samples": 16, "n_varieties": 5, "top_variety": "Others"}, {"cluster_id": 4, "n_samples": 55, "n_varieties": 9, "top_variety": "Others"}, {"cluster_id": 5, "n_samples": 36, "n_varieties": 5, "top_variety": "Jira"}, {"cluster_id": 6, "n_samples": 6, "n_varieties": 2, "top_variety": "Bri Dhan BR-28 (Boro)"}, {"cluster_id": 7, "n_samples": 26, "n_varieties": 7, "top_variety": "Others"}, {"cluster_id": 8, "n_samples": 50, "n_varieties": 5, "top_variety": "Jira"}, {"cluster_id": 9, "n_samples": 18, "n_varieties": 4, "top_variety": "Hira"}, {"cluster_id": 10, "n_samples": 31, "n_varieties": 4, "top_variety": "Miniket"}]}
+{
+ "source_file": "bangladesh_rice_assignment_results.xlsx",
+ "n_field_samples": 2186,
+ "n_field_rows": 2202,
+ "n_assigned": 1199,
+ "n_assigned_samples": 1192,
+ "n_varieties": 26,
+ "by_variety": {
+  "BD-29": 520,
+  "BD-89": 160,
+  "BD-28": 132,
+  "BD-92": 74,
+  "BD-74": 59,
+  "BD-88": 54,
+  "BD-57": 46,
+  "BD-100": 45,
+  "BD-58": 38,
+  "BD-81": 11,
+  "BD-16": 10,
+  "BD-75": 10,
+  "Binadhan-10": 6,
+  "Binadhan-17": 5,
+  "BD-90": 5,
+  "BD-63": 5,
+  "BD-67": 4,
+  "BD-48": 3,
+  "BD-50": 2,
+  "BD-39": 2,
+  "BD-98": 2,
+  "BD-99": 2,
+  "BD-49": 1,
+  "BD-101": 1,
+  "BD-93": 1,
+  "BD-97": 1
+ },
+ "by_status": {
+  "Assigned": 1199,
+  "Unassigned": 990,
+  "Not run": 13
+ }
+}

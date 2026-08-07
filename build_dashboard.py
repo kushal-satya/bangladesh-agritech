@@ -533,7 +533,7 @@ __MAP_CAT_PILLS__
   <h3 class="sub">__SPIA_SUB_DNA__</h3>
   <p class="lede">__SPIA_LEDE_DNA__</p>
   <div class="row row-2">
-    <div class="chart-wrap"><canvas id="dnaByVariety"></canvas></div>
+    <div class="chart-wrap tall"><canvas id="dnaByVariety"></canvas></div>
     <div class="chart-wrap"><canvas id="dnaByCluster"></canvas></div>
   </div>
 
@@ -1200,18 +1200,20 @@ INITS["t-aqua"] = function(){
 /* ==============================  TAB 4 INIT (SPIA)  ============================== */
 INITS["t-spia"] = function(){
   const vEntries = Object.entries(DNA.by_variety).sort((a,b)=>b[1]-a[1]);
-  const tot = vEntries.reduce((s,[,v])=>s+v,0);
-  const boro = (DNA.by_variety["Bri Dhan BR-28 (Boro)"]||0) + (DNA.by_variety["Bri Dhan BR-29 (Boro)"]||0);
+  const tot = DNA.n_assigned;
+  const boro = (DNA.by_variety["BD-28"]||0) + (DNA.by_variety["BD-29"]||0);
   document.getElementById("dnaBoroPct").innerText = (100*boro/tot).toFixed(1);
 
   barChart("dnaByVariety", vEntries.map(x=>x[0]),
-    [{label:"DNA-verified samples",data:vEntries.map(x=>x[1]),backgroundColor:COL.accent,borderColor:COL.accent}],
+    [{label:"Assigned samples",data:vEntries.map(x=>x[1]),backgroundColor:COL.accent,borderColor:COL.accent}],
     {plugins:{title:{display:true,text:TXT.charts.dnaByVariety.title},legend:{display:false}},
-     scales:{x:{title:{display:true,text:"samples"}},y:{ticks:{font:{size:10.5}}}}});
+     scales:{x:{title:{display:true,text:"samples"}},
+             y:{ticks:{autoSkip:false,font:{size:9.5}}}}});
 
-  const cl = DNA.by_cluster.slice().sort((a,b)=>b.n_samples-a.n_samples);
-  barChart("dnaByCluster", cl.map(r=>"Cluster "+r.cluster_id+" : "+r.top_variety),
-    [{label:"Samples in cluster",data:cl.map(r=>r.n_samples),backgroundColor:COL.accent,borderColor:COL.accent}],
+  const stOrder = ["Assigned","Unassigned","Not run"];
+  const st = stOrder.filter(k => DNA.by_status[k] != null);
+  barChart("dnaByCluster", st,
+    [{label:"Field samples",data:st.map(k=>DNA.by_status[k]),backgroundColor:COL.accent,borderColor:COL.accent}],
     {plugins:{title:{display:true,text:TXT.charts.dnaByCluster.title},legend:{display:false}},
      scales:{x:{title:{display:true,text:"samples"}}}});
 
@@ -1257,30 +1259,31 @@ INITS["t-spia"] = function(){
 
   // ---- DNA raw tables ----
   const vTbl = document.getElementById("spiaDnaVariety");
-  const vRows = Object.entries(DNA.by_variety).map(([v,n])=>({variety:v,n,share:100*n/DNA.n_samples}))
+  const vRows = Object.entries(DNA.by_variety).map(([v,n])=>({variety:v,n,share:100*n/DNA.n_assigned}))
                   .sort((a,b)=>b.n-a.n);
   vTbl.innerHTML = `
     <div class="fulltbl-toolbar">
-      <span class="meta">n = ${DNA.n_samples} DNA samples · ${DNA.n_varieties} varieties</span>
+      <span class="meta">${DNA.n_assigned} assigned samples · ${DNA.n_varieties} varieties</span>
       <button class="dl">Download CSV</button>
     </div>
     <div class="fulltbl-scroll"><table class="full"><thead><tr>
-      <th>Variety</th><th>Samples</th><th>% of sample</th>
+      <th>Variety</th><th>Samples</th><th>% of assigned</th>
     </tr></thead><tbody>${vRows.map(r=>`<tr><td>${r.variety}</td><td>${r.n}</td><td>${r.share.toFixed(2)}</td></tr>`).join("")}</tbody></table></div>`;
   vTbl.querySelector("button.dl").onclick = ()=>csvDownload("mixtape_dna_by_variety.csv", vRows, ["variety","n","share"], ["Variety","Samples","% of sample"]);
 
   const cTbl = document.getElementById("spiaDnaCluster");
-  const cRows = DNA.by_cluster.slice().sort((a,b)=>b.n_samples-a.n_samples);
+  const sRows = Object.entries(DNA.by_status).map(([status,n])=>
+      ({status, n, share:100*n/DNA.n_field_rows})).sort((a,b)=>b.n-a.n);
   cTbl.innerHTML = `
     <div class="fulltbl-toolbar">
-      <span class="meta">${DNA.n_clusters} genetic clusters</span>
+      <span class="meta">${DNA.n_field_rows} field samples</span>
       <button class="dl">Download CSV</button>
     </div>
     <div class="fulltbl-scroll"><table class="full"><thead><tr>
-      <th>Cluster</th><th>Samples</th><th>Distinct varieties</th><th>Top variety</th>
-    </tr></thead><tbody>${cRows.map(r=>`<tr><td>${r.cluster_id}</td><td>${r.n_samples}</td><td>${r.n_varieties}</td><td>${r.top_variety}</td></tr>`).join("")}</tbody></table></div>`;
-  cTbl.querySelector("button.dl").onclick = ()=>csvDownload("mixtape_dna_by_cluster.csv", cRows,
-    ["cluster_id","n_samples","n_varieties","top_variety"], ["Cluster","Samples","Distinct varieties","Top variety"]);
+      <th>Assignment status</th><th>Samples</th><th>% of field samples</th>
+    </tr></thead><tbody>${sRows.map(r=>`<tr><td>${r.status}</td><td>${r.n}</td><td>${r.share.toFixed(2)}</td></tr>`).join("")}</tbody></table></div>`;
+  cTbl.querySelector("button.dl").onclick = ()=>csvDownload("mixtape_dna_assignment_status.csv", sRows,
+    ["status","n","share"], ["Assignment status","Samples","% of field samples"]);
 };
 
 /* ==============================  TAB 5 INIT (MECH)  ============================== */
@@ -1486,9 +1489,9 @@ def _spia_counts():
     """Counts describing the 2024 round, read straight from the data files."""
     K = C["kpi"]["spia"]
     rows = [
-        (K["samples"],    f'{DNA["n_samples"]:,}'),
+        (K["samples"],    f'{DNA["n_field_rows"]:,}'),
+        (K["clusters"],   f'{DNA["n_assigned"]:,}'),
         (K["varieties"],  f'{DNA["n_varieties"]:,}'),
-        (K["clusters"],   f'{DNA["n_clusters"]:,}'),
         (K["households"], f'{SUM["rounds"]["2024"]["n_hh"]:,}'),
     ]
     body = "".join(f'<tr><td>{k}</td><td class="num">{v}</td></tr>' for k, v in rows)
